@@ -218,6 +218,22 @@ class TestAfaSepa(TransactionCase):
         result = self.wizard.action_prepare()
         self.assertEqual(result['res_model'], 'afa.sepa.wizard')
 
+    def test_cancelled_invoice_mandate_uses_valid_replacement(self):
+        self.invoice.mandate_id = self.mandate
+        self.mandate.state = 'cancel'
+        replacement = self.mandate.copy(
+            {
+                'state': 'valid',
+                'unique_mandate_reference': 'AFA-TEST-02',
+                'signature_date': fields.Date.today(),
+            }
+        )
+        self.wizard.action_preview()
+        self.assertTrue(self.wizard.line_ids.eligible, self.wizard.line_ids.reason)
+        order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
+        self.assertEqual(order.payment_line_ids.mandate_id, replacement)
+        self.assertEqual(self.invoice.mandate_id, self.mandate)
+
     def test_imported_bank_credit_reconciles_with_order_payment(self):
         self.wizard.action_preview()
         order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])

@@ -31,27 +31,31 @@ class AfaSepaWizard(models.TransientModel):
         return result
 
     def _mandate_for(self, invoice):
-        mandates = invoice.mandate_id or self.env['account.banking.mandate'].search(
+        def usable(mandate):
+            return (
+                mandate.partner_id == invoice.partner_id
+                and mandate.company_id == invoice.company_id
+                and mandate.state == 'valid'
+                and mandate.format == 'sepa'
+                and mandate.scheme == 'CORE'
+                and mandate.signature_date
+                and mandate.signature_date <= fields.Date.context_today(self)
+                and mandate.partner_bank_id.partner_id == invoice.partner_id
+                and mandate.partner_bank_id.acc_type == 'iban'
+                and not (mandate.type == 'oneoff' and mandate.last_debit_date)
+            )
+
+        linked = invoice.mandate_id.filtered(usable)
+        if linked:
+            return linked[:1]
+        mandates = self.env['account.banking.mandate'].search(
             [
                 ('partner_id', '=', invoice.partner_id.id),
                 ('company_id', '=', invoice.company_id.id),
                 ('state', '=', 'valid'),
             ]
         )
-        return mandates.filtered(
-            lambda m: (
-                m.partner_id == invoice.partner_id
-                and m.company_id == invoice.company_id
-                and m.state == 'valid'
-                and m.format == 'sepa'
-                and m.scheme == 'CORE'
-                and m.signature_date
-                and m.signature_date <= fields.Date.context_today(self)
-                and m.partner_bank_id.partner_id == invoice.partner_id
-                and m.partner_bank_id.acc_type == 'iban'
-                and not (m.type == 'oneoff' and m.last_debit_date)
-            )
-        )[:1]
+        return mandates.filtered(usable)[:1]
 
     def _evaluate(self, invoice):
         if (
