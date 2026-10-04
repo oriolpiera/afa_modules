@@ -27,6 +27,7 @@ services:
     volumes:
       - ./afa_family:/mnt/extra-addons/afa_family:ro
       - ./afa_membership:/mnt/extra-addons/afa_membership:ro
+      - ./afa_member_pricing:/mnt/extra-addons/afa_member_pricing:ro
       - odoo_test_data:/var/lib/odoo
 
 volumes:

@@ -17,10 +17,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check Compose configuration
         run: docker compose -f compose.test.yaml config -q
-      - name: Install both addons with demo and run focused tests
+      - name: Install AFA addons with demo and run focused tests
         run: |
           set -o pipefail
-          docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_demo_ci -i afa_family,afa_membership --with-demo --test-enable --test-tags /afa_family,/afa_membership --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
+          docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_demo_ci -i afa_family,afa_membership,afa_member_pricing --with-demo --test-enable --test-tags /afa_family,/afa_membership,/afa_member_pricing --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
           import re
           import sys
 
@@ -44,5 +44,11 @@ jobs:
                   "Starting TestMembershipSettings.test_manual_mode_persists_through_july_and_mode_switch",
               )
           )
-          sys.exit(0 if passed and demo_loaded and demo_test_ran and membership_tests_ran else 1)
+          pricing_tests_ran = "Starting TestMemberPricing.test_payment_gate_rejects_stale_member_cart_without_writing" in output
+          pricing_demo_ran = (
+              "loading afa_member_pricing/demo/apparel_demo.xml" in output
+              and "Starting TestMemberPricingDemo.test_demo_apparel_variants_and_prices" in output
+              and "Starting TestMemberPricingWebsite.test_identified_member_product_page_uses_member_price" in output
+          )
+          sys.exit(0 if passed and demo_loaded and demo_test_ran and membership_tests_ran and pricing_tests_ran and pricing_demo_ran else 1)
           '
