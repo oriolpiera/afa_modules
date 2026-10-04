@@ -12,7 +12,16 @@ The system SHALL use an inclusive July 1–June 30 school year for dated family 
 ### Requirement: Invoice mode depends on full payment
 In invoice mode, the system SHALL recognize a family's qualifying invoice for its linked school year only while it is currently fully paid and today lies inside that period. Current full payment qualifies for the entire linked period, regardless of when payment arrived; this SHALL NOT imply historical backdating. A reversal or refund that removes full payment SHALL deactivate current entitlement; partial payment SHALL NOT activate it. A posted customer credit note whose native reversal link points to the exact dues invoice SHALL also revoke eligibility even when the original invoice remains `paid`.
 
-MEM-2 SHALL only treat a positive-total, posted customer invoice created for that family-period link as qualifying. A draft invoice, unrelated partner invoice, fully credited/reversed invoice or invoice with `payment_state` other than `paid` SHALL NOT qualify; one link SHALL have at most one authoritative dues invoice.
+MEM-2 SHALL only treat a positive-total, posted customer invoice created for that family-period link as qualifying. A draft invoice, unrelated partner invoice, fully credited/reversed invoice or invoice with `payment_state` other than `paid` SHALL NOT qualify; one link SHALL have at most one non-canceled dues invoice. Canceled invoices remain linked as historical accounting records and MAY be replaced.
+
+#### Scenario: Cancel and replace a dues invoice
+- **GIVEN** a dues invoice has been canceled before it qualifies
+- **WHEN** the manager creates another dues invoice for the same family-period link
+- **THEN** the link points to the new invoice and the canceled invoice retains its family-period attribution; the old invoice cannot be reactivated while the replacement exists.
+
+#### Scenario: Concurrent invoice issuance
+- **WHEN** another non-canceled dues invoice has already claimed the link before its invoice reference updates
+- **THEN** a competing issuance fails with a readable validation error, without losing the first invoice.
 
 #### Scenario: Payment arrives during the year
 - **GIVEN** a qualifying 2026/27 invoice is only partially paid on 2026-08-01
@@ -72,6 +81,14 @@ At issuance the system SHALL associate each qualifying invoice with its family a
 - **GIVEN** a qualifying invoice was issued to guardian A for family F
 - **WHEN** the family designates guardian B as its new billing partner
 - **THEN** that invoice still bills A and is still attributed to F; future issuance may bill B.
+
+#### Scenario: Invoice editor changes a draft dues invoice
+- **WHEN** an accountant tries to change the guardian of a dues invoice, including before posting it
+- **THEN** the change is rejected; the guardian captured on creation remains the recipient.
+
+#### Scenario: Ordinary invoice edit
+- **WHEN** an accountant without AFA family-manager access edits an unrelated customer's invoice
+- **THEN** membership field restrictions do not block the normal invoice edit.
 
 ### Requirement: Membership edits are authorized
 Manual changes to family membership and invoice-family/year linkage SHALL be protected by server-side permissions, not only by hidden interface controls. Existing student-contact access restrictions SHALL remain intact.

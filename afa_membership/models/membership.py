@@ -18,6 +18,7 @@ class Membership(models.Model):
         copy=False,
         readonly=True,
     )
+    invoice_state = fields.Selection(related='invoice_id.state', string='Dues Invoice Status')
     dues_product_id = fields.Many2one(
         'product.product',
         string='Dues Product',
@@ -65,8 +66,10 @@ class Membership(models.Model):
 
     def action_create_dues_invoice(self, product=None):
         self.ensure_one()
-        if not self.active or self.invoice_id:
-            raise ValidationError(_('Only an active, unbilled family-period link can be invoiced.'))
+        if not self.active or (self.invoice_id and self.invoice_id.state != 'cancel'):
+            raise ValidationError(
+                _('Only an active link without a current dues invoice can be invoiced.')
+            )
         product = product or self.dues_product_id
         if not product:
             raise ValidationError(_('Choose a dues product before creating an invoice.'))
@@ -74,23 +77,35 @@ class Membership(models.Model):
         if product._name != 'product.product' or product.lst_price <= 0:
             raise ValidationError(_('Choose a billable product with a positive price.'))
         guardian = self.family_id.billing_partner_id
-        invoice = self.env['account.move'].create(
-            {
-                'move_type': 'out_invoice',
-                'partner_id': guardian.id,
-                'afa_membership_id': self.id,
-                'invoice_line_ids': [
-                    (
-                        0,
-                        0,
-                        {'product_id': product.id, 'quantity': 1, 'price_unit': product.lst_price},
-                    )
-                ],
-            }
-        )
-        if invoice.amount_total <= 0:
-            raise ValidationError(_('The dues invoice must have a positive amount.'))
-        self.with_context(_afa_link_dues_invoice=True).write({'invoice_id': invoice.id})
+        try:
+            with self.env.cr.savepoint():
+                invoice = self.env['account.move'].create(
+                    {
+                        'move_type': 'out_invoice',
+                        'partner_id': guardian.id,
+                        'afa_membership_id': self.id,
+                        'invoice_line_ids': [
+                            (
+                                0,
+                                0,
+                                {
+                                    'product_id': product.id,
+                                    'quantity': 1,
+                                    'price_unit': product.lst_price,
+                                },
+                            )
+                        ],
+                    }
+                )
+                if invoice.amount_total <= 0:
+                    raise ValidationError(_('The dues invoice must have a positive amount.'))
+                self.with_context(_afa_link_dues_invoice=True).write({'invoice_id': invoice.id})
+        except IntegrityError as error:
+            if error.diag.constraint_name != 'account_move_afa_membership_uniq':
+                raise
+            raise ValidationError(
+                _('A dues invoice already exists for this family and school year.')
+            ) from error
         return invoice
 
     def action_open_dues_invoice(self):
