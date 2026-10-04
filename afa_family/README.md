@@ -29,3 +29,13 @@ partner. Invoice creation/integration is outside FAM-1 and requires explicit wir
 in a later accounting-aware feature. The regression test checks that changing the
 family payer does not change a previously captured partner reference; it does not
 exercise `account.move` because this addon deliberately does not depend on `account`.
+
+## Fictitious demo contacts
+
+Installing with demo enabled adds the Cedar and Maple example families. Each
+has two guardian contacts, two student contacts, and one designated guardian
+payer. No real names, addresses, or contact details are included. The payer
+contact is created unassigned first; creating its family links that existing
+contact, then the remaining guardians and students link to the family. The
+records are in the manifest's `demo` list, so normal data-only installations
+do not include them. See the root README for the isolated Odoo 19 test command.

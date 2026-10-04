@@ -12,6 +12,7 @@
         'views/afa_family_views.xml',
         'views/res_partner_views.xml',
     ],
+    'demo': ['demo/family_demo.xml'],
     'installable': True,
     'application': False,
 }

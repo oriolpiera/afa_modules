@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Each initial guardian starts unassigned; family creation links the payer. -->
+    <record id="demo_cedar_payer" model="res.partner">
+        <field name="name">Cedar Example Guardian One</field>
+        <field name="afa_family_role">guardian</field>
+    </record>
+    <record id="demo_family_cedar" model="afa.family">
+        <field name="name">Cedar Example Family</field>
+        <field name="billing_partner_id" ref="demo_cedar_payer"/>
+    </record>
+    <record id="demo_cedar_guardian" model="res.partner">
+        <field name="name">Cedar Example Guardian Two</field>
+        <field name="afa_family_role">guardian</field>
+        <field name="afa_family_id" ref="demo_family_cedar"/>
+    </record>
+    <record id="demo_cedar_student_1" model="res.partner">
+        <field name="name">Cedar Example Student One</field>
+        <field name="afa_family_role">student</field>
+        <field name="afa_family_id" ref="demo_family_cedar"/>
+    </record>
+    <record id="demo_cedar_student_2" model="res.partner">
+        <field name="name">Cedar Example Student Two</field>
+        <field name="afa_family_role">student</field>
+        <field name="afa_family_id" ref="demo_family_cedar"/>
+    </record>
+
+    <record id="demo_maple_payer" model="res.partner">
+        <field name="name">Maple Example Guardian One</field>
+        <field name="afa_family_role">guardian</field>
+    </record>
+    <record id="demo_family_maple" model="afa.family">
+        <field name="name">Maple Example Family</field>
+        <field name="billing_partner_id" ref="demo_maple_payer"/>
+    </record>
+    <record id="demo_maple_guardian" model="res.partner">
+        <field name="name">Maple Example Guardian Two</field>
+        <field name="afa_family_role">guardian</field>
+        <field name="afa_family_id" ref="demo_family_maple"/>
+    </record>
+    <record id="demo_maple_student_1" model="res.partner">
+        <field name="name">Maple Example Student One</field>
+        <field name="afa_family_role">student</field>
+        <field name="afa_family_id" ref="demo_family_maple"/>
+    </record>
+    <record id="demo_maple_student_2" model="res.partner">
+        <field name="name">Maple Example Student Two</field>
+        <field name="afa_family_role">student</field>
+        <field name="afa_family_id" ref="demo_family_maple"/>
+    </record>
+</odoo>
