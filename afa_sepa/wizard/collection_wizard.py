@@ -25,6 +25,13 @@ class AfaSepaWizard(models.TransientModel):
     )
     line_ids = fields.One2many('afa.sepa.wizard.line', 'wizard_id', readonly=True)
     order_id = fields.Many2one('account.payment.order', readonly=True)
+    prepared_invoice_ids = fields.Many2many(
+        'account.move',
+        'afa_sepa_wizard_prepared_invoice_rel',
+        'wizard_id',
+        'invoice_id',
+        readonly=True,
+    )
 
     @api.model
     def default_get(self, fields_list):
@@ -120,6 +127,8 @@ class AfaSepaWizard(models.TransientModel):
     def action_preview(self):
         self.ensure_one()
         self._check_access()
+        self.order_id = False
+        self.prepared_invoice_ids = False
         self.line_ids.unlink()
         for invoice in self.invoice_ids:
             mandate, reason = self._evaluate(invoice)
@@ -194,6 +203,7 @@ class AfaSepaWizard(models.TransientModel):
             return self._wizard_action()
         if conflict:
             self.order_id = order
+            self.prepared_invoice_ids = self.invoice_ids
             return self._wizard_action()
         if not order:
             return self.action_preview()
@@ -204,6 +214,12 @@ class AfaSepaWizard(models.TransientModel):
         self._check_access()
         if not self.order_id:
             raise UserError(_('There is no prepared debit order.'))
+        if set(self.invoice_ids.ids) != set(self.prepared_invoice_ids.ids) or (
+            self.payment_mode_id != self.order_id.payment_mode_id
+            or self.journal_id != self.order_id.journal_id
+            or self.company_id != self.order_id.company_id
+        ):
+            raise UserError(_('The collection selection changed; check eligibility again.'))
         return self._order_action(self.order_id)
 
     def _order_action(self, order):

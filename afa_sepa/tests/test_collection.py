@@ -294,6 +294,13 @@ class TestAfaSepa(TransactionCase):
         self.assertFalse(excluded.eligible)
         self.assertIn('already', excluded.reason)
         self.assertEqual(self.wizard.action_open_order()['res_id'], self.wizard.order_id.id)
+        partial_order = self.wizard.order_id
+        self.wizard.invoice_ids = next_invoice
+        with self.assertRaises(UserError):
+            self.wizard.action_open_order()
+        self.wizard.action_preview()
+        self.assertFalse(self.wizard.order_id)
+        self.assertTrue(partial_order.exists())
 
     def test_imported_bank_credit_reconciles_with_order_payment(self):
         self.wizard.action_preview()
