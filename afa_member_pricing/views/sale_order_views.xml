@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_afa_pricing" model="ir.ui.view">
+        <field name="name">sale.order.form.afa.pricing</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="afa_family_id" readonly="1" groups="afa_family.group_family_manager"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

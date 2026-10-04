@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="demo_size_attribute" model="product.attribute">
+        <field name="name">Size</field>
+        <field name="create_variant">always</field>
+    </record>
+    <record id="demo_size_s" model="product.attribute.value">
+        <field name="name">S</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_m" model="product.attribute.value">
+        <field name="name">M</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_l" model="product.attribute.value">
+        <field name="name">L</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+
+    <record id="demo_tracksuit" model="product.template">
+        <field name="name">Xandall</field>
+        <field name="type">consu</field>
+        <field name="list_price">35</field>
+        <field name="is_published" eval="True"/>
+        <field name="attribute_line_ids" eval="[(0, 0, {'attribute_id': ref('demo_size_attribute'), 'value_ids': [(6, 0, [ref('demo_size_s'), ref('demo_size_m'), ref('demo_size_l')])]})]"/>
+    </record>
+    <record id="demo_short_sleeve_tshirt" model="product.template">
+        <field name="name">Samarreta màniga curta</field>
+        <field name="type">consu</field>
+        <field name="list_price">15</field>
+        <field name="is_published" eval="True"/>
+        <field name="attribute_line_ids" eval="[(0, 0, {'attribute_id': ref('demo_size_attribute'), 'value_ids': [(6, 0, [ref('demo_size_s'), ref('demo_size_m'), ref('demo_size_l')])]})]"/>
+    </record>
+
+    <record id="demo_member_pricelist" model="product.pricelist">
+        <field name="name">AFA Members (Demo)</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="currency_id" ref="base.EUR"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="selectable" eval="False"/>
+    </record>
+    <record id="demo_nonmember_pricelist" model="product.pricelist">
+        <field name="name">AFA Non-members (Demo)</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="currency_id" ref="base.EUR"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="selectable" eval="True"/>
+    </record>
+
+    <record id="demo_member_tracksuit_price" model="product.pricelist.item">
+        <field name="pricelist_id" ref="demo_member_pricelist"/>
+        <field name="applied_on">1_product</field>
+        <field name="product_tmpl_id" ref="demo_tracksuit"/>
+        <field name="compute_price">fixed</field>
+        <field name="fixed_price">25</field>
+    </record>
+    <record id="demo_nonmember_tracksuit_price" model="product.pricelist.item">
+        <field name="pricelist_id" ref="demo_nonmember_pricelist"/>
+        <field name="applied_on">1_product</field>
+        <field name="product_tmpl_id" ref="demo_tracksuit"/>
+        <field name="compute_price">fixed</field>
+        <field name="fixed_price">35</field>
+    </record>
+    <record id="demo_member_tshirt_price" model="product.pricelist.item">
+        <field name="pricelist_id" ref="demo_member_pricelist"/>
+        <field name="applied_on">1_product</field>
+        <field name="product_tmpl_id" ref="demo_short_sleeve_tshirt"/>
+        <field name="compute_price">fixed</field>
+        <field name="fixed_price">12</field>
+    </record>
+    <record id="demo_nonmember_tshirt_price" model="product.pricelist.item">
+        <field name="pricelist_id" ref="demo_nonmember_pricelist"/>
+        <field name="applied_on">1_product</field>
+        <field name="product_tmpl_id" ref="demo_short_sleeve_tshirt"/>
+        <field name="compute_price">fixed</field>
+        <field name="fixed_price">15</field>
+    </record>
+
+    <record id="base.main_company" model="res.company">
+        <field name="afa_member_pricelist_id" ref="demo_member_pricelist"/>
+        <field name="afa_nonmember_pricelist_id" ref="demo_nonmember_pricelist"/>
+    </record>
+</odoo>
