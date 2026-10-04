@@ -56,6 +56,34 @@ class TestMembershipInvoice(TransactionCase):
         with self.assertRaises(ValidationError), self.cr.savepoint():
             self.link.write({'invoice_id': False})
 
+    def test_canceled_dues_invoice_can_be_replaced_without_losing_history(self):
+        original = self.link.action_create_dues_invoice(self.product)
+        original.button_cancel()
+        replacement = self.link.action_create_dues_invoice(self.product)
+        self.assertNotEqual(original, replacement)
+        self.assertEqual(original.state, 'cancel')
+        self.assertEqual(original.afa_membership_id, self.link)
+        self.assertEqual(replacement.afa_membership_id, self.link)
+        self.assertEqual(self.link.invoice_id, replacement)
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            original.button_draft()
+
+    def test_invoice_issuance_conflict_is_a_validation_error(self):
+        # Another invoice has already claimed the link before the link's invoice_id is set.
+        first = self.env['account.move'].create(
+            {
+                'move_type': 'out_invoice',
+                'partner_id': self.family.billing_partner_id.id,
+                'afa_membership_id': self.link.id,
+                'invoice_line_ids': [
+                    (0, 0, {'product_id': self.product.id, 'quantity': 1, 'price_unit': 120})
+                ],
+            }
+        )
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.link.action_create_dues_invoice(self.product)
+        self.assertTrue(first.exists())
+
     def test_configured_product_button_and_invoice_action(self):
         self.link.dues_product_id = self.product
         invoice = self.link.action_create_dues_invoice()
@@ -143,6 +171,41 @@ class TestMembershipInvoice(TransactionCase):
         unrelated.action_post()
         self._pay(unrelated, unrelated.amount_residual)
         self.assertFalse(self.link.is_invoice_member_on(date(2026, 9, 1)))
+
+    def test_draft_dues_invoice_keeps_original_billing_guardian(self):
+        invoice = self.link.action_create_dues_invoice(self.product)
+        guardian = self.env['res.partner'].create(
+            {
+                'name': 'Replacement Guardian',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'guardian',
+            }
+        )
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            invoice.write({'partner_id': guardian.id})
+        self.assertEqual(invoice.partner_id, self.family.billing_partner_id)
+
+    def test_accountant_can_edit_unrelated_invoice_partner(self):
+        accountant = self.env['res.users'].create(
+            {
+                'name': 'Billing Accountant',
+                'login': 'membership-billing-accountant',
+                'group_ids': [(6, 0, [self.env.ref('account.group_account_invoice').id])],
+            }
+        )
+        self.assertFalse(accountant.has_group('afa_family.group_family_manager'))
+        other = self.env['res.partner'].create({'name': 'Ordinary Invoice Customer'})
+        invoice = self.env['account.move'].create(
+            {
+                'move_type': 'out_invoice',
+                'partner_id': self.family.billing_partner_id.id,
+                'invoice_line_ids': [
+                    (0, 0, {'product_id': self.product.id, 'quantity': 1, 'price_unit': 120})
+                ],
+            }
+        )
+        invoice.with_user(accountant).write({'partner_id': other.id})
+        self.assertEqual(invoice.partner_id, other)
 
     def test_full_credit_note_reversal_removes_entitlement(self):
         invoice = self.link.action_create_dues_invoice(self.product)

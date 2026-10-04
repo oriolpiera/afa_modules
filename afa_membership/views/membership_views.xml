@@ -36,12 +36,14 @@
                         <field name="date_start" readonly="1"/>
                         <field name="date_end" readonly="1"/>
                         <field name="state" readonly="1"/>
-                        <field name="dues_product_id" invisible="invoice_id"/>
+                        <field name="dues_product_id"
+                               invisible="invoice_id and invoice_state != 'cancel'"/>
                         <field name="invoice_id" readonly="1"/>
+                        <field name="invoice_state" invisible="1"/>
                     </group>
                     <button name="action_create_dues_invoice" type="object"
                             string="Create Dues Invoice" class="btn-primary"
-                            invisible="not active or invoice_id or not dues_product_id"/>
+                            invisible="not active or (invoice_id and invoice_state != 'cancel') or not dues_product_id"/>
                     <button name="action_open_dues_invoice" type="object"
                             string="Open Dues Invoice" invisible="not invoice_id"/>
                 </sheet>
@@ -71,7 +73,7 @@
                     <field name="manual_member" invisible="membership_mode != 'manual'"/>
                     <field name="current_period_id" readonly="1"
                            invisible="membership_mode == 'manual'"/>
-                    <field name="current_dues_invoice_id" readonly="1"
+                    <field name="current_dues_invoice_reference" readonly="1"
                            invisible="membership_mode == 'manual'"/>
                 </group>
             </xpath>
