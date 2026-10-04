@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_service_billing_form" model="ir.ui.view">
+        <field name="name">afa.service.billing.form</field><field name="model">afa.service.billing</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="month"/></group>
+                <field name="line_ids" readonly="0">
+                    <list create="0" delete="0" edit="1"><field name="include"/>
+                        <field name="student_id" readonly="1"/><field name="service_id" readonly="1"/>
+                        <field name="family_id" readonly="1"/><field name="payer_id" readonly="1"/>
+                        <field name="member" readonly="1"/><field name="price" readonly="1"/>
+                        <field name="reason" readonly="1"/></list>
+                </field>
+                <footer><button name="action_preview" type="object" string="Refresh Preview"/>
+                    <button name="action_generate" type="object" string="Generate Draft Invoices"
+                        class="btn-primary" invisible="not line_ids"/></footer>
+            </sheet></form>
+        </field>
+    </record>
+    <record id="view_afa_service_leave_form" model="ir.ui.view">
+        <field name="name">afa.service.leave.form</field><field name="model">afa.service.leave</field>
+        <field name="arch" type="xml">
+            <form><group><field name="subscription_id"/><field name="service_id" invisible="1"/>
+                <field name="window_id"/></group>
+                <footer><button name="action_confirm" type="object" string="Confirm Withdrawal"
+                    class="btn-primary"/><button string="Cancel" special="cancel"/></footer></form>
+        </field>
+    </record>
+    <record id="action_afa_service_billing" model="ir.actions.act_window">
+        <field name="name">Monthly Service Billing</field><field name="res_model">afa.service.billing</field>
+        <field name="view_mode">form</field><field name="target">current</field>
+    </record>
+    <menuitem id="menu_afa_service_billing" name="Monthly Service Billing"
+        parent="afa_family.menu_afa_family_root" action="action_afa_service_billing"
+        groups="afa_family.group_family_manager"/>
+</odoo>

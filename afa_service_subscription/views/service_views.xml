@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_service_list" model="ir.ui.view">
+        <field name="name">afa.service.list</field><field name="model">afa.service</field>
+        <field name="arch" type="xml">
+            <list><field name="name"/><field name="period_id"/><field name="date_start"/>
+                <field name="date_end"/><field name="member_price"/><field name="nonmember_price"/></list>
+        </field>
+    </record>
+    <record id="view_afa_service_form" model="ir.ui.view">
+        <field name="name">afa.service.form</field><field name="model">afa.service</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="name"/><field name="period_id"/>
+                <field name="date_start"/><field name="date_end"/><field name="product_id"/>
+                <field name="company_id"/><field name="currency_id" invisible="1"/>
+                <field name="member_price"/><field name="nonmember_price"/></group>
+                <group string="Enrollment and withdrawal windows">
+                    <field name="window_ids">
+                        <list editable="bottom"><field name="kind"/><field name="date_start"/>
+                            <field name="date_end"/><field name="effective_month"/></list>
+                    </field>
+                </group>
+            </sheet></form>
+        </field>
+    </record>
+    <record id="view_afa_service_subscription_list" model="ir.ui.view">
+        <field name="name">afa.service.subscription.list</field><field name="model">afa.service.subscription</field>
+        <field name="arch" type="xml">
+            <list create="1" edit="0" delete="0"><field name="student_id"/><field name="family_id"/>
+                <field name="service_id"/><field name="join_requested_on"/><field name="start_month"/>
+                <field name="leave_requested_on"/><field name="end_month"/></list>
+        </field>
+    </record>
+    <record id="view_afa_service_subscription_form" model="ir.ui.view">
+        <field name="name">afa.service.subscription.form</field><field name="model">afa.service.subscription</field>
+        <field name="arch" type="xml">
+            <form delete="0"><header><button name="action_request_leave" type="object"
+                string="Request Withdrawal" invisible="leave_window_id" class="btn-primary"/></header>
+                <sheet><group><field name="student_id" readonly="id"/>
+                    <field name="service_id" readonly="id"/>
+                    <field name="family_id" readonly="1"/>
+                    <field name="join_window_id" domain="[('service_id', '=', service_id), ('kind', '=', 'join')]" readonly="id"/>
+                    <field name="join_requested_on" readonly="1"/><field name="start_month" readonly="1"/>
+                    <field name="leave_window_id" readonly="1"/><field name="leave_requested_on" readonly="1"/>
+                    <field name="end_month" readonly="1"/></group>
+                    <group string="Invoice History"><field name="charge_ids" readonly="1"
+                        context="{'active_test': False}">
+                        <list><field name="month"/><field name="invoice_id"/><field name="payer_id"/>
+                            <field name="member"/><field name="price"/><field name="active"/></list>
+                    </field></group>
+                </sheet></form>
+        </field>
+    </record>
+    <record id="action_afa_service" model="ir.actions.act_window">
+        <field name="name">Monthly Services</field><field name="res_model">afa.service</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="action_afa_service_subscription" model="ir.actions.act_window">
+        <field name="name">Service Subscriptions</field><field name="res_model">afa.service.subscription</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_afa_service" name="Monthly Services" parent="afa_family.menu_afa_family_root"
+        action="action_afa_service" groups="afa_family.group_family_manager"/>
+    <menuitem id="menu_afa_service_subscription" name="Service Subscriptions"
+        parent="afa_family.menu_afa_family_root" action="action_afa_service_subscription"
+        groups="afa_family.group_family_manager"/>
+</odoo>
