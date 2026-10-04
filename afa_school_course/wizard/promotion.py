@@ -20,8 +20,8 @@ class AfaSchoolPromotionWizard(models.TransientModel):
 
     def _check_ready(self, students):
         today = fields.Date.context_today(self)
-        if not self.period_id.date_start <= today <= self.period_id.date_end:
-            raise ValidationError(_('Select the school year currently in progress.'))
+        if today < self.period_id.date_end.replace(day=1):
+            raise ValidationError(_('Promote a school year during or after its final month.'))
         if self.env['afa.school.promotion'].search_count([('period_id', '=', self.period_id.id)]):
             raise ValidationError(_('This school year has already been promoted.'))
         courses = self.env['afa.school.course'].search([])
@@ -131,16 +131,24 @@ class AfaSchoolPromotionWizard(models.TransientModel):
         )
         students = self._students()
         self._check_ready(students)
-        snapshot = {
-            line.student_id.id: (line.course_id.id, line.next_course_id.id)
-            for line in self.line_ids
-        }
-        if len(snapshot) != len(self.line_ids) or snapshot != {
-            student.id: (student.afa_course_id.id, student.afa_course_id.next_course_id.id)
-            for student in students
-        }:
-            raise ValidationError(_('The student courses changed. Refresh the preview.'))
         with self.env.cr.savepoint():
+            subscriptions_model = self.env['afa.service.subscription']
+            for family in students.mapped('afa_family_id').sorted('id'):
+                subscriptions_model._lock_family(family)
+            for student in students.sorted('id'):
+                subscriptions_model._lock_student(student)
+            self.env.invalidate_all()
+            students = self._students()
+            self._check_ready(students)
+            snapshot = {
+                line.student_id.id: (line.course_id.id, line.next_course_id.id)
+                for line in self.line_ids
+            }
+            if len(snapshot) != len(self.line_ids) or snapshot != {
+                student.id: (student.afa_course_id.id, student.afa_course_id.next_course_id.id)
+                for student in students
+            }:
+                raise ValidationError(_('The student courses changed. Refresh the preview.'))
             graduates = students.filtered(lambda student: not student.afa_course_id.next_course_id)
             self._withdraw_graduates(graduates)
             for student in students - graduates:

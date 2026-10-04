@@ -1,6 +1,8 @@
 from datetime import date
 from unittest.mock import patch
 
+from psycopg2 import IntegrityError
+
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -9,6 +11,9 @@ class TestSchoolPromotion(TransactionCase):
     def setUp(self):
         super().setUp()
         self.today = date(2027, 6, 15)
+        today_patch = patch('odoo.fields.Date.context_today', return_value=self.today)
+        today_patch.start()
+        self.addCleanup(today_patch.stop)
         self.env['account.chart.template'].try_loading('generic_coa', self.env.company)
         self.product = self.env['product.product'].search([('sale_ok', '=', True)], limit=1)
         guardian = self.env['res.partner'].create(
@@ -115,6 +120,11 @@ class TestSchoolPromotion(TransactionCase):
         self.assertTrue(subscription.leave_window_id)
         self.assertFalse(self.graduate.active)
 
+    def test_archived_graduate_cannot_enroll_again(self):
+        self._wizard().action_confirm()
+        with self.assertRaisesRegex(ValidationError, 'Archived students'), self.cr.savepoint():
+            self._subscription()
+
     def test_missing_window_rolls_back_all_student_changes(self):
         subscription = self._subscription(leave=False)
         wizard = self._wizard()
@@ -201,10 +211,36 @@ class TestSchoolPromotion(TransactionCase):
         with self.assertRaises(ValidationError), self.cr.savepoint():
             self.last.sequence = 1
 
+    def test_course_fork_is_rejected_on_save(self):
+        other = self.env['afa.school.course'].create({'name': 'Other', 'sequence': 3})
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            other.next_course_id = self.last
+        self.assertFalse(other.next_course_id)
+
+    def test_database_rejects_duplicate_course_sequence(self):
+        with self.assertRaises(IntegrityError), self.cr.savepoint():
+            self.env.cr.execute(
+                'INSERT INTO afa_school_course (name, sequence) VALUES (%s, %s)',
+                ['Duplicate', self.first.sequence],
+            )
+
     def test_disconnected_course_ladder_blocks_preview(self):
         self.env['afa.school.course'].create({'name': 'Disconnected', 'sequence': 3})
         with self.assertRaisesRegex(ValidationError, 'connected course ladder'):
             self._wizard()
+
+    def test_promotion_is_not_available_before_final_month(self):
+        with (
+            patch('odoo.fields.Date.context_today', return_value=date(2026, 7, 1)),
+            self.assertRaisesRegex(ValidationError, 'final month'),
+        ):
+            self._wizard()
+
+    def test_year_can_still_be_promoted_after_june_thirtieth(self):
+        with patch('odoo.fields.Date.context_today', return_value=date(2027, 7, 1)):
+            self._wizard().action_confirm()
+        self.assertEqual(self.younger.afa_course_id, self.last)
+        self.assertFalse(self.graduate.active)
 
     def test_manager_can_confirm_without_permission_to_create_history_directly(self):
         manager = self.env['res.users'].create(

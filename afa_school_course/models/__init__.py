@@ -1,1 +1,1 @@
-from . import course, res_partner, promotion
+from . import course, res_partner, promotion, subscription
