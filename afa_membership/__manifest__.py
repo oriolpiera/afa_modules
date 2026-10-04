@@ -8,6 +8,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/membership_views.xml',
+        'views/res_config_settings_views.xml',
     ],
     'installable': True,
     'application': False,
