@@ -37,3 +37,8 @@ PR #7 is under review and follows invoice PR #9. PR #8 will document usage and r
 ## PR #9 invoice review follow-up
 - The Greptile review reproduced four defects: the draft invoice guardian could change, an accountant editing an unrelated invoice hit a restricted-field error, canceled dues blocked replacement, and a competing invoice raised a raw uniqueness error.
 - `a4a188e` fixes the four defects, preserves canceled invoice history, and keeps a single non-canceled dues invoice per link. Fresh Odoo 19 membership install: 19 tests passed; existing test-database upgrade: 11 invoice tests passed. PR #9 is awaiting the updated Greptile review.
+
+## PR #7 family invoice display review fix
+- [x] Reproduced the missing family-manager invoice navigation permission with a non-accounting manager: fresh `afa_greptile7_red_20261004` reported 1 failed and 1 error of 9 settings tests. The manager had no `account.move` read ACL and the family form exposed its navigable invoice field.
+- [x] The family form now displays a non-navigable invoice reference computed under `sudo` for managers, while the invoice model retains its accounting ACL. The reference is read-only and follows current-link changes and settings invalidation.
+- [x] Fresh `afa_greptile7_green_20261004`: 0 failed, 0 errors of 9 settings tests. Final fresh `afa_greptile7_all_20261004`: 0 failed, 0 errors of 28 membership tests, including the invoice fixes inherited from #9. Ruff check and Compose config passed. Greptile reassessment remains pending.

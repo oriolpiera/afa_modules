@@ -69,7 +69,7 @@
                     <field name="manual_member" invisible="membership_mode != 'manual'"/>
                     <field name="current_period_id" readonly="1"
                            invisible="membership_mode == 'manual'"/>
-                    <field name="current_dues_invoice_id" readonly="1"
+                    <field name="current_dues_invoice_reference" readonly="1"
                            invisible="membership_mode == 'manual'"/>
                 </group>
             </xpath>

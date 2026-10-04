@@ -24,6 +24,7 @@ class ResConfigSettings(models.TransientModel):
                 'membership_mode',
                 'current_period_id',
                 'current_dues_invoice_id',
+                'current_dues_invoice_reference',
             ]
         )
         return result

@@ -55,6 +55,11 @@ An Odoo setting SHALL select invoice or manual mode. In manual mode an authorize
 
 The default mode SHALL be invoice when unset. Only a system administrator SHALL be able to change the mode. The family SHALL expose read-only derived membership status, mode and current school-year period/invoice when relevant. These date-dependent fields SHALL be recomputed when read in a new Odoo environment, not stored with a time-insensitive dependency. Same-environment changes to the manual flag, active links, invoice payment and linked credit-note state SHALL invalidate cached derived status; saving a mode change SHALL also invalidate it. Archived links SHALL never supply the current invoice, even under `active_test=False`.
 
+#### Scenario: Family manager without accounting access sees a safe invoice reference
+- **GIVEN** a manager can read families but does not have permission to read `account.move`
+- **WHEN** the family form displays its current dues invoice
+- **THEN** the manager can read a non-navigable invoice reference without receiving broad accounting access or an unusable invoice link.
+
 #### Scenario: Manual state survives a new school year
 - **GIVEN** the family flag is true and manual mode is selected
 - **WHEN** the school year changes or the mode is switched away and back

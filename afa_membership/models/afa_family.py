@@ -12,6 +12,7 @@ class AfaFamily(models.Model):
             'membership_mode',
             'current_period_id',
             'current_dues_invoice_id',
+            'current_dues_invoice_reference',
         }
     )
 
@@ -55,6 +56,12 @@ class AfaFamily(models.Model):
         'account.move',
         compute='_compute_membership_status',
         string='Current Dues Invoice',
+        groups='afa_family.group_family_manager',
+        compute_sudo=True,
+    )
+    current_dues_invoice_reference = fields.Char(
+        compute='_compute_membership_status',
+        string='Current Dues Invoice Reference',
         groups='afa_family.group_family_manager',
         compute_sudo=True,
     )
@@ -117,6 +124,9 @@ class AfaFamily(models.Model):
             family.membership_mode = mode
             family.current_period_id = period
             family.current_dues_invoice_id = link.invoice_id if link else False
+            family.current_dues_invoice_reference = (
+                link.invoice_id.display_name if link and link.invoice_id else False
+            )
             family.is_member = family.manual_member if mode == 'manual' else paid
             family.membership_state = (
                 'manual'
