@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_family_list" model="ir.ui.view">
+        <field name="name">afa.family.list</field>
+        <field name="model">afa.family</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="billing_partner_id"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_afa_family_form" model="ir.ui.view">
+        <field name="name">afa.family.form</field>
+        <field name="model">afa.family</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_family_members" type="object"
+                                class="oe_stat_button" icon="fa-users" string="Members"/>
+                    </div>
+                    <group>
+                        <field name="name"/>
+                        <field name="billing_partner_id"
+                               domain="[('afa_family_role', '=', 'guardian'), ('afa_family_id', '=', id or False)]"/>
+                        <field name="active" invisible="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Guardians">
+                            <field name="guardian_ids" context="{'default_afa_family_role': 'guardian'}">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="email"/>
+                                    <field name="phone"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Students">
+                            <field name="student_ids" context="{'default_afa_family_role': 'student'}">
+                                <list>
+                                    <field name="name"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_afa_family" model="ir.actions.act_window">
+        <field name="name">Families</field>
+        <field name="res_model">afa.family</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_afa_family_root" name="AFA Families"
+              groups="afa_family.group_family_manager" sequence="50"/>
+    <menuitem id="menu_afa_family" name="Families" parent="menu_afa_family_root"
+              action="action_afa_family" groups="afa_family.group_family_manager"/>
+</odoo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Global rules are intersected with other Contacts rules. A group-only
+         restriction could be widened by another group's permissive rule. -->
+    <record id="rule_partner_student_privacy" model="ir.rule">
+        <field name="name">Hide students from non-family managers</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="domain_force">[] if user.has_group('afa_family.group_family_manager') else [('afa_is_student', '=', False)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>

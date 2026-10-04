@@ -1,0 +1,40 @@
+name: Odoo addon tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  afa-family:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Compose configuration
+        run: docker compose -f compose.test.yaml config -q
+      - name: Install addon with demo and run focused tests
+        run: |
+          set -o pipefail
+          docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_family_demo_ci -i afa_family --with-demo --test-enable --test-tags /afa_family --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
+          import re
+          import sys
+
+          output = sys.stdin.read()
+          print(output, end="")
+          summaries = re.findall(
+              r"odoo\.tests\.result: (\d+) failed, (\d+) error\(s\) of (\d+) tests when loading database",
+              output,
+          )
+          passed = bool(summaries) and all(
+              failures == "0" and errors == "0" and int(count) > 0
+              for failures, errors, count in summaries
+          )
+          demo_loaded = "loading afa_family/demo/family_demo.xml" in output
+          demo_test_ran = "Starting TestFamilyDemo.test_demo_families_and_contacts" in output
+          sys.exit(0 if passed and demo_loaded and demo_test_ran else 1)
+          '
