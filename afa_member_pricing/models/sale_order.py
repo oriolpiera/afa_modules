@@ -113,6 +113,9 @@ class SaleOrder(models.Model):
                     _afa_repricing=True
                 ).discount = discount
 
+    def _recompute_prices(self):
+        return super(SaleOrder, self.with_context(_afa_repricing=True))._recompute_prices()
+
     def action_confirm(self):
         for order in self.filtered(lambda so: so.state in ('draft', 'sent') and not so.website_id):
             company = order.company_id.sudo()

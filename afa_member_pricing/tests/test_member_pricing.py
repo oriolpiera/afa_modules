@@ -146,6 +146,9 @@ class TestMemberPricing(TransactionCase):
         line = order.order_line
         self.assertEqual(line.discount, 10)
         self.assertFalse(line.afa_manual_discount)
+        order._recompute_prices()
+        self.assertEqual(line.discount, 10)
+        self.assertFalse(line.afa_manual_discount)
         line.product_uom_qty = 2
         self.assertEqual(line.discount, 10)
         self.assertFalse(line.afa_manual_discount)
