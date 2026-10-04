@@ -1,23 +1,23 @@
 # Membership implementation design (provisional)
 
 ## Starting point
-`afa_family/models/afa_family.py` has a required `billing_partner_id`; partners have a single `afa_family_id` and manager-only membership/role edits. `afa_family` depends on `base` and `contacts`, not `account`. `compose.test.yaml` mounts only `afa_family`, so the proposed addon cannot yet install in that stack. The Issue #1 payer test verifies only an old ID reference, not `account.move` behavior.
+`afa_family/models/afa_family.py` has a required `billing_partner_id`; partners have a single `afa_family_id`. MEM-1 installed family-period links and the isolated Compose addon mount; `afa_family` remains independent of `account`. The Issue #1 payer test verifies only an old ID reference, not `account.move` behavior.
 
 ## Proposed boundaries
 | Boundary | Intended responsibility |
 | --- | --- |
 | `afa_membership` addon | Depend on `afa_family`, `account` and `product`; MEM-1 owns shared July–June periods and manager-controlled family-period links. Avoid adding dependencies to the base family addon. |
 | `afa.family` extension | MEM-1 exposes links for managers, not an `is_member` placeholder. MEM-3 adds the persistent manual flag and MEM-2/3 add effective state from current status/date. |
-| `account.move` extension | Record family and school year with a qualifying dues invoice when issued, select the then-current billing guardian, and preserve posted/issued partner and family association on later family changes. Do not infer past family from a guardian's current assignment. |
+| `account.move` extension | MEM-2 creates exactly one authoritative, product-backed invoice from the active family-period link, snapshots its selected guardian, and stores an indexed invoice-to-link reference. No arbitrary partner invoice counts; the issued invoice cannot be reassigned to another family-period link. |
 | Settings/security/UI | `res.config.settings` selection backed by `ir.config_parameter` (assumed database-wide); server-side protection for flag/link edits; contextual form/list display for managers. |
 | Test harness | Mount the new addon read-only in the existing isolated Odoo 19 Compose stack and install both addons on a fresh database; assert actual Odoo test summaries, not process exit alone. |
 
 ## Date and state logic
-Identify a school year by its July 1 start and following June 30 end. MEM-1 rejects invalid dates, overlapping global periods and duplicate/overlapping active family-period links. Link `active` is administrative state, **not** paid/member state. In later invoice mode, membership is currently effective if a qualifying linked invoice is fully paid now and today falls inside the linked period; paying during the year qualifies for the whole period without asserting historical backdating. Re-evaluate current payment state after refunds/reversals. Manual mode later reads its stored family flag without year-based mutation.
+Identify a school year by its July 1 start and following June 30 end. MEM-1 rejects invalid dates, overlapping global periods and duplicate/overlapping active family-period links. Link `active` is administrative state, **not** paid/member state. MEM-2 exposes only a per-link invoice eligibility check, not a global `is_member` flag: linked invoice must be a posted customer invoice with positive total and current `payment_state == 'paid'`, evaluation date must lie inside the inclusive period, and no posted customer credit note may have `reversed_entry_id` pointing to this exact dues invoice. Partial, draft, unreconciled, canceled and reversed payments do not qualify. A current paid invoice qualifies for the entire period without historical backdating. MEM-3 later controls manual mode.
 
 ## Decisions deferred to evidence
-- Confirm Odoo 19 current payment state, credit notes and reversals in integration tests before selecting computed fields vs explicit linkage/event model. No historical paid date is required for the authorized current-membership rule.
-- Confirm how dues are identified (explicit flag/product/invoice origin), how multiple dues invoices combine, and whether partial refunds can leave full payment. Require a product decision if tests cannot uniquely determine the intended result.
+- MEM-2 integration tests use Odoo 19 `generic_coa` and a cash journal, testing partial/full payment, unreconciliation and full credit-note reversal. Eligibility reads the current invoice state; no historical paid date is required.
+- A dues invoice is identified by creation from the link with a positive-price product, not by scanning partner invoices. A separately posted credit note with Odoo's verified `reversed_entry_id` to the dues invoice revokes eligibility even if that invoice stays `paid`. Draft/canceled linked notes and posted notes reversing unrelated invoices do not revoke; no duplicate credit-note linkage is stored.
 - Confirm setting default/scope, UI placement and whether an undated manual flag is the complete desired experience. A standard `res.config.settings` pattern is a proposal, not proof of Odoo 19 API compatibility.
 
 ## Verification and rollback

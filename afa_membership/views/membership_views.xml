@@ -18,14 +18,30 @@
         <field name="name">afa.membership.list</field>
         <field name="model">afa.membership</field>
         <field name="arch" type="xml">
-            <list><field name="family_id"/><field name="period_id"/><field name="active"/></list>
+            <list><field name="family_id"/><field name="period_id"/><field name="active"/>
+                <field name="invoice_id"/></list>
         </field>
     </record>
     <record id="view_afa_membership_form" model="ir.ui.view">
         <field name="name">afa.membership.form</field>
         <field name="model">afa.membership</field>
         <field name="arch" type="xml">
-            <form><sheet><group><field name="family_id"/><field name="period_id"/><field name="active"/></group></sheet></form>
+            <form>
+                <sheet>
+                    <group>
+                        <field name="family_id"/>
+                        <field name="period_id"/>
+                        <field name="active"/>
+                        <field name="dues_product_id" invisible="invoice_id"/>
+                        <field name="invoice_id" readonly="1"/>
+                    </group>
+                    <button name="action_create_dues_invoice" type="object"
+                            string="Create Dues Invoice" class="btn-primary"
+                            invisible="not active or invoice_id or not dues_product_id"/>
+                    <button name="action_open_dues_invoice" type="object"
+                            string="Open Dues Invoice" invisible="not invoice_id"/>
+                </sheet>
+            </form>
         </field>
     </record>
     <record id="action_afa_membership_period" model="ir.actions.act_window">

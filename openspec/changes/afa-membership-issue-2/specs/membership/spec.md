@@ -10,7 +10,9 @@ The system SHALL use an inclusive July 1–June 30 school year for dated family 
 - **THEN** only dates from 2026-07-01 through 2027-06-30 are inside that year.
 
 ### Requirement: Invoice mode depends on full payment
-In invoice mode, the system SHALL recognize a family's qualifying invoice for its linked school year only while it is currently fully paid and today lies inside that period. Current full payment qualifies for the entire linked period, regardless of when payment arrived; this SHALL NOT imply historical backdating. A reversal or refund that removes full payment SHALL deactivate current entitlement; partial payment SHALL NOT activate it.
+In invoice mode, the system SHALL recognize a family's qualifying invoice for its linked school year only while it is currently fully paid and today lies inside that period. Current full payment qualifies for the entire linked period, regardless of when payment arrived; this SHALL NOT imply historical backdating. A reversal or refund that removes full payment SHALL deactivate current entitlement; partial payment SHALL NOT activate it. A posted customer credit note whose native reversal link points to the exact dues invoice SHALL also revoke eligibility even when the original invoice remains `paid`.
+
+MEM-2 SHALL only treat a positive-total, posted customer invoice created for that family-period link as qualifying. A draft invoice, unrelated partner invoice, fully credited/reversed invoice or invoice with `payment_state` other than `paid` SHALL NOT qualify; one link SHALL have at most one authoritative dues invoice.
 
 #### Scenario: Payment arrives during the year
 - **GIVEN** a qualifying 2026/27 invoice is only partially paid on 2026-08-01
@@ -24,6 +26,13 @@ In invoice mode, the system SHALL recognize a family's qualifying invoice for it
 #### Scenario: Payment is undone or arrives too late
 - **WHEN** a refund/reversal removes full payment, or today is after 2027-06-30 even though full payment arrived late
 - **THEN** that invoice does not make the family a current member.
+
+#### Scenario: Separately posted credit note
+- **GIVEN** the dues invoice remains `paid` and a customer credit note has `reversed_entry_id` pointing to it
+- **WHEN** the linked note is posted
+- **THEN** the family is no longer invoice-mode eligible; a draft or canceled note does not revoke it.
+- **AND WHEN** a posted credit note instead reverses an unrelated invoice to the same guardian
+- **THEN** it does not affect the dues entitlement.
 
 ### Requirement: Periods and family links are valid (MEM-1)
 Each period SHALL run exactly from July 1 to the following June 30, and periods SHALL NOT overlap. A family MAY be linked to a period, but SHALL NOT have duplicate or overlapping active links. An active link alone SHALL NOT claim the family is paid or currently a member.
@@ -56,6 +65,6 @@ Manual changes to family membership and invoice-family/year linkage SHALL be pro
 - **THEN** the write is denied without changing the stored state.
 
 ## Open assumptions (not authorized product decisions)
-- Which invoices qualify as AFA dues and whether credit notes settle or reduce their entitlement need confirmation; unrelated invoices must not count.
-- Current payment-state semantics for refunds/reversals and behavior for multiple qualifying invoices need validation against Odoo 19 and product intent; historical payment timestamps are not required.
+- MEM-2 explicitly creates one product-backed dues invoice for each link. Only a posted credit note carrying Odoo's native `reversed_entry_id` to that exact invoice revokes paid entitlement; arbitrary unlinked credit notes do not.
+- Only current Odoo payment status is used. Historical payment timestamps are not required.
 - The manual flag is undated and global per family; the setting is assumed database-wide and defaults to invoice mode. Confirm the intended UI/read surface before implementation.

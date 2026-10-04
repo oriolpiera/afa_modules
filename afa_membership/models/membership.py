@@ -11,6 +11,18 @@ class Membership(models.Model):
     family_id = fields.Many2one('afa.family', required=True, ondelete='restrict', index=True)
     period_id = fields.Many2one('afa.membership.period', required=True, ondelete='restrict')
     active = fields.Boolean(default=True)
+    invoice_id = fields.Many2one(
+        'account.move',
+        string='Dues Invoice',
+        ondelete='restrict',
+        copy=False,
+        readonly=True,
+    )
+    dues_product_id = fields.Many2one(
+        'product.product',
+        string='Dues Product',
+        domain=[('sale_ok', '=', True)],
+    )
 
     def init(self):
         # The ORM overlap check gives a readable error; the index also protects
@@ -22,6 +34,8 @@ class Membership(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        if any(vals.get('invoice_id') for vals in vals_list):
+            raise ValidationError(_('Create the dues invoice from the family-period link.'))
         try:
             with self.env.cr.savepoint():
                 return super().create(vals_list)
@@ -33,6 +47,10 @@ class Membership(models.Model):
             ) from error
 
     def write(self, vals):
+        if 'invoice_id' in vals and not self.env.context.get('_afa_link_dues_invoice'):
+            raise ValidationError(_('Create the dues invoice from the family-period link.'))
+        if {'family_id', 'period_id'} & vals.keys() and self.filtered('invoice_id'):
+            raise ValidationError(_('A billed family-period link cannot be reassigned.'))
         try:
             with self.env.cr.savepoint():
                 result = super().write(vals)
@@ -44,6 +62,76 @@ class Membership(models.Model):
             raise ValidationError(
                 _('A family can have only one active link per school year.')
             ) from error
+
+    def action_create_dues_invoice(self, product=None):
+        self.ensure_one()
+        if not self.active or self.invoice_id:
+            raise ValidationError(_('Only an active, unbilled family-period link can be invoiced.'))
+        product = product or self.dues_product_id
+        if not product:
+            raise ValidationError(_('Choose a dues product before creating an invoice.'))
+        product.ensure_one()
+        if product._name != 'product.product' or product.lst_price <= 0:
+            raise ValidationError(_('Choose a billable product with a positive price.'))
+        guardian = self.family_id.billing_partner_id
+        invoice = self.env['account.move'].create(
+            {
+                'move_type': 'out_invoice',
+                'partner_id': guardian.id,
+                'afa_membership_id': self.id,
+                'invoice_line_ids': [
+                    (
+                        0,
+                        0,
+                        {'product_id': product.id, 'quantity': 1, 'price_unit': product.lst_price},
+                    )
+                ],
+            }
+        )
+        if invoice.amount_total <= 0:
+            raise ValidationError(_('The dues invoice must have a positive amount.'))
+        self.with_context(_afa_link_dues_invoice=True).write({'invoice_id': invoice.id})
+        return invoice
+
+    def action_open_dues_invoice(self):
+        self.ensure_one()
+        if not self.invoice_id:
+            raise ValidationError(_('This family-period link has no dues invoice.'))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Dues Invoice'),
+            'res_model': 'account.move',
+            'res_id': self.invoice_id.id,
+            'view_mode': 'form',
+        }
+
+    def is_invoice_member_on(self, check_date):
+        self.ensure_one()
+        invoice = self.invoice_id
+        qualifies = bool(
+            self.active
+            and self.period_id.date_start <= check_date <= self.period_id.date_end
+            and invoice
+            and invoice.afa_membership_id == self
+            and invoice.partner_id
+            and invoice.amount_total > 0
+            and invoice.move_type == 'out_invoice'
+            and invoice.state == 'posted'
+            and invoice.payment_state == 'paid'
+        )
+        if not qualifies:
+            return False
+        # Odoo keeps an independently reversed invoice marked paid. Only a
+        # posted customer credit note reversing this exact invoice revokes dues.
+        moves = self.env['account.move'].sudo()
+        credit_notes = moves.search_count(
+            [
+                ('reversed_entry_id', '=', invoice.id),
+                ('move_type', '=', 'out_refund'),
+                ('state', '=', 'posted'),
+            ]
+        )
+        return not credit_notes
 
     @api.constrains('family_id', 'period_id', 'active')
     def _check_active_overlap(self):
