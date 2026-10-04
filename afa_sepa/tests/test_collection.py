@@ -295,6 +295,9 @@ class TestAfaSepa(TransactionCase):
         self.assertIn('already', excluded.reason)
         self.assertEqual(self.wizard.action_open_order()['res_id'], self.wizard.order_id.id)
         partial_order = self.wizard.order_id
+        self.wizard.action_preview()
+        self.assertEqual(self.wizard.order_id, partial_order)
+        self.assertEqual(self.wizard.action_open_order()['res_id'], partial_order.id)
         self.wizard.invoice_ids = next_invoice
         with self.assertRaises(UserError):
             self.wizard.action_open_order()

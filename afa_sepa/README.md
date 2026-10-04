@@ -25,6 +25,7 @@ not determine the direct-debit version.
    new exclusion and keeps the other invoices in the order. Use **Open Debit
    Order** to continue with those invoices. If the invoice selection changes,
    check eligibility again; the previous order remains in OCA's debit orders.
+   Rechecking the same selection retains the link to its prepared order.
 
 The pinned OCA module defaults to `pain.008.001.02`; its payment method allows
 other supported `pain.008` versions. Verify the version, creditor identifier,

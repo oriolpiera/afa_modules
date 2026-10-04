@@ -127,8 +127,9 @@ class AfaSepaWizard(models.TransientModel):
     def action_preview(self):
         self.ensure_one()
         self._check_access()
-        self.order_id = False
-        self.prepared_invoice_ids = False
+        if not self._matches_prepared_order():
+            self.order_id = False
+            self.prepared_invoice_ids = False
         self.line_ids.unlink()
         for invoice in self.invoice_ids:
             mandate, reason = self._evaluate(invoice)
@@ -214,13 +215,19 @@ class AfaSepaWizard(models.TransientModel):
         self._check_access()
         if not self.order_id:
             raise UserError(_('There is no prepared debit order.'))
-        if set(self.invoice_ids.ids) != set(self.prepared_invoice_ids.ids) or (
-            self.payment_mode_id != self.order_id.payment_mode_id
-            or self.journal_id != self.order_id.journal_id
-            or self.company_id != self.order_id.company_id
-        ):
+        if not self._matches_prepared_order():
             raise UserError(_('The collection selection changed; check eligibility again.'))
         return self._order_action(self.order_id)
+
+    def _matches_prepared_order(self):
+        return bool(
+            self.order_id.exists()
+            and self.order_id.state != 'cancel'
+            and set(self.invoice_ids.ids) == set(self.prepared_invoice_ids.ids)
+            and self.payment_mode_id == self.order_id.payment_mode_id
+            and self.journal_id == self.order_id.journal_id
+            and self.company_id == self.order_id.company_id
+        )
 
     def _order_action(self, order):
         return {
