@@ -351,3 +351,21 @@ class TestAfaSepa(TransactionCase):
         (statement_outstanding + return_outstanding).reconcile()
         self.assertTrue(return_outstanding.reconciled)
         self.assertNotEqual(self.invoice.payment_state, 'paid')
+
+    def test_return_reopens_reconciled_invoice_without_manual_unreconciliation(self):
+        self.wizard.action_preview()
+        order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
+        order.draft2open()
+        order.open2generated()
+        order.generated2uploaded()
+        line = order.payment_line_ids
+        receivable = line.move_line_id
+        self.assertTrue(receivable.reconciled)
+        self.assertEqual(self.invoice.amount_residual, 0)
+
+        line.action_record_return()
+
+        self.assertEqual(order.payment_ids.state, 'canceled')
+        self.assertFalse(receivable.reconciled)
+        self.assertEqual(self.invoice.amount_residual, self.invoice.amount_total)
+        self.assertTrue(line.afa_returned)
