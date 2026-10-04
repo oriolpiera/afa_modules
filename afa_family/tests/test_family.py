@@ -8,45 +8,64 @@ class TestFamily(TransactionCase):
         self.Partner = self.env['res.partner']
         self.Family = self.env['afa.family']
         self.guardian = self.Partner.create({'name': 'Guardian A', 'afa_family_role': 'guardian'})
-        self.family = self.Family.create({
-            'name': 'Family A',
-            'billing_partner_id': self.guardian.id,
-        })
+        self.family = self.Family.create(
+            {
+                'name': 'Family A',
+                'billing_partner_id': self.guardian.id,
+            }
+        )
 
     def test_standard_transaction_fixture_can_create_family_contacts(self):
-        guardian = self.Partner.create({
-            'name': 'Fixture Guardian', 'afa_family_role': 'guardian',
-        })
-        family = self.Family.create({
-            'name': 'Fixture Family', 'billing_partner_id': guardian.id,
-        })
-        student = self.Partner.create({
-            'name': 'Fixture Student', 'afa_family_id': family.id,
-            'afa_family_role': 'student',
-        })
+        guardian = self.Partner.create(
+            {
+                'name': 'Fixture Guardian',
+                'afa_family_role': 'guardian',
+            }
+        )
+        family = self.Family.create(
+            {
+                'name': 'Fixture Family',
+                'billing_partner_id': guardian.id,
+            }
+        )
+        student = self.Partner.create(
+            {
+                'name': 'Fixture Student',
+                'afa_family_id': family.id,
+                'afa_family_role': 'student',
+            }
+        )
         self.assertEqual(guardian.afa_family_id, family)
         self.assertEqual(family.student_ids, student)
 
     def test_initial_payer_is_linked_and_multiple_guardians_share_family(self):
         self.assertEqual(self.guardian.afa_family_id, self.family)
-        second = self.Partner.create({
-            'name': 'Guardian B',
-            'afa_family_id': self.family.id,
-            'afa_family_role': 'guardian',
-        })
-        student = self.Partner.create({
-            'name': 'Student',
-            'afa_family_id': self.family.id,
-            'afa_family_role': 'student',
-        })
+        second = self.Partner.create(
+            {
+                'name': 'Guardian B',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'guardian',
+            }
+        )
+        student = self.Partner.create(
+            {
+                'name': 'Student',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'student',
+            }
+        )
         self.assertEqual(self.family.guardian_ids, self.guardian | second)
         self.assertEqual(self.family.student_ids, student)
         self.assertEqual(student.afa_family_id, self.family)
 
     def test_student_cannot_be_payer(self):
-        student = self.Partner.create({
-            'name': 'Student', 'afa_family_id': self.family.id, 'afa_family_role': 'student',
-        })
+        student = self.Partner.create(
+            {
+                'name': 'Student',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'student',
+            }
+        )
         with self.assertRaises(ValidationError), self.cr.savepoint():
             self.family.write({'billing_partner_id': student.id})
         self.assertEqual(self.family.billing_partner_id, self.guardian)
@@ -61,10 +80,13 @@ class TestFamily(TransactionCase):
         self.assertEqual(outsider.afa_family_id, other)
 
     def test_reassignment_preserves_previous_recipient_reference(self):
-        second = self.Partner.create({
-            'name': 'Guardian B', 'afa_family_id': self.family.id,
-            'afa_family_role': 'guardian',
-        })
+        second = self.Partner.create(
+            {
+                'name': 'Guardian B',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'guardian',
+            }
+        )
         previous_recipient_id = self.family.billing_partner_id.id
         self.family.write({'billing_partner_id': second.id})
         self.assertEqual(self.family.billing_partner_id, second)
@@ -107,9 +129,13 @@ class TestFamily(TransactionCase):
     def test_student_moves_between_families_without_duplicate_partner(self):
         other_guardian = self.Partner.create({'name': 'Other', 'afa_family_role': 'guardian'})
         other = self.Family.create({'name': 'Other', 'billing_partner_id': other_guardian.id})
-        student = self.Partner.create({
-            'name': 'Student', 'afa_family_id': self.family.id, 'afa_family_role': 'student',
-        })
+        student = self.Partner.create(
+            {
+                'name': 'Student',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'student',
+            }
+        )
         student.write({'afa_family_id': other.id})
         self.assertNotIn(student, self.family.student_ids)
         self.assertIn(student, other.student_ids)

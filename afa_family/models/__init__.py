@@ -1,2 +1,1 @@
-from . import afa_family
-from . import res_partner
+from . import afa_family, res_partner

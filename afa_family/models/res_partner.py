@@ -1,4 +1,4 @@
-from odoo import api, fields, models, _
+from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, ValidationError
 
 
@@ -6,16 +6,24 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     afa_family_id = fields.Many2one(
-        'afa.family', string='AFA Family', ondelete='set null', index=True,
+        'afa.family',
+        string='AFA Family',
+        ondelete='set null',
+        index=True,
         groups='afa_family.group_family_manager',
     )
-    afa_family_role = fields.Selection([
-        ('guardian', 'Guardian'),
-        ('student', 'Student'),
-    ], string='AFA Family Role', groups='afa_family.group_family_manager')
+    afa_family_role = fields.Selection(
+        [
+            ('guardian', 'Guardian'),
+            ('student', 'Student'),
+        ],
+        string='AFA Family Role',
+        groups='afa_family.group_family_manager',
+    )
     # Record rules need a searchable field that staff can access without exposing roles.
-    afa_is_student = fields.Boolean(compute='_compute_afa_is_student', store=True,
-                                    compute_sudo=True)
+    afa_is_student = fields.Boolean(
+        compute='_compute_afa_is_student', store=True, compute_sudo=True
+    )
 
     @api.depends('afa_family_role')
     def _compute_afa_is_student(self):
@@ -33,10 +41,10 @@ class ResPartner(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        if any(
-            vals.get('afa_family_id') or vals.get('afa_family_role')
-            for vals in vals_list
-        ) and not self._can_manage_family():
+        if (
+            any(vals.get('afa_family_id') or vals.get('afa_family_role') for vals in vals_list)
+            and not self._can_manage_family()
+        ):
             raise AccessError(_('Only family managers may assign family membership or roles.'))
         partners = super().create(vals_list)
         return partners
@@ -47,9 +55,11 @@ class ResPartner(models.Model):
             raise AccessError(_('Only family managers may change family membership or roles.'))
         affected = self.env['afa.family']
         if membership_changed:
-            affected = affected.with_context(active_test=False).search([
-                ('billing_partner_id', 'in', self.ids),
-            ])
+            affected = affected.with_context(active_test=False).search(
+                [
+                    ('billing_partner_id', 'in', self.ids),
+                ]
+            )
         result = super().write(vals)
         if membership_changed:
             self._check_family_membership()
@@ -58,12 +68,14 @@ class ResPartner(models.Model):
 
     def unlink(self):
         manager = self._can_manage_family()
-        if self and not manager:
-            # Do not let a generic Contacts unlink remove a family member.
-            if self.sudo().filtered('afa_family_id'):
-                raise AccessError(_('Only family managers may delete family members.'))
-        if manager and self.env['afa.family'].with_context(active_test=False).search_count([
-            ('billing_partner_id', 'in', self.ids),
-        ]):
-            raise ValidationError(_('Reassign the family billing guardian before deleting this partner.'))
+        if self and not manager and self.sudo().filtered('afa_family_id'):
+            raise AccessError(_('Only family managers may delete family members.'))
+        if manager and self.env['afa.family'].with_context(active_test=False).search_count(
+            [
+                ('billing_partner_id', 'in', self.ids),
+            ]
+        ):
+            raise ValidationError(
+                _('Reassign the family billing guardian before deleting this partner.')
+            )
         return super().unlink()

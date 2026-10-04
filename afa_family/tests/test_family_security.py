@@ -8,23 +8,39 @@ class TestFamilySecurity(TransactionCase):
         group_user = self.env.ref('base.group_user')
         group_contacts = self.env.ref('base.group_partner_manager')
         group_manager = self.env.ref('afa_family.group_family_manager')
-        self.staff = self.env['res.users'].create({
-            'name': 'Contacts Staff', 'login': 'contacts_staff_family_test',
-            'group_ids': [(6, 0, (group_user | group_contacts).ids)],
-        })
-        self.manager = self.env['res.users'].create({
-            'name': 'Family Manager', 'login': 'family_manager_test',
-            'group_ids': [(6, 0, (group_user | group_manager).ids)],
-        })
+        self.staff = self.env['res.users'].create(
+            {
+                'name': 'Contacts Staff',
+                'login': 'contacts_staff_family_test',
+                'group_ids': [(6, 0, (group_user | group_contacts).ids)],
+            }
+        )
+        self.manager = self.env['res.users'].create(
+            {
+                'name': 'Family Manager',
+                'login': 'family_manager_test',
+                'group_ids': [(6, 0, (group_user | group_manager).ids)],
+            }
+        )
         partners = self.env['res.partner'].with_user(self.manager)
         guardian = partners.create({'name': 'Guardian', 'afa_family_role': 'guardian'})
-        self.family = self.env['afa.family'].with_user(self.manager).create({
-            'name': 'Family', 'billing_partner_id': guardian.id,
-        })
-        self.student = partners.create({
-            'name': 'Private Student', 'afa_family_id': self.family.id,
-            'afa_family_role': 'student',
-        })
+        self.family = (
+            self.env['afa.family']
+            .with_user(self.manager)
+            .create(
+                {
+                    'name': 'Family',
+                    'billing_partner_id': guardian.id,
+                }
+            )
+        )
+        self.student = partners.create(
+            {
+                'name': 'Private Student',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'student',
+            }
+        )
         self.guardian = guardian
         self.unrelated = partners.create({'name': 'Unrelated Contact'})
 
@@ -34,8 +50,9 @@ class TestFamilySecurity(TransactionCase):
             self.assertTrue(partners.has_access(operation))
         staff_partners = self.env['res.partner'].with_user(self.staff)
         self.assertTrue(staff_partners.has_access('create'))
-        self.assertEqual(staff_partners.create({'name': 'Ordinary Contact'}).name,
-                         'Ordinary Contact')
+        self.assertEqual(
+            staff_partners.create({'name': 'Ordinary Contact'}).name, 'Ordinary Contact'
+        )
 
     def test_staff_cannot_find_or_read_students_through_contacts(self):
         partners = self.env['res.partner'].with_user(self.staff)
@@ -45,7 +62,9 @@ class TestFamilySecurity(TransactionCase):
         with self.assertRaises(AccessError):
             partners.browse(self.student.id).read(['name'])
         self.assertEqual(partners.browse(self.guardian.id).read(['name'])[0]['name'], 'Guardian')
-        self.assertEqual(partners.browse(self.unrelated.id).read(['name'])[0]['name'], 'Unrelated Contact')
+        self.assertEqual(
+            partners.browse(self.unrelated.id).read(['name'])[0]['name'], 'Unrelated Contact'
+        )
         self.assertEqual(partners.search([('name', '=', 'Unrelated Contact')]), self.unrelated)
 
     def test_staff_can_delete_unrelated_contact(self):
@@ -81,7 +100,9 @@ class TestFamilySecurity(TransactionCase):
     def test_manager_can_see_members_and_open_contextual_contacts(self):
         partners = self.env['res.partner'].with_user(self.manager)
         self.assertEqual(partners.search([('id', '=', self.student.id)]), self.student)
-        self.assertEqual(partners.browse(self.student.id).read(['name'])[0]['name'], 'Private Student')
+        self.assertEqual(
+            partners.browse(self.student.id).read(['name'])[0]['name'], 'Private Student'
+        )
         action = self.family.with_user(self.manager).action_open_family_members()
         self.assertEqual(action['res_model'], 'res.partner')
         self.assertEqual(action['domain'], [('afa_family_id', '=', self.family.id)])
@@ -102,7 +123,9 @@ class TestFamilySecurity(TransactionCase):
         self.assertIn('guardian_ids', form.arch_db)
         self.assertIn('student_ids', form.arch_db)
         self.assertIn('billing_partner_id', form.arch_db)
-        self.assertTrue(self.env.ref('afa_family.menu_afa_family_root').group_ids &
-                        self.env.ref('afa_family.group_family_manager'))
+        self.assertTrue(
+            self.env.ref('afa_family.menu_afa_family_root').group_ids
+            & self.env.ref('afa_family.group_family_manager')
+        )
         partner_form = self.env.ref('afa_family.view_partner_form_afa_family')
         self.assertIn('afa_family.group_family_manager', partner_form.arch_db)
