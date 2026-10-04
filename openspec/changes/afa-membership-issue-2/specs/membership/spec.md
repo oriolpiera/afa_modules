@@ -37,9 +37,18 @@ MEM-2 SHALL only treat a positive-total, posted customer invoice created for tha
 ### Requirement: Periods and family links are valid (MEM-1)
 Each period SHALL run exactly from July 1 to the following June 30, and periods SHALL NOT overlap. A family MAY be linked to a period, but SHALL NOT have duplicate or overlapping active links. An active link alone SHALL NOT claim the family is paid or currently a member.
 
+Each link SHALL expose read-only validity dates derived from its period and a non-stored invoice-link state: `pending` before the period or while dues are unpaid, `active` during the period only while the authoritative posted invoice qualifies, `expired` after the period, and `canceled` when the link is archived. `active` remains the administrative Boolean enforcing unique active family-period links; manual family mode does not change the invoice-link state.
+
 #### Scenario: Invalid or conflicting links
 - **WHEN** an invalid/overlapping period or duplicate active family-period link is created or edited
 - **THEN** the change is rejected without modifying the valid records.
+
+#### Scenario: Link state changes without manual edits
+- **GIVEN** an active family-period link for 2026/27
+- **WHEN** the evaluation day is before July 1, inside the year without full payment, inside the year with a qualifying paid invoice, or after June 30
+- **THEN** the derived state is respectively `pending`, `pending`, `active`, or `expired`.
+- **AND WHEN** the link is archived or a posted credit note reverses its paid invoice
+- **THEN** the state is respectively `canceled` or `pending`; attempts to write the derived state/dates are rejected.
 
 ### Requirement: Configurable manual mode retains family flag
 An Odoo setting SHALL select invoice or manual mode. In manual mode an authorized family manager SHALL be able to change the family Boolean membership flag; that value SHALL persist across school years until manually changed. The effective membership read surface SHALL follow the selected mode, without clearing the stored manual flag on a mode change.

@@ -8,9 +8,24 @@ class Membership(models.Model):
     _name = 'afa.membership'
     _description = 'AFA Family Period Link'
 
+    _derived_link_fields = frozenset({'state', 'date_start', 'date_end'})
+
     family_id = fields.Many2one('afa.family', required=True, ondelete='restrict', index=True)
     period_id = fields.Many2one('afa.membership.period', required=True, ondelete='restrict')
     active = fields.Boolean(default=True)
+    date_start = fields.Date(related='period_id.date_start', string='Valid From', readonly=True)
+    date_end = fields.Date(related='period_id.date_end', string='Valid Through', readonly=True)
+    state = fields.Selection(
+        [
+            ('pending', 'Pending'),
+            ('active', 'Active'),
+            ('expired', 'Expired'),
+            ('canceled', 'Canceled'),
+        ],
+        compute='_compute_state',
+        string='Invoice Link Status',
+        readonly=True,
+    )
     invoice_id = fields.Many2one(
         'account.move',
         string='Dues Invoice',
@@ -34,6 +49,8 @@ class Membership(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        if any(self._derived_link_fields.intersection(vals) for vals in vals_list):
+            raise ValidationError(_('Membership status and validity dates are calculated.'))
         if any(vals.get('invoice_id') for vals in vals_list):
             raise ValidationError(_('Create the dues invoice from the family-period link.'))
         try:
@@ -47,6 +64,8 @@ class Membership(models.Model):
             ) from error
 
     def write(self, vals):
+        if self._derived_link_fields.intersection(vals):
+            raise ValidationError(_('Membership status and validity dates are calculated.'))
         if 'invoice_id' in vals and not self.env.context.get('_afa_link_dues_invoice'):
             raise ValidationError(_('Create the dues invoice from the family-period link.'))
         if {'family_id', 'period_id'} & vals.keys() and self.filtered('invoice_id'):
@@ -132,6 +151,30 @@ class Membership(models.Model):
             ]
         )
         return not credit_notes
+
+    @api.depends(
+        'active',
+        'period_id.date_start',
+        'period_id.date_end',
+        'invoice_id',
+        'invoice_id.amount_total',
+        'invoice_id.move_type',
+        'invoice_id.state',
+        'invoice_id.payment_state',
+        'invoice_id.reversal_move_ids',
+        'invoice_id.reversal_move_ids.state',
+    )
+    def _compute_state(self):
+        today = fields.Date.context_today(self)
+        for link in self:
+            if not link.active:
+                link.state = 'canceled'
+            elif link.date_end and today > link.date_end:
+                link.state = 'expired'
+            elif link.is_invoice_member_on(today):
+                link.state = 'active'
+            else:
+                link.state = 'pending'
 
     @api.constrains('family_id', 'period_id', 'active')
     def _check_active_overlap(self):

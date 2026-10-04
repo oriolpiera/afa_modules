@@ -1,3 +1,6 @@
+from datetime import date
+from unittest.mock import patch
+
 from psycopg2 import IntegrityError
 
 from odoo.exceptions import AccessError, ValidationError
@@ -23,6 +26,38 @@ class TestMembershipDomain(TransactionCase):
         self.assertEqual(str(self.period.date_start), '2026-07-01')
         self.assertEqual(str(self.period.date_end), '2027-06-30')
         self.assertTrue(self.period.date_start <= self.period.date_end)
+
+    def test_link_dates_and_unpaid_state_follow_school_year(self):
+        link = self.Membership.create({'family_id': self.family.id, 'period_id': self.period.id})
+        self.assertEqual(link.date_start, date(2026, 7, 1))
+        self.assertEqual(link.date_end, date(2027, 6, 30))
+        for day, expected in (
+            (date(2026, 6, 30), 'pending'),
+            (date(2026, 7, 1), 'pending'),
+            (date(2027, 6, 30), 'pending'),
+            (date(2027, 7, 1), 'expired'),
+        ):
+            with patch('odoo.fields.Date.context_today', return_value=day):
+                self.env.invalidate_all()
+                self.assertEqual(link.state, expected)
+        link.active = False
+        with patch('odoo.fields.Date.context_today', return_value=date(2027, 7, 1)):
+            self.env.invalidate_all()
+            self.assertEqual(link.state, 'canceled')
+
+    def test_derived_link_state_and_validity_dates_cannot_be_written(self):
+        link = self.Membership.create({'family_id': self.family.id, 'period_id': self.period.id})
+        for field, value in (
+            ('state', 'active'),
+            ('date_start', '2026-07-01'),
+            ('date_end', '2027-06-30'),
+        ):
+            with self.assertRaises(ValidationError), self.cr.savepoint():
+                link.write({field: value})
+            with self.assertRaises(ValidationError), self.cr.savepoint():
+                self.Membership.create(
+                    {'family_id': self.family.id, 'period_id': self.period.id, field: value}
+                )
 
     def test_invalid_school_year_dates_are_rejected_on_create_and_write(self):
         for start, end in (

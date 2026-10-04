@@ -1,4 +1,5 @@
 from datetime import date
+from unittest.mock import patch
 
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
@@ -83,6 +84,34 @@ class TestMembershipInvoice(TransactionCase):
         ).remove_move_reconcile()
         self.assertNotEqual(invoice.payment_state, 'paid')
         self.assertFalse(self.link.is_invoice_member_on(date(2026, 9, 1)))
+
+    def test_derived_link_state_tracks_payment_refund_and_archival(self):
+        invoice = self.link.action_create_dues_invoice(self.product)
+        with patch('odoo.fields.Date.context_today', return_value=date(2026, 9, 1)):
+            self.assertEqual(self.link.state, 'pending')
+            invoice.action_post()
+            self.assertEqual(self.link.state, 'pending')
+            self._pay(invoice, invoice.amount_residual)
+            self.assertEqual(invoice.payment_state, 'paid')
+            self.assertEqual(self.link.state, 'active')
+            credit_note = invoice._reverse_moves(cancel=False)
+            self.assertEqual(self.link.state, 'active')
+            credit_note.action_post()
+            self.assertEqual(invoice.payment_state, 'paid')
+            self.assertEqual(self.link.state, 'pending')
+            credit_note.button_draft()
+            self.assertEqual(self.link.state, 'active')
+            self.link.active = False
+            self.assertEqual(self.link.state, 'canceled')
+        for day, expected in (
+            (date(2026, 6, 30), 'pending'),
+            (date(2027, 6, 30), 'active'),
+            (date(2027, 7, 1), 'expired'),
+        ):
+            self.link.active = True
+            with patch('odoo.fields.Date.context_today', return_value=day):
+                self.env.invalidate_all()
+                self.assertEqual(self.link.state, expected)
 
     def test_billing_guardian_snapshot_and_unrelated_invoice_do_not_qualify(self):
         invoice = self.link.action_create_dues_invoice(self.product)
