@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_afa_family" model="ir.ui.view">
+        <field name="name">res.partner.form.afa.family</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet//group" position="inside">
+                <group string="AFA Family" groups="afa_family.group_family_manager">
+                    <field name="afa_family_role"/>
+                    <field name="afa_family_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

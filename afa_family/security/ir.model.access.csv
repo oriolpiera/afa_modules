@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_afa_family_manager,afa.family.manager,model_afa_family,afa_family.group_family_manager,1,1,1,1
