@@ -1,4 +1,5 @@
 import base64
+from unittest.mock import patch
 
 from lxml import etree
 
@@ -244,6 +245,55 @@ class TestAfaSepa(TransactionCase):
         self.assertFalse(self.wizard.line_ids.eligible)
         self.assertIn('creditor IBAN', self.wizard.line_ids.reason)
         self.assertEqual(self.wizard.action_prepare()['res_model'], 'afa.sepa.wizard')
+
+    def test_stale_reservation_excludes_only_conflicting_invoice(self):
+        next_period = self.env['afa.membership.period'].create(
+            {'name': 'Next SEPA year', 'date_start': '2027-07-01', 'date_end': '2028-06-30'}
+        )
+        next_link = self.env['afa.membership'].create(
+            {'family_id': self.family.id, 'period_id': next_period.id}
+        )
+        next_invoice = next_link.action_create_dues_invoice(
+            self.invoice.invoice_line_ids.product_id
+        )
+        next_invoice.currency_id = self.env.ref('base.EUR')
+        next_invoice.action_post()
+        self.wizard.invoice_ids = self.invoice | next_invoice
+        self.wizard.action_preview()
+        self.assertEqual(len(self.wizard.line_ids.filtered('eligible')), 2)
+
+        competing_order = self.env['account.payment.order'].create(
+            {'payment_mode_id': self.mode.id, 'journal_id': self.journal.id}
+        )
+        receivable = self.invoice.line_ids.filtered(
+            lambda line: line.account_id.account_type == 'asset_receivable'
+        )
+        vals = receivable._prepare_payment_line_vals(competing_order)
+        vals.update(
+            {
+                'mandate_id': self.mandate.id,
+                'partner_bank_id': self.mandate.partner_bank_id.id,
+                'partner_id': self.invoice.partner_id.id,
+            }
+        )
+        self.env['account.payment.line'].create(vals)
+
+        original = type(self.wizard)._evaluate
+
+        def stale_preview(wizard, invoice):
+            if invoice == self.invoice:
+                return self.mandate, False
+            return original(wizard, invoice)
+
+        with patch.object(type(self.wizard), '_evaluate', stale_preview):
+            action = self.wizard.action_prepare()
+
+        self.assertEqual(action['res_model'], 'afa.sepa.wizard')
+        self.assertEqual(self.wizard.order_id.payment_line_ids.move_line_id.move_id, next_invoice)
+        excluded = self.wizard.line_ids.filtered(lambda line: line.invoice_id == self.invoice)
+        self.assertFalse(excluded.eligible)
+        self.assertIn('already', excluded.reason)
+        self.assertEqual(self.wizard.action_open_order()['res_id'], self.wizard.order_id.id)
 
     def test_imported_bank_credit_reconciles_with_order_payment(self):
         self.wizard.action_preview()

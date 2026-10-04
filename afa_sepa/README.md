@@ -21,6 +21,9 @@ not determine the direct-debit version.
 4. From **AFA Families → Prepare SEPA Collections**, select invoices and choose
    **Check Eligibility**. Excluded invoices show a reason. **Create Debit Order**
    opens the OCA order; confirm, generate the XML, and upload it to the bank.
+   If another operator reserves an invoice after preview, the wizard shows the
+   new exclusion and keeps the other invoices in the order. Use **Open Debit
+   Order** to continue with those invoices.
 
 The pinned OCA module defaults to `pain.008.001.02`; its payment method allows
 other supported `pain.008` versions. Verify the version, creditor identifier,

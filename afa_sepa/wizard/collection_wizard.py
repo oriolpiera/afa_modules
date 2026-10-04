@@ -1,3 +1,5 @@
+from psycopg2 import IntegrityError
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -22,6 +24,7 @@ class AfaSepaWizard(models.TransientModel):
         domain="[('type', '=', 'bank'), ('company_id', '=', company_id)]",
     )
     line_ids = fields.One2many('afa.sepa.wizard.line', 'wizard_id', readonly=True)
+    order_id = fields.Many2one('account.payment.order', readonly=True)
 
     @api.model
     def default_get(self, fields_list):
@@ -144,6 +147,7 @@ class AfaSepaWizard(models.TransientModel):
         if set(self.line_ids.mapped('invoice_id').ids) != set(self.invoice_ids.ids):
             return self.action_preview()
         order = self.env['account.payment.order']
+        conflict = False
         for invoice in self.invoice_ids:
             mandate, _reason = self._evaluate(invoice)
             if not mandate:
@@ -170,15 +174,54 @@ class AfaSepaWizard(models.TransientModel):
                     'communication': invoice.name or invoice.ref or '/',
                 }
             )
-            self.env['account.payment.line'].create(vals)
+            try:
+                with self.env.cr.savepoint():
+                    self.env['account.payment.line'].create(vals)
+            except IntegrityError as error:
+                if error.diag.constraint_name != 'afa_sepa_reserved_move_line_uniq':
+                    raise
+                conflict = True
+                self.line_ids.filtered(
+                    lambda preview, current_invoice=invoice: preview.invoice_id == current_invoice
+                ).write(
+                    {
+                        'eligible': False,
+                        'reason': _('The remaining balance is already in an active debit order.'),
+                    }
+                )
+        if order and not order.payment_line_ids:
+            order.unlink()
+            return self._wizard_action()
+        if conflict:
+            self.order_id = order
+            return self._wizard_action()
         if not order:
             return self.action_preview()
+        return self._order_action(order)
+
+    def action_open_order(self):
+        self.ensure_one()
+        self._check_access()
+        if not self.order_id:
+            raise UserError(_('There is no prepared debit order.'))
+        return self._order_action(self.order_id)
+
+    def _order_action(self, order):
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment.order',
             'res_id': order.id,
             'view_mode': 'form',
             'target': 'current',
+        }
+
+    def _wizard_action(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': self._name,
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
         }
 
     def _check_access(self):
