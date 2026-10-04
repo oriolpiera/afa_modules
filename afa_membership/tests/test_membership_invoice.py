@@ -141,6 +141,62 @@ class TestMembershipInvoice(TransactionCase):
                 self.env.invalidate_all()
                 self.assertEqual(self.link.state, expected)
 
+    def test_family_manager_reads_paid_link_status_without_accounting_access(self):
+        invoice = self.link.action_create_dues_invoice(self.product)
+        invoice.action_post()
+        self._pay(invoice, invoice.amount_residual)
+        manager = self.env['res.users'].create(
+            {
+                'name': 'Link Status Manager',
+                'login': 'membership-link-status-manager',
+                'group_ids': [(6, 0, [self.env.ref('afa_family.group_family_manager').id])],
+            }
+        )
+        self.assertFalse(invoice.with_user(manager).has_access('read'))
+        with patch('odoo.fields.Date.context_today', return_value=date(2026, 9, 1)):
+            self.env.invalidate_all()
+            values = self.link.with_user(manager).read(['state', 'invoice_id'])[0]
+            self.assertEqual(values['state'], 'active')
+            self.assertEqual(values['invoice_id'][0], invoice.id)
+
+    def test_paid_link_list_looks_up_credit_notes_once(self):
+        other_guardian = self.env['res.partner'].create(
+            {'name': 'Second Dues Guardian', 'afa_family_role': 'guardian'}
+        )
+        other_family = self.env['afa.family'].create(
+            {'name': 'Second Dues Family', 'billing_partner_id': other_guardian.id}
+        )
+        other_link = self.env['afa.membership'].create(
+            {'family_id': other_family.id, 'period_id': self.link.period_id.id}
+        )
+        for link in (self.link, other_link):
+            invoice = link.action_create_dues_invoice(self.product)
+            invoice.action_post()
+            self._pay(invoice, invoice.amount_residual)
+
+        model = type(self.env['account.move'])
+        searches = []
+
+        def track(method):
+            def call(records, domain, *args, **kwargs):
+                if any(
+                    isinstance(term, tuple) and term[0] == 'reversed_entry_id' for term in domain
+                ):
+                    searches.append(domain)
+                return method(records, domain, *args, **kwargs)
+
+            return call
+
+        with (
+            patch.object(model, 'search', track(model.search)),
+            patch.object(model, 'search_count', track(model.search_count)),
+            patch('odoo.fields.Date.context_today', return_value=date(2026, 9, 1)),
+        ):
+            self.env.invalidate_all()
+            values = (self.link | other_link).read(['state'])
+        self.assertEqual([value['state'] for value in values], ['active', 'active'])
+        self.assertEqual(len(searches), 1)
+
     def test_billing_guardian_snapshot_and_unrelated_invoice_do_not_qualify(self):
         invoice = self.link.action_create_dues_invoice(self.product)
         old_guardian = invoice.partner_id

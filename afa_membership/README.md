@@ -14,8 +14,9 @@ configurable manual membership mode to Odoo 19 Community. It depends on
 3. Create a **Family Period Link** for that year. Choose a saleable dues product
    with a positive price and select **Create Dues Invoice**. The selected
    billing guardian becomes the invoice recipient at creation; later family
-   payer changes do not rewrite that invoice. Only one invoice is authoritative
-   for each link.
+    payer changes do not rewrite that invoice. Only one non-canceled invoice is
+    authoritative for each link. A canceled invoice remains linked as history and
+    may be replaced from the link form.
 4. Post the invoice and reconcile the full payment. In default **invoice** mode,
    the family is a member while today is within the linked school year and the
    invoice is currently posted and fully `paid`. Partial payments, unrelated
@@ -29,7 +30,8 @@ The link's **Invoice Link Status** is separate from family membership mode:
 qualifies during the year, `expired` after June 30, and `canceled` when the link
 is archived. Valid From/Through come from its school year and cannot be edited
 on the link. Archiving is administrative; an archived link never counts as
-invoice-mode membership.
+invoice-mode membership. Archived links remain visible in **Family Period Links**
+so managers can inspect their canceled status.
 
 ## Manual mode
 
@@ -38,7 +40,8 @@ Membership. An AFA Family Manager then edits **Manual Membership** on the family
 form. This flag remains as set across July 1 until a manager changes it, even
 without an invoice or period link. Switching back to invoice mode does not
 erase the flag. The family form shows read-only effective status and, in invoice
-mode, the current school year and linked invoice. Neither the derived status nor
+mode, the current school year and invoice reference (not a link to an accounting
+record that family-only managers cannot open). Neither the derived status nor
 the setting can be changed by ordinary family staff. No membership flag is added
 to contacts.
 

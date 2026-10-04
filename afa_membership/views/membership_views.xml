@@ -59,6 +59,7 @@
         <field name="name">Family Period Links</field>
         <field name="res_model">afa.membership</field>
         <field name="view_mode">list,form</field>
+        <field name="context">{'active_test': False}</field>
     </record>
     <record id="view_afa_family_membership_form" model="ir.ui.view">
         <field name="name">afa.family.membership.form</field>
