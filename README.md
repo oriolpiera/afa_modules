@@ -16,3 +16,6 @@ Open http://127.0.0.1:8079 after Odoo starts. For subsequent test runs against
 the same database, replace `-i afa_family` with `-u afa_family`. Stop the stack
 with `docker compose -f compose.test.yaml down` (the test data volumes persist).
 This stack uses local development credentials; do not expose it to the network.
+Select database `afa_family_test` and sign in to Odoo with `admin` / `admin`.
+The `odoo` / `odoo` values in the Compose file authenticate Odoo to PostgreSQL;
+they are not an Odoo web account.

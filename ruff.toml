@@ -1,0 +1,12 @@
+line-length = 100
+
+[lint]
+# Ruff does not enforce line length unless E501 is enabled explicitly.
+extend-select = ["E501"]
+
+[lint.per-file-ignores]
+# Odoo registers addons and models through imports with side effects.
+"__init__.py" = ["F401"]
+
+[format]
+quote-style = "single"
