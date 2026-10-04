@@ -28,6 +28,12 @@ services:
       - ./afa_family:/mnt/extra-addons/afa_family:ro
       - ./afa_membership:/mnt/extra-addons/afa_membership:ro
       - ./afa_member_pricing:/mnt/extra-addons/afa_member_pricing:ro
+      - ./afa_sepa:/mnt/extra-addons/afa_sepa:ro
+      - ./.oca-bank-payment/account_payment_mode:/mnt/extra-addons/account_payment_mode:ro
+      - ./.oca-bank-payment/account_payment_order:/mnt/extra-addons/account_payment_order:ro
+      - ./.oca-bank-payment/account_banking_pain_base:/mnt/extra-addons/account_banking_pain_base:ro
+      - ./.oca-bank-payment/account_banking_mandate:/mnt/extra-addons/account_banking_mandate:ro
+      - ./.oca-bank-payment/account_banking_sepa_direct_debit:/mnt/extra-addons/account_banking_sepa_direct_debit:ro
       - odoo_test_data:/var/lib/odoo
 
 volumes:

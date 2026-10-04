@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_afa_sepa_wizard,afa.sepa.wizard,model_afa_sepa_wizard,account_payment_order.group_account_payment,1,1,1,1
+access_afa_sepa_wizard_line,afa.sepa.wizard.line,model_afa_sepa_wizard_line,account_payment_order.group_account_payment,1,1,1,1
