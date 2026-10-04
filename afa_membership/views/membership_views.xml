@@ -19,7 +19,8 @@
         <field name="model">afa.membership</field>
         <field name="arch" type="xml">
             <list><field name="family_id"/><field name="period_id"/><field name="active"/>
-                <field name="invoice_id"/></list>
+                <field name="date_start"/><field name="date_end"/>
+                <field name="state"/><field name="invoice_id"/></list>
         </field>
     </record>
     <record id="view_afa_membership_form" model="ir.ui.view">
@@ -32,6 +33,9 @@
                         <field name="family_id"/>
                         <field name="period_id"/>
                         <field name="active"/>
+                        <field name="date_start" readonly="1"/>
+                        <field name="date_end" readonly="1"/>
+                        <field name="state" readonly="1"/>
                         <field name="dues_product_id"
                                invisible="invoice_id and invoice_state != 'cancel'"/>
                         <field name="invoice_id" readonly="1"/>
@@ -55,6 +59,7 @@
         <field name="name">Family Period Links</field>
         <field name="res_model">afa.membership</field>
         <field name="view_mode">list,form</field>
+        <field name="context">{'active_test': False}</field>
     </record>
     <record id="view_afa_family_membership_form" model="ir.ui.view">
         <field name="name">afa.family.membership.form</field>

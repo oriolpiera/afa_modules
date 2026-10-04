@@ -4,7 +4,7 @@ Install on Odoo 19 Community with `base` and `contacts`; no accounting module is
 required. Assign the **AFA Family Manager** group to users who manage families.
 The Families menu contains list and form views with guardian and student sections.
 The Members button opens Contacts filtered to the current family. Managers may also
-assign family roles and membership from a contact's form.
+assign family roles and family association from a contact's form.
 
 Each partner has at most one AFA family and one role (`guardian` or `student`). A family
 can have several guardians and students. The initial billing guardian must be an
@@ -25,8 +25,9 @@ Contact/Creation group or change non-manager Contact permissions.
 
 `billing_partner_id` identifies the intended recipient for **future** invoices; no
 invoice recipient is changed by this addon. Posted invoices keep their recorded
-partner. Invoice creation/integration is outside FAM-1 and requires explicit wiring
-in a later accounting-aware feature. The regression test checks that changing the
+partner. Invoice creation/integration is outside this standalone addon; the optional
+[`afa_membership`](../afa_membership/README.md) addon provides the accounting-aware
+dues workflow. The regression test checks that changing the
 family payer does not change a previously captured partner reference; it does not
 exercise `account.move` because this addon deliberately does not depend on `account`.
 
