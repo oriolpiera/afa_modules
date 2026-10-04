@@ -1,0 +1,5 @@
+schema: spec-driven
+context: |
+  Odoo 19 Community addons in this repository. afa_family owns family identity,
+  guardian/student roles and the current billing guardian. Isolated tests use
+  compose.test.yaml; each new addon requires a fresh-database install test.

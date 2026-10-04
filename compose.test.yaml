@@ -26,6 +26,7 @@ services:
       - "127.0.0.1:8079:8069"
     volumes:
       - ./afa_family:/mnt/extra-addons/afa_family:ro
+      - ./afa_membership:/mnt/extra-addons/afa_membership:ro
       - odoo_test_data:/var/lib/odoo
 
 volumes:
