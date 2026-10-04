@@ -12,7 +12,16 @@ The system SHALL use an inclusive July 1–June 30 school year for dated family 
 ### Requirement: Invoice mode depends on full payment
 In invoice mode, the system SHALL recognize a family's qualifying invoice for its linked school year only while it is currently fully paid and today lies inside that period. Current full payment qualifies for the entire linked period, regardless of when payment arrived; this SHALL NOT imply historical backdating. A reversal or refund that removes full payment SHALL deactivate current entitlement; partial payment SHALL NOT activate it. A posted customer credit note whose native reversal link points to the exact dues invoice SHALL also revoke eligibility even when the original invoice remains `paid`.
 
-MEM-2 SHALL only treat a positive-total, posted customer invoice created for that family-period link as qualifying. A draft invoice, unrelated partner invoice, fully credited/reversed invoice or invoice with `payment_state` other than `paid` SHALL NOT qualify; one link SHALL have at most one authoritative dues invoice.
+MEM-2 SHALL only treat a positive-total, posted customer invoice created for that family-period link as qualifying. A draft invoice, unrelated partner invoice, fully credited/reversed invoice or invoice with `payment_state` other than `paid` SHALL NOT qualify; one link SHALL have at most one non-canceled dues invoice. Canceled invoices remain linked as historical accounting records and MAY be replaced.
+
+#### Scenario: Cancel and replace a dues invoice
+- **GIVEN** a dues invoice has been canceled before it qualifies
+- **WHEN** the manager creates another dues invoice for the same family-period link
+- **THEN** the link points to the new invoice and the canceled invoice retains its family-period attribution; the old invoice cannot be reactivated while the replacement exists.
+
+#### Scenario: Concurrent invoice issuance
+- **WHEN** another non-canceled dues invoice has already claimed the link before its invoice reference updates
+- **THEN** a competing issuance fails with a readable validation error, without losing the first invoice.
 
 #### Scenario: Payment arrives during the year
 - **GIVEN** a qualifying 2026/27 invoice is only partially paid on 2026-08-01
@@ -37,6 +46,18 @@ MEM-2 SHALL only treat a positive-total, posted customer invoice created for tha
 ### Requirement: Periods and family links are valid (MEM-1)
 Each period SHALL run exactly from July 1 to the following June 30, and periods SHALL NOT overlap. A family MAY be linked to a period, but SHALL NOT have duplicate or overlapping active links. An active link alone SHALL NOT claim the family is paid or currently a member.
 
+The link list SHALL include archived links so managers can inspect their `canceled` status. Reading the derived status SHALL work for family managers without accounting access; checking credit notes for a batch of paid links SHALL use a batched lookup rather than one accounting query per link.
+
+#### Scenario: Archived link visibility
+- **GIVEN** a family-period link has been archived
+- **WHEN** the manager opens Family Period Links
+- **THEN** the archived link is visible with `canceled` status, without granting it membership eligibility.
+
+#### Scenario: Manager reads a paid link list
+- **GIVEN** two fully paid links and a family manager without accounting access
+- **WHEN** their link statuses are read together
+- **THEN** both show `active` without accounting access errors and credit notes are checked in one batch.
+
 Each link SHALL expose read-only validity dates derived from its period and a non-stored invoice-link state: `pending` before the period or while dues are unpaid, `active` during the period only while the authoritative posted invoice qualifies, `expired` after the period, and `canceled` when the link is archived. `active` remains the administrative Boolean enforcing unique active family-period links; manual family mode does not change the invoice-link state.
 
 #### Scenario: Invalid or conflicting links
@@ -54,6 +75,11 @@ Each link SHALL expose read-only validity dates derived from its period and a no
 An Odoo setting SHALL select invoice or manual mode. In manual mode an authorized family manager SHALL be able to change the family Boolean membership flag; that value SHALL persist across school years until manually changed. The effective membership read surface SHALL follow the selected mode, without clearing the stored manual flag on a mode change.
 
 The default mode SHALL be invoice when unset. Only a system administrator SHALL be able to change the mode. The family SHALL expose read-only derived membership status, mode and current school-year period/invoice when relevant. These date-dependent fields SHALL be recomputed when read in a new Odoo environment, not stored with a time-insensitive dependency. Same-environment changes to the manual flag, active links, invoice payment and linked credit-note state SHALL invalidate cached derived status; saving a mode change SHALL also invalidate it. Archived links SHALL never supply the current invoice, even under `active_test=False`.
+
+#### Scenario: Family manager without accounting access sees a safe invoice reference
+- **GIVEN** a manager can read families but does not have permission to read `account.move`
+- **WHEN** the family form displays its current dues invoice
+- **THEN** the manager can read a non-navigable invoice reference without receiving broad accounting access or an unusable invoice link.
 
 #### Scenario: Manual state survives a new school year
 - **GIVEN** the family flag is true and manual mode is selected
@@ -81,6 +107,14 @@ At issuance the system SHALL associate each qualifying invoice with its family a
 - **GIVEN** a qualifying invoice was issued to guardian A for family F
 - **WHEN** the family designates guardian B as its new billing partner
 - **THEN** that invoice still bills A and is still attributed to F; future issuance may bill B.
+
+#### Scenario: Invoice editor changes a draft dues invoice
+- **WHEN** an accountant tries to change the guardian of a dues invoice, including before posting it
+- **THEN** the change is rejected; the guardian captured on creation remains the recipient.
+
+#### Scenario: Ordinary invoice edit
+- **WHEN** an accountant without AFA family-manager access edits an unrelated customer's invoice
+- **THEN** membership field restrictions do not block the normal invoice edit.
 
 ### Requirement: Membership edits are authorized
 Manual changes to family membership and invoice-family/year linkage SHALL be protected by server-side permissions, not only by hidden interface controls. Existing student-contact access restrictions SHALL remain intact.

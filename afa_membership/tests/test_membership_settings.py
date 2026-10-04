@@ -105,7 +105,12 @@ class TestMembershipSettings(TransactionCase):
         )
         with self.assertRaises(AccessError), self.cr.savepoint():
             self.family.with_user(staff).write({'manual_member': True})
-        for field in ('is_member', 'membership_state', 'current_period_id'):
+        for field in (
+            'is_member',
+            'membership_state',
+            'current_period_id',
+            'current_dues_invoice_reference',
+        ):
             with self.assertRaises(ValidationError), self.cr.savepoint():
                 self.family.write({field: False})
         with self.assertRaises(AccessError), self.cr.savepoint():
@@ -130,8 +135,27 @@ class TestMembershipSettings(TransactionCase):
         form = self.env.ref('afa_membership.view_afa_family_membership_form')
         settings = self.env.ref('afa_membership.view_res_config_settings_afa_membership')
         self.assertIn('manual_member', form.arch_db)
-        self.assertIn('current_dues_invoice_id', form.arch_db)
+        self.assertIn('current_dues_invoice_reference', form.arch_db)
+        self.assertNotIn('<field name="current_dues_invoice_id"', form.arch_db)
         self.assertIn('afa_membership_mode', settings.arch_db)
+
+    def test_manager_without_accounting_access_sees_invoice_reference_without_navigation(self):
+        self.env['account.chart.template'].try_loading('generic_coa', self.env.company)
+        product = self.env['product.product'].create({'name': 'Manager Dues', 'list_price': 100})
+        invoice = self.link.action_create_dues_invoice(product)
+        manager = self.env['res.users'].create(
+            {
+                'name': 'Family-only Manager',
+                'login': 'membership-family-only-manager',
+                'group_ids': [(6, 0, [self.env.ref('afa_family.group_family_manager').id])],
+            }
+        )
+        self.assertFalse(invoice.with_user(manager).has_access('read'))
+        with patch('odoo.fields.Date.context_today', return_value=date(2026, 9, 1)):
+            self.env.invalidate_all()
+            value = self.family.with_user(manager).read(['current_dues_invoice_reference'])[0]
+            self.assertEqual(value['current_dues_invoice_reference'], invoice.display_name)
+        self.assertEqual(self.family.current_dues_invoice_id, invoice)
 
     def test_invoice_mode_follows_paid_invoice_and_linked_credit(self):
         self.env['account.chart.template'].try_loading('generic_coa', self.env.company)

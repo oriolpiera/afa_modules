@@ -23,6 +23,7 @@ class Membership(models.Model):
             ('canceled', 'Canceled'),
         ],
         compute='_compute_state',
+        compute_sudo=True,
         string='Invoice Link Status',
         readonly=True,
     )
@@ -33,6 +34,7 @@ class Membership(models.Model):
         copy=False,
         readonly=True,
     )
+    invoice_state = fields.Selection(related='invoice_id.state', string='Dues Invoice Status')
     dues_product_id = fields.Many2one(
         'product.product',
         string='Dues Product',
@@ -84,8 +86,10 @@ class Membership(models.Model):
 
     def action_create_dues_invoice(self, product=None):
         self.ensure_one()
-        if not self.active or self.invoice_id:
-            raise ValidationError(_('Only an active, unbilled family-period link can be invoiced.'))
+        if not self.active or (self.invoice_id and self.invoice_id.state != 'cancel'):
+            raise ValidationError(
+                _('Only an active link without a current dues invoice can be invoiced.')
+            )
         product = product or self.dues_product_id
         if not product:
             raise ValidationError(_('Choose a dues product before creating an invoice.'))
@@ -93,23 +97,35 @@ class Membership(models.Model):
         if product._name != 'product.product' or product.lst_price <= 0:
             raise ValidationError(_('Choose a billable product with a positive price.'))
         guardian = self.family_id.billing_partner_id
-        invoice = self.env['account.move'].create(
-            {
-                'move_type': 'out_invoice',
-                'partner_id': guardian.id,
-                'afa_membership_id': self.id,
-                'invoice_line_ids': [
-                    (
-                        0,
-                        0,
-                        {'product_id': product.id, 'quantity': 1, 'price_unit': product.lst_price},
-                    )
-                ],
-            }
-        )
-        if invoice.amount_total <= 0:
-            raise ValidationError(_('The dues invoice must have a positive amount.'))
-        self.with_context(_afa_link_dues_invoice=True).write({'invoice_id': invoice.id})
+        try:
+            with self.env.cr.savepoint():
+                invoice = self.env['account.move'].create(
+                    {
+                        'move_type': 'out_invoice',
+                        'partner_id': guardian.id,
+                        'afa_membership_id': self.id,
+                        'invoice_line_ids': [
+                            (
+                                0,
+                                0,
+                                {
+                                    'product_id': product.id,
+                                    'quantity': 1,
+                                    'price_unit': product.lst_price,
+                                },
+                            )
+                        ],
+                    }
+                )
+                if invoice.amount_total <= 0:
+                    raise ValidationError(_('The dues invoice must have a positive amount.'))
+                self.with_context(_afa_link_dues_invoice=True).write({'invoice_id': invoice.id})
+        except IntegrityError as error:
+            if error.diag.constraint_name != 'account_move_afa_membership_uniq':
+                raise
+            raise ValidationError(
+                _('A dues invoice already exists for this family and school year.')
+            ) from error
         return invoice
 
     def action_open_dues_invoice(self):
@@ -126,31 +142,42 @@ class Membership(models.Model):
 
     def is_invoice_member_on(self, check_date):
         self.ensure_one()
-        invoice = self.invoice_id
-        qualifies = bool(
-            self.active
-            and self.period_id.date_start <= check_date <= self.period_id.date_end
-            and invoice
-            and invoice.afa_membership_id == self
-            and invoice.partner_id
-            and invoice.amount_total > 0
-            and invoice.move_type == 'out_invoice'
-            and invoice.state == 'posted'
-            and invoice.payment_state == 'paid'
+        return bool(self._invoice_member_links(check_date))
+
+    def _invoice_member_links(self, check_date):
+        # The caller has access to these family links; only their accounting
+        # eligibility check needs elevated read access, not invoice edit access.
+        candidates = self.sudo().filtered(
+            lambda link: (
+                link.active
+                and link.period_id.date_start <= check_date <= link.period_id.date_end
+                and link.invoice_id
+                and link.invoice_id.afa_membership_id == link
+                and link.invoice_id.partner_id
+                and link.invoice_id.amount_total > 0
+                and link.invoice_id.move_type == 'out_invoice'
+                and link.invoice_id.state == 'posted'
+                and link.invoice_id.payment_state == 'paid'
+            )
         )
-        if not qualifies:
-            return False
-        # Odoo keeps an independently reversed invoice marked paid. Only a
-        # posted customer credit note reversing this exact invoice revokes dues.
-        moves = self.env['account.move'].sudo()
-        credit_notes = moves.search_count(
-            [
-                ('reversed_entry_id', '=', invoice.id),
-                ('move_type', '=', 'out_refund'),
-                ('state', '=', 'posted'),
-            ]
+        if not candidates:
+            return candidates
+        # Odoo can keep an independently reversed invoice marked paid.
+        # Look up all exact-invoice customer credit notes in one query per batch.
+        credited_invoices = set(
+            self.env['account.move']
+            .sudo()
+            .search(
+                [
+                    ('reversed_entry_id', 'in', candidates.mapped('invoice_id').ids),
+                    ('move_type', '=', 'out_refund'),
+                    ('state', '=', 'posted'),
+                ]
+            )
+            .mapped('reversed_entry_id')
+            .ids
         )
-        return not credit_notes
+        return candidates.filtered(lambda link: link.invoice_id.id not in credited_invoices)
 
     @api.depends(
         'active',
@@ -166,12 +193,13 @@ class Membership(models.Model):
     )
     def _compute_state(self):
         today = fields.Date.context_today(self)
+        eligible_ids = set(self._invoice_member_links(today).ids)
         for link in self:
             if not link.active:
                 link.state = 'canceled'
             elif link.date_end and today > link.date_end:
                 link.state = 'expired'
-            elif link.is_invoice_member_on(today):
+            elif link.id in eligible_ids:
                 link.state = 'active'
             else:
                 link.state = 'pending'

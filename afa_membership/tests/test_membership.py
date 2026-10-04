@@ -1,3 +1,4 @@
+from ast import literal_eval
 from datetime import date
 from unittest.mock import patch
 
@@ -165,3 +166,13 @@ class TestMembershipDomain(TransactionCase):
             self.assertFalse(model.with_user(user).has_access('unlink'))
         with self.assertRaises(AccessError), self.cr.savepoint():
             link.with_user(user).write({'active': False})
+
+    def test_archived_link_remains_visible_in_manager_action(self):
+        link = self.Membership.create({'family_id': self.family.id, 'period_id': self.period.id})
+        link.active = False
+        self.assertFalse(self.Membership.search([('id', '=', link.id)]))
+        action = self.env.ref('afa_membership.action_afa_membership')
+        context = literal_eval(action.context or '{}')
+        visible = self.Membership.with_context(**context).search([('id', '=', link.id)])
+        self.assertEqual(visible, link)
+        self.assertEqual(visible.state, 'canceled')

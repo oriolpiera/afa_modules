@@ -36,12 +36,14 @@
                         <field name="date_start" readonly="1"/>
                         <field name="date_end" readonly="1"/>
                         <field name="state" readonly="1"/>
-                        <field name="dues_product_id" invisible="invoice_id"/>
+                        <field name="dues_product_id"
+                               invisible="invoice_id and invoice_state != 'cancel'"/>
                         <field name="invoice_id" readonly="1"/>
+                        <field name="invoice_state" invisible="1"/>
                     </group>
                     <button name="action_create_dues_invoice" type="object"
                             string="Create Dues Invoice" class="btn-primary"
-                            invisible="not active or invoice_id or not dues_product_id"/>
+                            invisible="not active or (invoice_id and invoice_state != 'cancel') or not dues_product_id"/>
                     <button name="action_open_dues_invoice" type="object"
                             string="Open Dues Invoice" invisible="not invoice_id"/>
                 </sheet>
@@ -57,6 +59,7 @@
         <field name="name">Family Period Links</field>
         <field name="res_model">afa.membership</field>
         <field name="view_mode">list,form</field>
+        <field name="context">{'active_test': False}</field>
     </record>
     <record id="view_afa_family_membership_form" model="ir.ui.view">
         <field name="name">afa.family.membership.form</field>
@@ -71,7 +74,7 @@
                     <field name="manual_member" invisible="membership_mode != 'manual'"/>
                     <field name="current_period_id" readonly="1"
                            invisible="membership_mode == 'manual'"/>
-                    <field name="current_dues_invoice_id" readonly="1"
+                    <field name="current_dues_invoice_reference" readonly="1"
                            invisible="membership_mode == 'manual'"/>
                 </group>
             </xpath>
