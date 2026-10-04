@@ -79,6 +79,80 @@ class TestMemberPricing(TransactionCase):
         self.assertEqual(order.pricelist_id, self.member_pl)
         self.assertEqual(order.order_line.price_unit, 60)
 
+    def test_backend_quote_cannot_confirm_after_membership_is_revoked(self):
+        for state in ('draft', 'sent'):
+            self.family.manual_member = True
+            order = self._order()
+            order.state = state
+            self.family.manual_member = False
+            self.assertEqual(order.pricelist_id, self.member_pl)
+            with self.assertRaises(ValidationError), self.cr.savepoint():
+                order.action_confirm()
+            self.assertEqual(order.state, state)
+            order.pricelist_id = self.public_pl
+            self.assertEqual(order.order_line.price_unit, 100)
+            order.action_confirm()
+            self.assertEqual(order.state, 'sale')
+
+    def test_customer_change_preserves_agreed_price_and_discount(self):
+        order = self._order()
+        first_line = order.order_line
+        second_line = self.env['sale.order.line'].create(
+            {'order_id': order.id, 'product_id': self.product.id}
+        )
+        first_line.price_unit = 42
+        second_line.discount = 7
+        self.assertFalse(first_line.afa_manual_discount)
+        self.assertTrue(second_line.afa_manual_discount)
+        order.partner_id = self.outsider
+        self.assertEqual(first_line.price_unit, 42)
+        self.assertEqual(second_line.price_unit, 100)
+        self.assertEqual(second_line.discount, 7)
+        self.assertTrue(second_line.afa_manual_discount)
+        order.pricelist_id = self.member_pl
+        self.assertEqual(first_line.price_unit, 42)
+        self.assertEqual(second_line.price_unit, 60)
+        self.assertEqual(second_line.discount, 7)
+
+    def test_created_agreed_discount_survives_pricelist_change(self):
+        order = self._order()
+        line = self.env['sale.order.line'].create(
+            {'order_id': order.id, 'product_id': self.product.id, 'discount': 13}
+        )
+        self.assertTrue(line.afa_manual_discount)
+        order.pricelist_id = self.public_pl
+        self.assertEqual(line.price_unit, 100)
+        self.assertEqual(line.discount, 13)
+
+    def test_native_discount_rule_recalculates_without_becoming_manual(self):
+        self.env['res.config.settings'].create({'group_discount_per_so_line': True}).set_values()
+        self.env['product.pricelist.item'].search(
+            [
+                ('product_id', '=', self.product.id),
+                ('pricelist_id', 'in', (self.member_pl | self.public_pl).ids),
+            ]
+        ).unlink()
+        for pricelist, discount in ((self.member_pl, 10), (self.public_pl, 20)):
+            self.env['product.pricelist.item'].create(
+                {
+                    'pricelist_id': pricelist.id,
+                    'applied_on': '0_product_variant',
+                    'product_id': self.product.id,
+                    'compute_price': 'percentage',
+                    'percent_price': discount,
+                }
+            )
+        order = self._order()
+        line = order.order_line
+        self.assertEqual(line.discount, 10)
+        self.assertFalse(line.afa_manual_discount)
+        line.product_uom_qty = 2
+        self.assertEqual(line.discount, 10)
+        self.assertFalse(line.afa_manual_discount)
+        order.partner_id = self.outsider
+        self.assertEqual(line.discount, 20)
+        self.assertFalse(line.afa_manual_discount)
+
     def test_public_and_recovered_carts_lose_stale_member_price(self):
         order = self._order(website=True)
         self.assertEqual(order.order_line.price_unit, 60)
@@ -88,6 +162,18 @@ class TestMemberPricing(TransactionCase):
         self.assertEqual(order.pricelist_id, self.public_pl)
         self.assertEqual(order.order_line.price_unit, 100)
         self.assertFalse(order._afa_revalidate_cart())
+
+    def test_cart_recovery_recomputes_prices_once(self):
+        order = self._order(website=True)
+        self.family.manual_member = False
+        order_model = type(order)
+        original = order_model._recompute_prices
+        with patch.object(
+            order_model, '_recompute_prices', autospec=True, side_effect=original
+        ) as recompute:
+            self.assertTrue(order._afa_revalidate_cart())
+        self.assertEqual(recompute.call_count, 1)
+        self.assertEqual(order.order_line.price_unit, 100)
 
     def test_payment_gate_rejects_stale_member_cart_without_writing(self):
         order = self._order(website=True)

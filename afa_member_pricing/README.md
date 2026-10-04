@@ -24,6 +24,11 @@ pricelist. The family shown on the sale order is derived from the customer;
 staff do not choose an unrelated family. Changing the customer or pricelist on
 an open quotation updates its existing lines. Confirmed orders keep their
 agreed prices, even if membership subsequently changes.
+Manually agreed line prices and discounts survive a quotation repricing; native
+discount rules are recalculated. If membership changes on an open backend
+quotation, staff must select the newly applicable pricelist before confirming
+it. Confirmation refuses a stale member tariff rather than silently changing
+the agreed order.
 
 The website uses the same assigned pricelist for product pages and carts.
 The member pricelist cannot be selected through the public selector or promo

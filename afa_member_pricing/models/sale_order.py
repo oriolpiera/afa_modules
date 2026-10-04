@@ -49,7 +49,6 @@ class SaleOrder(models.Model):
         if self.pricelist_id == expected:
             return False
         self.pricelist_id = expected
-        self._recompute_prices()
         if request:
             request.session['website_sale_current_pl'] = expected.id
             request.session.pop('website_sale_selected_pl_id', None)
@@ -86,5 +85,44 @@ class SaleOrder(models.Model):
                 if order.pricelist_id.id != old_pricelists.get(order.id) or (
                     'partner_id' in vals and order.partner_id.id != old_partners[order.id]
                 ):
-                    order.with_context(_afa_repricing=True)._recompute_prices()
+                    order._afa_recompute_quotation_prices()
         return result
+
+    def _afa_recompute_quotation_prices(self):
+        for order in self:
+            if order.website_id:
+                order.with_context(_afa_repricing=True)._recompute_prices()
+                continue
+
+            manually_priced = self.env['sale.order.line']
+            agreed_prices = {}
+            agreed_discounts = {}
+            for line in order._get_update_prices_lines():
+                currency = line.currency_id or order.company_id.currency_id
+                if currency.compare_amounts(line.technical_price_unit, line.price_unit):
+                    manually_priced |= line
+                    agreed_prices[line.id] = line.price_unit
+                if line.afa_manual_discount:
+                    agreed_discounts[line.id] = line.discount
+
+            order.with_context(_afa_repricing=True)._recompute_prices()
+            for line in manually_priced:
+                line.with_context(_afa_repricing=True).price_unit = agreed_prices[line.id]
+            for line_id, discount in agreed_discounts.items():
+                self.env['sale.order.line'].browse(line_id).with_context(
+                    _afa_repricing=True
+                ).discount = discount
+
+    def action_confirm(self):
+        for order in self.filtered(lambda so: so.state in ('draft', 'sent') and not so.website_id):
+            company = order.company_id.sudo()
+            if company.afa_member_pricelist_id and company.afa_nonmember_pricelist_id:
+                expected = company._afa_pricelist_for_partner(order.partner_id)
+                if order.pricelist_id != expected:
+                    raise ValidationError(
+                        _(
+                            'Family membership has changed. Update this quotation to the '
+                            'applicable pricelist before confirming it.'
+                        )
+                    )
+        return super().action_confirm()
