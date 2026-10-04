@@ -44,10 +44,26 @@ Each period SHALL run exactly from July 1 to the following June 30, and periods 
 ### Requirement: Configurable manual mode retains family flag
 An Odoo setting SHALL select invoice or manual mode. In manual mode an authorized family manager SHALL be able to change the family Boolean membership flag; that value SHALL persist across school years until manually changed. The effective membership read surface SHALL follow the selected mode, without clearing the stored manual flag on a mode change.
 
+The default mode SHALL be invoice when unset. Only a system administrator SHALL be able to change the mode. The family SHALL expose read-only derived membership status, mode and current school-year period/invoice when relevant. These date-dependent fields SHALL be recomputed when read in a new Odoo environment, not stored with a time-insensitive dependency. Same-environment changes to the manual flag, active links, invoice payment and linked credit-note state SHALL invalidate cached derived status; saving a mode change SHALL also invalidate it. Archived links SHALL never supply the current invoice, even under `active_test=False`.
+
 #### Scenario: Manual state survives a new school year
 - **GIVEN** the family flag is true and manual mode is selected
 - **WHEN** the school year changes or the mode is switched away and back
 - **THEN** the manually stored flag is still true unless a manager changed it.
+
+#### Scenario: Manual mode does not depend on billing
+- **GIVEN** manual mode is selected and a family has no period link or its dues invoice is unpaid
+- **WHEN** a manager sets the family flag to true
+- **THEN** its derived membership is true through the next July 1 until a manager changes the flag.
+
+#### Scenario: Only authorized settings and flags can be changed
+- **WHEN** an ordinary user attempts to change the family manual flag or membership mode, or any user attempts to write a derived status
+- **THEN** the write is denied and stored state is not changed.
+
+#### Scenario: Same-request changes and archived replacement
+- **GIVEN** the derived family status has already been read in the current Odoo environment
+- **WHEN** a manager changes the manual flag, the admin switches mode, an invoice becomes paid, a linked credit note is posted/drafted, or an active link is archived and replaced
+- **THEN** the next same-date read reflects the changed status and selects only the active link without a global cache reset.
 
 ### Requirement: Issued invoice recipient remains a snapshot
 At issuance the system SHALL associate each qualifying invoice with its family and year and use the then-designated guardian as billing partner. A later change to `afa.family.billing_partner_id` SHALL NOT rewrite an already issued invoice's partner or reassign its membership to a different family.
@@ -67,4 +83,4 @@ Manual changes to family membership and invoice-family/year linkage SHALL be pro
 ## Open assumptions (not authorized product decisions)
 - MEM-2 explicitly creates one product-backed dues invoice for each link. Only a posted credit note carrying Odoo's native `reversed_entry_id` to that exact invoice revokes paid entitlement; arbitrary unlinked credit notes do not.
 - Only current Odoo payment status is used. Historical payment timestamps are not required.
-- The manual flag is undated and global per family; the setting is assumed database-wide and defaults to invoice mode. Confirm the intended UI/read surface before implementation.
+- The manual flag is undated and global per family; the database-wide setting defaults to invoice mode. The inherited family form shows the manager-only flag in manual mode and relevant invoice-period context in invoice mode.

@@ -54,6 +54,25 @@
         <field name="res_model">afa.membership</field>
         <field name="view_mode">list,form</field>
     </record>
+    <record id="view_afa_family_membership_form" model="ir.ui.view">
+        <field name="name">afa.family.membership.form</field>
+        <field name="model">afa.family</field>
+        <field name="inherit_id" ref="afa_family.view_afa_family_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group[1]" position="after">
+                <group string="Membership" groups="afa_family.group_family_manager">
+                    <field name="membership_mode" invisible="1"/>
+                    <field name="is_member" readonly="1"/>
+                    <field name="membership_state" readonly="1"/>
+                    <field name="manual_member" invisible="membership_mode != 'manual'"/>
+                    <field name="current_period_id" readonly="1"
+                           invisible="membership_mode == 'manual'"/>
+                    <field name="current_dues_invoice_id" readonly="1"
+                           invisible="membership_mode == 'manual'"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
     <menuitem id="menu_afa_membership_period" name="School Years"
               parent="afa_family.menu_afa_family_root" action="action_afa_membership_period"
               groups="afa_family.group_family_manager"/>
