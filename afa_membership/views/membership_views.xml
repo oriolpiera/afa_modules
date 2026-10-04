@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_membership_period_list" model="ir.ui.view">
+        <field name="name">afa.membership.period.list</field>
+        <field name="model">afa.membership.period</field>
+        <field name="arch" type="xml">
+            <list><field name="name"/><field name="date_start"/><field name="date_end"/></list>
+        </field>
+    </record>
+    <record id="view_afa_membership_period_form" model="ir.ui.view">
+        <field name="name">afa.membership.period.form</field>
+        <field name="model">afa.membership.period</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="name"/><field name="date_start"/><field name="date_end"/></group></sheet></form>
+        </field>
+    </record>
+    <record id="view_afa_membership_list" model="ir.ui.view">
+        <field name="name">afa.membership.list</field>
+        <field name="model">afa.membership</field>
+        <field name="arch" type="xml">
+            <list><field name="family_id"/><field name="period_id"/><field name="active"/></list>
+        </field>
+    </record>
+    <record id="view_afa_membership_form" model="ir.ui.view">
+        <field name="name">afa.membership.form</field>
+        <field name="model">afa.membership</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="family_id"/><field name="period_id"/><field name="active"/></group></sheet></form>
+        </field>
+    </record>
+    <record id="action_afa_membership_period" model="ir.actions.act_window">
+        <field name="name">School Years</field>
+        <field name="res_model">afa.membership.period</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="action_afa_membership" model="ir.actions.act_window">
+        <field name="name">Family Period Links</field>
+        <field name="res_model">afa.membership</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_afa_membership_period" name="School Years"
+              parent="afa_family.menu_afa_family_root" action="action_afa_membership_period"
+              groups="afa_family.group_family_manager"/>
+    <menuitem id="menu_afa_membership" name="Family Period Links"
+              parent="afa_family.menu_afa_family_root" action="action_afa_membership"
+              groups="afa_family.group_family_manager"/>
+</odoo>
