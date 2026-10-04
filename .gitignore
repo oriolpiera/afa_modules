@@ -207,6 +207,7 @@ tempCodeRunnerFile.py
 
 # Ruff stuff:
 .ruff_cache/
+.oca-bank-payment/
 
 # PyPI configuration file
 .pypirc
