@@ -20,6 +20,8 @@ unrelated contacts remain available under their existing Contacts permissions.
 The rule treats all student-role contacts as
 private because this addon does not store an age or minor flag. Managers can still
 read and maintain all family contacts. Only managers can delete family members.
+The manager group grants Contact access directly; it does not imply the broader
+Contact/Creation group or change non-manager Contact permissions.
 
 `billing_partner_id` identifies the intended recipient for **future** invoices; no
 invoice recipient is changed by this addon. Posted invoices keep their recorded

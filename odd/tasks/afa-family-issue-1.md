@@ -19,11 +19,12 @@ Provide an Odoo 19 Community `afa_family` addon to keep a family distinct from i
 - Route: delegated direct, since this feature requires multiple non-trivial model, security, view and test files; preparation reading belongs to the writer.
 - Forecast: approximately 500–750 authored changed lines excluding generated files; use coherent work units and do not compress tests or documentation to meet a budget.
 - Strategy: ask-on-risk. Branch point: `6fcefcd4a5ce026eb74ca5e2a51d3d11119eb3ed`.
-- Running authored line count: 0. Reviewed boundary: branch point.
+- Running authored line count: 540 at `cddd53c` (commit already present on the branch); review boundary pending.
 
 ## Tasks
-- [ ] FAM-1: Implement installable Odoo 19 family/partner domain and regression tests for billing, roles, one-family membership and invoice-recipient stability. Check: Odoo 19 addon tests where available; Python/XML structural checks otherwise. Route: delegated direct (multiple non-trivial files). Commit: pending; review: pending.
-- [ ] FAM-2: Add family and partner UI plus ACL/record rules and authorization regression tests. Check: Odoo 19 addon tests where available; XML/security structural checks otherwise. Route: delegated direct (multiple non-trivial files). Commit: pending; review: pending.
+- [x] FAM-1: Implement installable Odoo 19 family/partner domain and regression tests for billing, roles, one-family membership and invoice-recipient stability. Check: Odoo 19 addon loads; scoped tests run. Route: delegated direct. Commit: `cddd53c` (already present on branch); review: pending. Invoice recipient stability is limited to not changing existing references; no `account.move` integration is claimed.
+- [x] FAM-2: Add family and partner UI plus ACL/record rules and authorization regression tests. Check: Odoo 19 addon loads; scoped tests run. Route: delegated direct. Commit: `cddd53c` (already present on branch); review: pending.
+- [ ] FAM-3: Run Odoo 19 in an isolated Compose stack, correct observed manager Contacts ACL failure and document repeatable focused test commands. Check: scoped Odoo 19 tests, Compose config, and HTTP readiness. Route: delegated test execution and bounded fix; commit: pending; review: pending.
 
 ## Progress and next step
-- Product decision and Odoo target resolved. Start FAM-1; collect observed test evidence before marking it complete. Engram mirror pending if memory service cannot bind this session.
+- Product decision and Odoo target resolved. `cddd53c` contains the addon; a broad Odoo install run reported 3 failures and 27 errors across 1,914 tests, including unrelated upstream tests. The focused `/afa_family` run initially reported 7 setup errors out of 18 tests because managers lacked Contact creation rights. After a manager-only Contacts ACL and fixture corrections, the focused run reported 19 tests, 0 failures and 0 errors. `docker compose -f compose.test.yaml config -q` passed; Odoo 19 serves HTTP 200 at `http://127.0.0.1:8079/web/login` and PostgreSQL is healthy. Review and commit of FAM-3 remain pending; Engram mirror saved.

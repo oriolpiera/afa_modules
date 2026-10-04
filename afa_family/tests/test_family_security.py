@@ -6,10 +6,11 @@ class TestFamilySecurity(TransactionCase):
     def setUp(self):
         super().setUp()
         group_user = self.env.ref('base.group_user')
+        group_contacts = self.env.ref('base.group_partner_manager')
         group_manager = self.env.ref('afa_family.group_family_manager')
         self.staff = self.env['res.users'].create({
             'name': 'Contacts Staff', 'login': 'contacts_staff_family_test',
-            'group_ids': [(6, 0, group_user.ids)],
+            'group_ids': [(6, 0, (group_user | group_contacts).ids)],
         })
         self.manager = self.env['res.users'].create({
             'name': 'Family Manager', 'login': 'family_manager_test',
@@ -26,6 +27,15 @@ class TestFamilySecurity(TransactionCase):
         })
         self.guardian = guardian
         self.unrelated = partners.create({'name': 'Unrelated Contact'})
+
+    def test_manager_and_contacts_staff_can_create_permitted_contacts(self):
+        partners = self.env['res.partner'].with_user(self.manager)
+        for operation in ('read', 'write', 'create', 'unlink'):
+            self.assertTrue(partners.has_access(operation))
+        staff_partners = self.env['res.partner'].with_user(self.staff)
+        self.assertTrue(staff_partners.has_access('create'))
+        self.assertEqual(staff_partners.create({'name': 'Ordinary Contact'}).name,
+                         'Ordinary Contact')
 
     def test_staff_cannot_find_or_read_students_through_contacts(self):
         partners = self.env['res.partner'].with_user(self.staff)
