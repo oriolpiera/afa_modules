@@ -27,6 +27,9 @@ one draft customer invoice per family and billing month. This module depends on
 
 - A subscription bills one full month if active on its first day and its service
   covers that month. There is no proration.
+- Because each family receives a single invoice per month, its services in the
+  same school year must belong to the same Odoo company. Enrollment rejects
+  cross-company combinations before they can become unbillable.
 - Invoice-mode membership checks the paid, unreversed annual dues link for the
   selected school year when generating; manual mode checks the current family
   manual-member flag. A later change does not change an existing invoice.

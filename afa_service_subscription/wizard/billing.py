@@ -81,12 +81,16 @@ class AfaServiceBilling(models.TransientModel):
     def _reason(self, subscription, snapshot):
         if not snapshot['family_id'] or not snapshot['payer_id']:
             return _('Student has no billing family or guardian.')
-        if self.env['afa.service.charge'].search_count(
-            [
-                ('subscription_id', '=', subscription.id),
-                ('month', '=', self.month),
-                ('active', '=', True),
-            ]
+        if (
+            self.env['afa.service.charge']
+            .sudo()
+            .search_count(
+                [
+                    ('subscription_id', '=', subscription.id),
+                    ('month', '=', self.month),
+                    ('active', '=', True),
+                ]
+            )
         ):
             return _('Already invoiced.')
         invoice = self._existing_invoice(subscription.family_id)
@@ -128,7 +132,10 @@ class AfaServiceBilling(models.TransientModel):
             raise ValidationError(_('Preview the month before generating invoices.'))
         if any(line.month != self.month for line in self.line_ids):
             raise ValidationError(_('Billing month changed; refresh the preview.'))
-        if set(self.line_ids.mapped('subscription_id').ids) != set(self._candidates().ids):
+        preview_ids = self.line_ids.mapped('subscription_id').ids
+        if len(preview_ids) != len(self.line_ids) or set(preview_ids) != set(
+            self._candidates().ids
+        ):
             raise ValidationError(_('Subscriptions changed; refresh the preview.'))
         selected = self.line_ids.filtered('include')
         if not selected:
@@ -138,6 +145,15 @@ class AfaServiceBilling(models.TransientModel):
             # Lock the family, not merely invoices: two first-time billing requests
             # must not both conclude that there is no invoice yet.
             self.env.cr.execute('SELECT id FROM afa_family WHERE id = %s FOR UPDATE', [family.id])
+            for student in (
+                selected.filtered(lambda line, current=family: line.family_id == current)
+                .mapped('student_id')
+                .sorted('id')
+            ):
+                self.env['afa.service.subscription']._lock_student(student)
+            self.env.invalidate_all()
+            if set(self.line_ids.mapped('subscription_id').ids) != set(self._candidates().ids):
+                raise ValidationError(_('Subscriptions changed; refresh the preview.'))
             invoice = self._existing_invoice(family)
             lines = selected.filtered(lambda line, current=family: line.family_id == current)
             if len(set(lines.mapped('subscription_id.service_id.company_id').ids)) != 1:
@@ -184,7 +200,7 @@ class AfaServiceBilling(models.TransientModel):
                         'price_unit': snapshot['price'],
                     }
                 )
-                self.env['afa.service.charge'].with_context(
+                self.env['afa.service.charge'].sudo().with_context(
                     _afa_generate_service_invoices=True
                 ).create(
                     {

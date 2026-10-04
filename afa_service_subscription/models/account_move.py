@@ -42,9 +42,9 @@ class AccountMove(models.Model):
             )
         result = super().write(vals)
         if vals.get('state') == 'cancel':
-            billed.afa_service_charge_ids.with_context(_afa_cancel_service_invoice=True).write(
-                {'active': False}
-            )
+            billed.sudo().afa_service_charge_ids.with_context(
+                _afa_cancel_service_invoice=True
+            ).write({'active': False})
         return result
 
 

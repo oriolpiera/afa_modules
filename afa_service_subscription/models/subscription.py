@@ -48,8 +48,14 @@ class AfaServiceSubscription(models.Model):
             service = self.env['afa.service'].browse(vals['service_id'])
             window = self.env['afa.service.window'].browse(vals['join_window_id'])
             today = fields.Date.context_today(self)
+            initial_family = student.afa_family_id
+            if not initial_family:
+                raise ValidationError(_('Enrollment requires a student in a billing family.'))
+            self._lock_family(initial_family)
+            self._lock_student(student)
+            self.env.invalidate_all()
             if (
-                not student.afa_family_id
+                student.afa_family_id != initial_family
                 or student.afa_family_role != 'student'
                 or window.service_id != service
                 or window.kind != 'join'
@@ -58,7 +64,16 @@ class AfaServiceSubscription(models.Model):
                 raise ValidationError(
                     _('Enrollment requires a student and an open join window for this service.')
                 )
-            self._lock_student(student)
+            if self.search_count(
+                [
+                    ('family_id', '=', student.afa_family_id.id),
+                    ('service_id.period_id', '=', service.period_id.id),
+                    ('service_id.company_id', '!=', service.company_id.id),
+                ]
+            ):
+                raise ValidationError(
+                    _('All services for a family and school year must use the same company.')
+                )
             self._check_overlap(student, service, window.effective_month, False)
             subscriptions |= super().create(
                 [dict(vals, start_month=window.effective_month, join_requested_on=today)]
@@ -89,6 +104,10 @@ class AfaServiceSubscription(models.Model):
         self.env.cr.execute('SELECT id FROM res_partner WHERE id = %s FOR UPDATE', [student.id])
 
     @api.model
+    def _lock_family(self, family):
+        self.env.cr.execute('SELECT id FROM afa_family WHERE id = %s FOR UPDATE', [family.id])
+
+    @api.model
     def _check_overlap(self, student, service, start, end, exclude_id=False):
         domain = [
             ('student_id', '=', student.id),
@@ -107,6 +126,9 @@ class AfaServiceSubscription(models.Model):
         self.ensure_one()
         window.ensure_one()
         today = fields.Date.context_today(self)
+        self._lock_family(self.family_id)
+        self._lock_student(self.student_id)
+        self.env.invalidate_all()
         if (
             self.leave_window_id
             or window.service_id != self.service_id
@@ -115,13 +137,16 @@ class AfaServiceSubscription(models.Model):
             or window.effective_month <= self.start_month
         ):
             raise ValidationError(_('Select an open leave window after the enrollment month.'))
-        self._lock_student(self.student_id)
-        if self.env['afa.service.charge'].search_count(
-            [
-                ('subscription_id', '=', self.id),
-                ('month', '>=', window.effective_month),
-                ('active', '=', True),
-            ]
+        if (
+            self.env['afa.service.charge']
+            .sudo()
+            .search_count(
+                [
+                    ('subscription_id', '=', self.id),
+                    ('month', '>=', window.effective_month),
+                    ('active', '=', True),
+                ]
+            )
         ):
             raise ValidationError(
                 _('Cancel invoices for months after the withdrawal takes effect first.')
@@ -150,8 +175,10 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     def write(self, vals):
-        if {'afa_family_id', 'afa_family_role'} & vals.keys() and self.env[
-            'afa.service.subscription'
-        ].search_count([('student_id', 'in', self.ids)]):
-            raise ValidationError(_('A subscribed student cannot change family or role.'))
+        if {'afa_family_id', 'afa_family_role'} & vals.keys():
+            for partner in self.sorted('id'):
+                self.env['afa.service.subscription']._lock_student(partner)
+            self.env.invalidate_all()
+            if self.env['afa.service.subscription'].search_count([('student_id', 'in', self.ids)]):
+                raise ValidationError(_('A subscribed student cannot change family or role.'))
         return super().write(vals)

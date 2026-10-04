@@ -37,7 +37,10 @@ class AfaService(models.Model):
             raise ValidationError(
                 _('A service with subscriptions cannot change its identity or period.')
             )
-        return super().write(vals)
+        result = super().write(vals)
+        if {'period_id', 'date_start', 'date_end'} & vals.keys():
+            self.mapped('window_ids')._check_window()
+        return result
 
     @api.constrains(
         'date_start',

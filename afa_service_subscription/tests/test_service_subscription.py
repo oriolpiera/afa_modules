@@ -123,6 +123,86 @@ class TestServiceSubscription(TransactionCase):
             subscription.action_leave(self.leave)
         self.assertFalse(self._preview('2027-01-01').line_ids)
 
+    def test_second_withdrawal_cannot_replace_first(self):
+        subscription = self._subscribe()
+        other = self.env['afa.service.window'].create(
+            {
+                'service_id': self.service.id,
+                'kind': 'leave',
+                'date_start': '2026-12-01',
+                'date_end': '2026-12-31',
+                'effective_month': '2027-02-01',
+            }
+        )
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            subscription.action_leave(self.leave)
+        with (
+            patch('odoo.fields.Date.context_today', return_value=date(2026, 12, 10)),
+            self.assertRaises(ValidationError),
+            self.cr.savepoint(),
+        ):
+            subscription.action_leave(other)
+        self.assertEqual(subscription.end_month, date(2027, 1, 1))
+
+    def test_outdated_preview_cannot_bill_after_withdrawal(self):
+        subscription = self._subscribe()
+        wizard = self._preview('2027-01-01')
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            subscription.action_leave(self.leave)
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            wizard.action_generate()
+
+    def test_service_period_changes_revalidate_existing_windows(self):
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.service.write({'date_start': '2026-11-01'})
+        self.assertEqual(self.service.date_start, date(2026, 9, 1))
+
+    def test_family_cannot_mix_companies_in_same_school_year(self):
+        self._subscribe()
+        other_company = self.env['res.company'].create({'name': 'Second AFA Company'})
+        other_service = self.service.copy(
+            {
+                'name': 'Other Company Service',
+                'company_id': other_company.id,
+            }
+        )
+        other_window = self.env['afa.service.window'].create(
+            {
+                'service_id': other_service.id,
+                'kind': 'join',
+                'date_start': '2026-09-01',
+                'date_end': '2026-09-30',
+                'effective_month': '2026-10-01',
+            }
+        )
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._subscribe(other_service, other_window)
+
+    def test_duplicate_preview_lines_are_rejected_before_invoicing(self):
+        self._subscribe()
+        wizard = self._preview()
+        line = wizard.line_ids
+        self.env['afa.service.billing.line'].create(
+            {
+                'wizard_id': wizard.id,
+                'subscription_id': line.subscription_id.id,
+                'month': wizard.month,
+                'family_id': self.family.id,
+                'payer_id': line.payer_id.id,
+                'include': True,
+            }
+        )
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            wizard.action_generate()
+        self.assertFalse(
+            self.env['account.move'].search(
+                [
+                    ('afa_service_family_id', '=', self.family.id),
+                    ('afa_service_month', '=', wizard.month),
+                ]
+            )
+        )
+
     def test_family_invoice_aggregates_services_and_does_not_duplicate(self):
         first = self._subscribe()
         second_service = self.service.copy({'name': 'Lunch'})
@@ -276,3 +356,45 @@ class TestServiceSubscription(TransactionCase):
                     'effective_month': '2026-11-01',
                 }
             )
+
+    def test_unassigned_student_cannot_enroll(self):
+        student = self.env['res.partner'].create(
+            {
+                'name': 'Student Without Family',
+                'afa_family_role': 'student',
+            }
+        )
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.env['afa.service.subscription'].create(
+                {
+                    'student_id': student.id,
+                    'service_id': self.service.id,
+                    'join_window_id': self.join.id,
+                }
+            )
+
+    def test_staff_with_accounting_can_generate_and_cancel(self):
+        self._subscribe()
+        staff = self.env['res.users'].create(
+            {
+                'name': 'Service Billing Staff',
+                'login': 'service-billing-staff',
+                'group_ids': [
+                    (
+                        6,
+                        0,
+                        [
+                            self.env.ref('afa_family.group_family_manager').id,
+                            self.env.ref('account.group_account_user').id,
+                        ],
+                    )
+                ],
+            }
+        )
+        wizard = self.env['afa.service.billing'].with_user(staff).create({'month': '2026-10-01'})
+        wizard.action_preview()
+        invoice_id = wizard.action_generate()['domain'][0][2][0]
+        invoice = self.env['account.move'].with_user(staff).browse(invoice_id)
+        self.assertEqual(invoice.afa_service_charge_ids.price, 45)
+        invoice.button_cancel()
+        self.assertFalse(invoice.with_context(active_test=False).afa_service_charge_ids.active)
