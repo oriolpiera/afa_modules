@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_afa_service_manager,afa.service.manager,model_afa_service,afa_family.group_family_manager,1,1,1,0
+access_afa_service_window_manager,afa.service.window.manager,model_afa_service_window,afa_family.group_family_manager,1,1,1,1
+access_afa_service_subscription_manager,afa.service.subscription.manager,model_afa_service_subscription,afa_family.group_family_manager,1,1,1,0
+access_afa_service_charge_manager,afa.service.charge.manager,model_afa_service_charge,afa_family.group_family_manager,1,0,0,0
+access_afa_service_billing_manager,afa.service.billing.manager,model_afa_service_billing,afa_family.group_family_manager,1,1,1,1
+access_afa_service_billing_line_manager,afa.service.billing.line.manager,model_afa_service_billing_line,afa_family.group_family_manager,1,1,1,1
+access_afa_service_leave_manager,afa.service.leave.manager,model_afa_service_leave,afa_family.group_family_manager,1,1,1,1

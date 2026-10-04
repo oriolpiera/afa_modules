@@ -26,7 +26,7 @@ jobs:
       - name: Install AFA addons with demo and run focused tests
         run: |
           set -o pipefail
-          docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_demo_ci -i afa_family,afa_membership,afa_member_pricing,afa_sepa --with-demo --test-enable --test-tags /afa_family,/afa_membership,/afa_member_pricing,/afa_sepa --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
+          docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_demo_ci -i afa_family,afa_membership,afa_member_pricing,afa_sepa,afa_service_subscription --with-demo --test-enable --test-tags /afa_family,/afa_membership,/afa_member_pricing,/afa_sepa,/afa_service_subscription --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
           import re
           import sys
 
@@ -57,5 +57,6 @@ jobs:
               and "Starting TestMemberPricingWebsite.test_identified_member_product_page_uses_member_price" in output
           )
           sepa_tests_ran = "Starting TestAfaSepa.test_xml_duplicate_and_return" in output
-          sys.exit(0 if passed and demo_loaded and demo_test_ran and membership_tests_ran and pricing_tests_ran and pricing_demo_ran and sepa_tests_ran else 1)
+          service_tests_ran = "Starting TestServiceSubscription.test_family_invoice_aggregates_services_and_does_not_duplicate" in output
+          sys.exit(0 if passed and demo_loaded and demo_test_ran and membership_tests_ran and pricing_tests_ran and pricing_demo_ran and sepa_tests_ran and service_tests_ran else 1)
           '
