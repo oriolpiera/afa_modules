@@ -208,6 +208,8 @@ class AfaSepaWizard(models.TransientModel):
             return self._wizard_action()
         if not order:
             return self.action_preview()
+        self.order_id = order
+        self.prepared_invoice_ids = self.invoice_ids
         return self._order_action(order)
 
     def action_open_order(self):
@@ -216,13 +218,15 @@ class AfaSepaWizard(models.TransientModel):
         if not self.order_id:
             raise UserError(_('There is no prepared debit order.'))
         if not self._matches_prepared_order():
-            raise UserError(_('The collection selection changed; check eligibility again.'))
+            raise UserError(
+                _('The prepared debit order is no longer current; check eligibility again.')
+            )
         return self._order_action(self.order_id)
 
     def _matches_prepared_order(self):
         return bool(
             self.order_id.exists()
-            and self.order_id.state != 'cancel'
+            and self.order_id.state == 'draft'
             and set(self.invoice_ids.ids) == set(self.prepared_invoice_ids.ids)
             and self.payment_mode_id == self.order_id.payment_mode_id
             and self.journal_id == self.order_id.journal_id

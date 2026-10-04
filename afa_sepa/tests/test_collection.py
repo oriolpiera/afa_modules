@@ -298,6 +298,17 @@ class TestAfaSepa(TransactionCase):
         self.wizard.action_preview()
         self.assertEqual(self.wizard.order_id, partial_order)
         self.assertEqual(self.wizard.action_open_order()['res_id'], partial_order.id)
+        partial_order.draft2open()
+        partial_order.open2generated()
+        partial_order.generated2uploaded()
+        partial_order.payment_line_ids.action_record_return()
+        self.wizard.action_preview()
+        self.assertFalse(self.wizard.order_id)
+        replacement_action = self.wizard.action_prepare()
+        replacement_order = self.env['account.payment.order'].browse(replacement_action['res_id'])
+        self.assertNotEqual(replacement_order, partial_order)
+        self.assertEqual(self.wizard.order_id, replacement_order)
+        self.assertEqual(self.wizard.action_open_order()['res_id'], replacement_order.id)
         self.wizard.invoice_ids = next_invoice
         with self.assertRaises(UserError):
             self.wizard.action_open_order()
