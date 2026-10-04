@@ -99,6 +99,8 @@ class AccountPaymentLine(models.Model):
                 line.order_id.payment_method_id.code != 'sepa_direct_debit'
             ):
                 raise ValidationError(_('AFA collections require inbound SEPA direct debit.'))
+            if line.order_id.journal_id.bank_account_id.acc_type != 'iban':
+                raise ValidationError(_('The creditor bank journal needs an IBAN.'))
             if (
                 line.partner_id != invoice.partner_id
                 or not mandate

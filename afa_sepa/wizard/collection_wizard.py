@@ -81,9 +81,9 @@ class AfaSepaWizard(models.TransientModel):
         ):
             return False, _('A SEPA creditor identifier is missing.')
         if self.journal_id.company_id != invoice.company_id or (
-            self.journal_id.type != 'bank' or not self.journal_id.bank_account_id
+            self.journal_id.type != 'bank' or self.journal_id.bank_account_id.acc_type != 'iban'
         ):
-            return False, _('Select a bank journal with the creditor account.')
+            return False, _('Select a bank journal with the creditor IBAN.')
         if (
             self.payment_mode_id.bank_account_link == 'fixed'
             and (self.payment_mode_id.fixed_journal_id != self.journal_id)

@@ -234,6 +234,17 @@ class TestAfaSepa(TransactionCase):
         self.assertEqual(order.payment_line_ids.mandate_id, replacement)
         self.assertEqual(self.invoice.mandate_id, self.mandate)
 
+    def test_non_iban_creditor_account_is_excluded(self):
+        bank_account = self.env['res.partner.bank'].create(
+            {'partner_id': self.env.company.partner_id.id, 'acc_number': '1234567890'}
+        )
+        self.assertEqual(bank_account.acc_type, 'bank')
+        self.journal.bank_account_id = bank_account
+        self.wizard.action_preview()
+        self.assertFalse(self.wizard.line_ids.eligible)
+        self.assertIn('creditor IBAN', self.wizard.line_ids.reason)
+        self.assertEqual(self.wizard.action_prepare()['res_model'], 'afa.sepa.wizard')
+
     def test_imported_bank_credit_reconciles_with_order_payment(self):
         self.wizard.action_preview()
         order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
