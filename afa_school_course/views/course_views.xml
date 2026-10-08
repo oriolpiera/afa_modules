@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_school_course_list" model="ir.ui.view">
+        <field name="name">afa.school.course.list</field>
+        <field name="model">afa.school.course</field>
+        <field name="arch" type="xml">
+            <list><field name="sequence"/><field name="name"/><field name="next_course_id"/></list>
+        </field>
+    </record>
+    <record id="view_afa_school_course_form" model="ir.ui.view">
+        <field name="name">afa.school.course.form</field>
+        <field name="model">afa.school.course</field>
+        <field name="arch" type="xml">
+            <form><sheet><group><field name="name"/><field name="sequence"/>
+                <field name="next_course_id"/></group></sheet></form>
+        </field>
+    </record>
+    <record id="view_afa_partner_school_course_form" model="ir.ui.view">
+        <field name="name">res.partner.form.afa.school.course</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="afa_family.view_partner_form_afa_family"/>
+        <field name="arch" type="xml">
+            <field name="afa_family_id" position="after">
+                <field name="afa_course_id" invisible="afa_family_role != 'student'"/>
+            </field>
+        </field>
+    </record>
+    <record id="view_afa_family_school_course_form" model="ir.ui.view">
+        <field name="name">afa.family.form.school.course</field>
+        <field name="model">afa.family</field>
+        <field name="inherit_id" ref="afa_family.view_afa_family_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='student_ids']/list/field[@name='name']" position="after">
+                <field name="afa_course_id"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="action_afa_school_course" model="ir.actions.act_window">
+        <field name="name">School Courses</field>
+        <field name="res_model">afa.school.course</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_afa_school_course" name="School Courses"
+              parent="afa_family.menu_afa_family_root" action="action_afa_school_course"
+              groups="afa_family.group_family_manager"/>
+</odoo>

@@ -30,6 +30,7 @@ services:
       - ./afa_member_pricing:/mnt/extra-addons/afa_member_pricing:ro
       - ./afa_sepa:/mnt/extra-addons/afa_sepa:ro
       - ./afa_service_subscription:/mnt/extra-addons/afa_service_subscription:ro
+      - ./afa_school_course:/mnt/extra-addons/afa_school_course:ro
       - ./.oca-bank-payment/account_payment_mode:/mnt/extra-addons/account_payment_mode:ro
       - ./.oca-bank-payment/account_payment_order:/mnt/extra-addons/account_payment_order:ro
       - ./.oca-bank-payment/account_banking_pain_base:/mnt/extra-addons/account_banking_pain_base:ro

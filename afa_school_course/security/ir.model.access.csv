@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_afa_school_course_manager,afa.school.course.manager,model_afa_school_course,afa_family.group_family_manager,1,1,1,0
+access_afa_school_promotion_manager,afa.school.promotion.manager,model_afa_school_promotion,afa_family.group_family_manager,1,0,0,0
+access_afa_school_promotion_wizard_manager,afa.school.promotion.wizard.manager,model_afa_school_promotion_wizard,afa_family.group_family_manager,1,1,1,1
+access_afa_school_promotion_line_manager,afa.school.promotion.line.manager,model_afa_school_promotion_line,afa_family.group_family_manager,1,1,1,1

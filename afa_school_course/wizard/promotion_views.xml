@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_school_promotion_wizard_form" model="ir.ui.view">
+        <field name="name">afa.school.promotion.wizard.form</field>
+        <field name="model">afa.school.promotion.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Promote Students">
+                <sheet>
+                    <group><field name="period_id" readonly="line_ids"/></group>
+                    <field name="line_ids" readonly="1">
+                        <list create="0" edit="0" delete="0">
+                            <field name="student_id"/>
+                            <field name="course_id"/>
+                            <field name="next_course_id" string="Next Course (empty means graduation)"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button name="action_preview" type="object" string="Refresh Preview"/>
+                    <button name="action_confirm" type="object" string="Confirm Promotion"
+                            class="btn-primary" invisible="not line_ids" confirm="Promote all students shown?"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_afa_school_promotion_wizard" model="ir.actions.act_window">
+        <field name="name">Promote Students</field>
+        <field name="res_model">afa.school.promotion.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+    <menuitem id="menu_afa_school_promotion_wizard" name="Promote Students"
+              parent="afa_family.menu_afa_family_root" action="action_afa_school_promotion_wizard"
+              groups="afa_family.group_family_manager"/>
+</odoo>
