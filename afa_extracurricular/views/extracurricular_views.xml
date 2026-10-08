@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_service_form_extracurricular" model="ir.ui.view">
+        <field name="name">afa.service.form.extracurricular</field>
+        <field name="model">afa.service</field>
+        <field name="inherit_id" ref="afa_service_subscription.view_afa_service_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <div class="oe_button_box" name="button_box" invisible="not is_extracurricular">
+                    <button name="action_open_enrollments" type="object"
+                            class="oe_stat_button" icon="fa-user-plus" string="Enrollments">
+                        <field name="enrollment_count" widget="statinfo"/>
+                    </button>
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_extracurricular"/>
+            </xpath>
+            <xpath expr="//sheet/group[1]" position="after">
+                <group string="Informative enrollment period"
+                       invisible="not is_extracurricular">
+                    <field name="enrollment_date_start"/>
+                    <field name="enrollment_date_end"/>
+                </group>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <notebook invisible="not is_extracurricular">
+                    <page string="Groups">
+                        <field name="group_ids">
+                            <list>
+                                <field name="name"/>
+                                <field name="capacity"/>
+                                <field name="enrolled_count"/>
+                                <field name="schedule_summary" optional="show"/>
+                                <field name="service_id" column_invisible="1"/>
+                            </list>
+                            <form>
+                                <group>
+                                    <field name="name"/>
+                                    <field name="capacity"/>
+                                    <field name="enrolled_count" readonly="1"/>
+                                </group>
+                                <group string="Weekly Schedule">
+                                    <field name="schedule_ids">
+                                        <list editable="bottom">
+                                            <field name="weekday"/>
+                                            <field name="hour_from" widget="float_time"/>
+                                            <field name="hour_to" widget="float_time"/>
+                                        </list>
+                                    </field>
+                                </group>
+                                <group string="Enrollments">
+                                    <field name="subscription_ids" readonly="1">
+                                        <list>
+                                            <field name="student_id"/>
+                                            <field name="family_id"/>
+                                            <field name="start_month"/>
+                                            <field name="end_month"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </form>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_afa_extracurricular" model="ir.actions.act_window">
+        <field name="name">Extracurriculars</field>
+        <field name="res_model">afa.service</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_extracurricular', '=', True)]</field>
+        <field name="context">{'default_is_extracurricular': True}</field>
+    </record>
+
+    <menuitem id="menu_afa_extracurricular" name="Extracurriculars"
+        parent="afa_family.menu_afa_family_root" action="action_afa_extracurricular"
+        groups="afa_family.group_family_manager" sequence="20"/>
+</odoo>

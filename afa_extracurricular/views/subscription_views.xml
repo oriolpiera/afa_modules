@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_subscription_extracurricular_list" model="ir.ui.view">
+        <field name="name">afa.service.subscription.extracurricular.list</field>
+        <field name="model">afa.service.subscription</field>
+        <field name="arch" type="xml">
+            <list create="1" edit="0" delete="0">
+                <field name="student_id"/>
+                <field name="family_id"/>
+                <field name="service_id"/>
+                <field name="group_id"/>
+                <field name="join_requested_on"/>
+                <field name="start_month"/>
+                <field name="leave_requested_on"/>
+                <field name="end_month"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_afa_service_subscription_form_extracurricular" model="ir.ui.view">
+        <field name="name">afa.service.subscription.form.extracurricular</field>
+        <field name="model">afa.service.subscription</field>
+        <field name="inherit_id" ref="afa_service_subscription.view_afa_service_subscription_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='service_id']" position="after">
+                <field name="is_extracurricular" invisible="1"/>
+                <field name="group_id" invisible="not is_extracurricular"
+                       required="is_extracurricular"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
