@@ -242,6 +242,16 @@ class TestSchoolPromotion(TransactionCase):
         self.assertEqual(self.younger.afa_course_id, self.last)
         self.assertFalse(self.graduate.active)
 
+    def test_older_school_year_cannot_promote_after_a_newer_one(self):
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            self._wizard().action_confirm()
+        older = self.env['afa.membership.period'].create(
+            {'name': '2025/26', 'date_start': '2025-07-01', 'date_end': '2026-06-30'}
+        )
+        wizard = self.env['afa.school.promotion.wizard'].create({'period_id': older.id})
+        with self.assertRaisesRegex(ValidationError, 'chronological order'):
+            wizard.action_preview()
+
     def test_manager_can_confirm_without_permission_to_create_history_directly(self):
         manager = self.env['res.users'].create(
             {

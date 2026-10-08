@@ -24,6 +24,20 @@ class AfaSchoolPromotionWizard(models.TransientModel):
             raise ValidationError(_('Promote a school year during or after its final month.'))
         if self.env['afa.school.promotion'].search_count([('period_id', '=', self.period_id.id)]):
             raise ValidationError(_('This school year has already been promoted.'))
+        promoted_later = self.env['afa.school.promotion'].search(
+            [('period_id.date_end', '>', self.period_id.date_end)], limit=1
+        )
+        if promoted_later:
+            raise ValidationError(
+                _(
+                    'School year %(selected)s ends before the already promoted school '
+                    'year %(promoted)s. Promote school years in chronological order.'
+                )
+                % {
+                    'selected': self.period_id.name,
+                    'promoted': promoted_later.period_id.name,
+                }
+            )
         courses = self.env['afa.school.course'].search([])
         if courses:
             predecessors = set(courses.mapped('next_course_id').ids)
