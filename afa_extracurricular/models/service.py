@@ -18,14 +18,17 @@ class AfaService(models.Model):
         help='Informative registration window for families; it never blocks a staff enrollment.',
     )
     group_ids = fields.One2many('afa.service.group', 'service_id', string='Groups')
-    enrollment_count = fields.Integer(compute='_compute_enrollment_count')
+    enrollment_count = fields.Integer(
+        compute='_compute_enrollment_count', groups='afa_family.group_family_manager'
+    )
 
     def write(self, vals):
-        if 'is_extracurricular' in vals and self.env['afa.service.subscription'].search_count(
-            [('service_id', 'in', self.ids)]
+        if 'is_extracurricular' in vals and (
+            self.env['afa.service.subscription'].search_count([('service_id', 'in', self.ids)])
+            or self.env['afa.service.group'].search_count([('service_id', 'in', self.ids)])
         ):
             raise ValidationError(
-                _('A service with subscriptions cannot change its extracurricular type.')
+                _('A service with enrollments or groups cannot change its extracurricular type.')
             )
         return super().write(vals)
 

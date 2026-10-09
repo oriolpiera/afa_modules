@@ -15,6 +15,13 @@ class AfaServiceSubscription(models.Model):
     )
     is_extracurricular = fields.Boolean(related='service_id.is_extracurricular')
 
+    def write(self, vals):
+        if 'group_id' in vals:
+            for subscription in self:
+                if subscription.group_id.id != (vals['group_id'] or False):
+                    raise ValidationError(_('A student cannot change groups after enrolling.'))
+        return super().write(vals)
+
     @api.constrains('group_id', 'service_id')
     def _check_group_assignment(self):
         for subscription in self:

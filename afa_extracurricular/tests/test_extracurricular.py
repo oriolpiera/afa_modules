@@ -175,6 +175,8 @@ class TestExtracurricular(TransactionCase):
             nonmember_price=15,
         )
         self.env['afa.service.group'].create({'service_id': other.id, 'name': 'Chess A'})
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.chess.write({'is_extracurricular': False})
 
     def test_unassigned_student_group_permissions(self):
         user = self.env['res.users'].create(
@@ -212,6 +214,8 @@ class TestExtracurricular(TransactionCase):
         self.assertEqual(first.group_id, self.chess_a)
         self.assertTrue(first.is_extracurricular)
         with self.assertRaises(ValidationError), self.cr.savepoint():
+            first.write({'group_id': self.chess_b.id})
+        with self.assertRaises(ValidationError), self.cr.savepoint():
             self._enroll(student=self.student, group=self.chess_b)
         with self.assertRaises(ValidationError), self.cr.savepoint():
             self.chess_a.unlink()
@@ -223,8 +227,9 @@ class TestExtracurricular(TransactionCase):
         self.assertEqual(first.start_month, date(2026, 10, 1))
         second = self._enroll(student=self.other_student, group=self.chess_a)
         self.assertEqual(second.group_id, self.chess_a)
-        self.assertEqual(self.chess_a.enrolled_count, 2)
-        self.assertGreater(self.chess_a.enrolled_count, self.chess_a.capacity)
+        with patch('odoo.fields.Date.context_today', return_value=date(2026, 11, 1)):
+            self.assertEqual(self.chess_a.enrolled_count, 2)
+            self.assertGreater(self.chess_a.enrolled_count, self.chess_a.capacity)
 
     def test_overlapping_schedules_across_activities_are_allowed(self):
         chess = self._enroll(group=self.chess_a)
