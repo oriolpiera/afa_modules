@@ -167,6 +167,11 @@ class TestMembershipDomain(TransactionCase):
         with self.assertRaises(AccessError), self.cr.savepoint():
             link.with_user(user).write({'active': False})
 
+    def test_new_link_without_period_does_not_crash_state_compute(self):
+        draft = self.Membership.new({'family_id': self.family.id})
+        self.assertEqual(draft.state, 'pending')
+        self.assertFalse(draft.is_invoice_member_on(date(2026, 9, 1)))
+
     def test_archived_link_remains_visible_in_manager_action(self):
         link = self.Membership.create({'family_id': self.family.id, 'period_id': self.period.id})
         link.active = False
