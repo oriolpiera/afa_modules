@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_afa_service_group_manager,afa.service.group.manager,model_afa_service_group,afa_family.group_family_manager,1,1,1,1
+access_afa_service_group_schedule_manager,afa.service.group.schedule.manager,model_afa_service_group_schedule,afa_family.group_family_manager,1,1,1,1

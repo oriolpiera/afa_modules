@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_afa_extracurricular" model="ir.ui.view">
+        <field name="name">res.partner.form.afa.extracurricular</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_open_afa_extracurriculars" type="object"
+                        class="oe_stat_button" icon="fa-puzzle-piece" string="Extracurriculars"
+                        groups="afa_family.group_family_manager"
+                        invisible="afa_family_role != 'student' or not afa_extracurricular_count">
+                    <field name="afa_extracurricular_count" widget="statinfo"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_afa_family_form_extracurricular" model="ir.ui.view">
+        <field name="name">afa.family.form.extracurricular</field>
+        <field name="model">afa.family</field>
+        <field name="inherit_id" ref="afa_family.view_afa_family_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_open_afa_extracurriculars" type="object"
+                        class="oe_stat_button" icon="fa-puzzle-piece" string="Extracurriculars"
+                        groups="afa_family.group_family_manager"
+                        invisible="not afa_extracurricular_count">
+                    <field name="afa_extracurricular_count" widget="statinfo"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>
