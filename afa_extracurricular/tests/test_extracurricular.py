@@ -289,3 +289,11 @@ class TestExtracurricular(TransactionCase):
         self.assertEqual(activity_action['domain'], [('service_id', '=', self.chess.id)])
         self.assertTrue(self.chess.group_ids)
         self.assertEqual(self.chess_a.schedule_ids.mapped('weekday'), ['1', '3'])
+
+    def test_new_records_compute_counts_without_saved_id(self):
+        new_family = self.env['afa.family'].new({})
+        self.assertEqual(new_family.afa_extracurricular_count, 0)
+        new_student = self.env['res.partner'].new({'name': 'Draft Student'})
+        self.assertEqual(new_student.afa_extracurricular_count, 0)
+        new_group = self.env['afa.service.group'].new({})
+        self.assertEqual(new_group.enrolled_count, 0)

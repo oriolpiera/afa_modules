@@ -2,7 +2,7 @@
 
 ## Odoo 19 local test stack
 
-The development-only stack in `compose.test.yaml` runs PostgreSQL 16 and Odoo 19
+The development-only stack in `compose.test.yaml` runs PostgreSQL 18 and Odoo 19
 with `afa_family`, `afa_membership`, `afa_member_pricing`, `afa_sepa`,
 `afa_service_subscription`, `afa_school_course`, and `afa_extracurricular`
 mounted from this checkout. It does not change the separate Odoo 16 stack.
