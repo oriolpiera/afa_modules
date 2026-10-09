@@ -117,7 +117,7 @@ class AfaServiceGroup(models.Model):
             ):
                 counts[subscription.group_id.id] += 1
         for group in self:
-            group.enrolled_count = counts[group.id]
+            group.enrolled_count = counts.get(group.id, 0)
 
     def _compute_schedule_summary(self):
         for group in self:
