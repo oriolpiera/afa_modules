@@ -1,3 +1,5 @@
+from psycopg2 import IntegrityError
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -37,23 +39,52 @@ class AfaServiceGroup(models.Model):
         default=0,
         help='Informational seat limit; enrollments are never blocked by it.',
     )
-    enrolled_count = fields.Integer(compute='_compute_enrolled_count', string='Enrolled')
+    enrolled_count = fields.Integer(
+        compute='_compute_enrolled_count',
+        string='Enrolled',
+        groups='afa_family.group_family_manager',
+    )
     schedule_ids = fields.One2many(
         'afa.service.group.schedule', 'group_id', string='Weekly Schedule'
     )
     subscription_ids = fields.One2many('afa.service.subscription', 'group_id', string='Enrollments')
     schedule_summary = fields.Char(compute='_compute_schedule_summary')
 
+    def init(self):
+        self.env.cr.execute(
+            'CREATE UNIQUE INDEX IF NOT EXISTS afa_service_group_service_name_uniq '
+            'ON afa_service_group (service_id, name)'
+        )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        try:
+            with self.env.cr.savepoint():
+                return super().create(vals_list)
+        except IntegrityError as error:
+            if error.diag.constraint_name != 'afa_service_group_service_name_uniq':
+                raise
+            raise ValidationError(_('Group names must be unique within an activity.')) from error
+
     def write(self, vals):
         if 'service_id' in vals and self.env['afa.service.subscription'].search_count(
             [('group_id', 'in', self.ids)]
         ):
             raise ValidationError(_('A group with enrollments cannot move to another activity.'))
-        return super().write(vals)
+        try:
+            with self.env.cr.savepoint():
+                result = super().write(vals)
+                if 'name' in vals or 'service_id' in vals:
+                    self.flush_recordset(['name', 'service_id'])
+                return result
+        except IntegrityError as error:
+            if error.diag.constraint_name != 'afa_service_group_service_name_uniq':
+                raise
+            raise ValidationError(_('Group names must be unique within an activity.')) from error
 
     def unlink(self):
         if self.env['afa.service.subscription'].search_count([('group_id', 'in', self.ids)]):
-            raise ValidationError(_('Withdraw its enrollments before deleting a group.'))
+            raise ValidationError(_('A group with enrollment history cannot be deleted.'))
         return super().unlink()
 
     @api.constrains('name', 'service_id', 'capacity')
@@ -78,8 +109,11 @@ class AfaServiceGroup(models.Model):
         for subscription in self.env['afa.service.subscription'].search(
             [('group_id', 'in', self.ids)]
         ):
-            if subscription.start_month <= today and (
-                not subscription.end_month or subscription.end_month > today
+            service_end = subscription.service_id.date_end
+            if (
+                subscription.start_month <= today
+                and (not subscription.end_month or subscription.end_month > today)
+                and (not service_end or service_end >= today)
             ):
                 counts[subscription.group_id.id] += 1
         for group in self:

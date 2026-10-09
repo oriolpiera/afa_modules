@@ -1,3 +1,5 @@
+from psycopg2 import IntegrityError
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -23,6 +25,34 @@ class AfaServiceGroupSchedule(models.Model):
     )
     hour_from = fields.Float(required=True, string='From')
     hour_to = fields.Float(required=True, string='To')
+
+    def init(self):
+        self.env.cr.execute(
+            'CREATE UNIQUE INDEX IF NOT EXISTS afa_service_group_schedule_group_weekday_uniq '
+            'ON afa_service_group_schedule (group_id, weekday)'
+        )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        try:
+            with self.env.cr.savepoint():
+                return super().create(vals_list)
+        except IntegrityError as error:
+            if error.diag.constraint_name != 'afa_service_group_schedule_group_weekday_uniq':
+                raise
+            raise ValidationError(_('A group can only have one slot per weekday.')) from error
+
+    def write(self, vals):
+        try:
+            with self.env.cr.savepoint():
+                result = super().write(vals)
+                if 'group_id' in vals or 'weekday' in vals:
+                    self.flush_recordset(['group_id', 'weekday'])
+                return result
+        except IntegrityError as error:
+            if error.diag.constraint_name != 'afa_service_group_schedule_group_weekday_uniq':
+                raise
+            raise ValidationError(_('A group can only have one slot per weekday.')) from error
 
     @api.constrains('weekday', 'hour_from', 'hour_to', 'group_id')
     def _check_schedule(self):
