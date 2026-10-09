@@ -4,7 +4,10 @@ from odoo import _, fields, models
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    afa_extracurricular_count = fields.Integer(compute='_compute_afa_extracurricular_count')
+    afa_extracurricular_count = fields.Integer(
+        compute='_compute_afa_extracurricular_count',
+        groups='afa_family.group_family_manager',
+    )
 
     def _compute_afa_extracurricular_count(self):
         counts = dict.fromkeys(self.ids, 0)
@@ -48,7 +51,10 @@ class ResPartner(models.Model):
 class AfaFamily(models.Model):
     _inherit = 'afa.family'
 
-    afa_extracurricular_count = fields.Integer(compute='_compute_afa_extracurricular_count')
+    afa_extracurricular_count = fields.Integer(
+        compute='_compute_afa_extracurricular_count',
+        groups='afa_family.group_family_manager',
+    )
 
     def _compute_afa_extracurricular_count(self):
         counts = dict.fromkeys(self.ids, 0)
