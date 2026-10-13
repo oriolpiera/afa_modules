@@ -170,6 +170,26 @@ class TestFamilyImport(TransactionCase):
         message = 'Mark which guardian pays the dues.'
         self.assertEqual(self._errors(wizard), {'Un Marc': message, 'Dos Marc': message})
 
+    def test_a_student_cannot_pay_the_dues(self):
+        wizard = self._load(
+            [
+                self._row('Fam Ponent', 'guardian', 'Sara Ponent'),
+                self._row('Fam Ponent', 'student', 'Nil Ponent', is_billing='true', course='4t'),
+            ]
+        )
+        self.assertEqual(self._errors(wizard)['Nil Ponent'], 'Only a guardian can pay the dues.')
+        wizard.action_confirm()
+        self.assertFalse(self._family('Fam Ponent'))
+        self.assertFalse(self.env['res.partner'].search([('name', '=', 'Nil Ponent')]))
+
+    def test_a_student_only_family_is_reported(self):
+        wizard = self._load(
+            [self._row('Fam Solc', 'student', 'Aina Solc', is_billing='true', course='4t')]
+        )
+        self.assertEqual(
+            self._errors(wizard), {'Aina Solc': 'A family needs at least one guardian.'}
+        )
+
     def test_family_without_guardians_is_reported(self):
         wizard = self._load([self._row('Fam Orfe', 'student', 'Aina Orfe', course='4t')])
         self.assertEqual(

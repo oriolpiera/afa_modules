@@ -168,35 +168,50 @@ class AfaFamilyImportWizard(models.TransientModel):
         row_errors = {}
         guardians = []
         billing = []
+        unpaid = []
         for line in group:
             line.is_payer = False
             reason = self._validate_line(line)
             if reason:
                 row_errors[line.id] = reason
-            if line.role == 'guardian':
-                guardians.append(line)
+            if line.role != 'guardian':
+                if file_format.parse_bool(line.is_billing):
+                    unpaid.append(line)
+                continue
+            guardians.append(line)
             if file_format.parse_bool(line.is_billing):
                 billing.append(line)
-        if len(billing) > 1:
-            for line in billing:
-                row_errors.setdefault(line.id, _('More than one billing guardian is marked.'))
-        elif not billing:
-            if len(guardians) == 1:
-                billing = guardians
-            elif guardians:
-                for line in guardians:
-                    row_errors.setdefault(line.id, _('Mark which guardian pays the dues.'))
-            else:
-                for line in group:
-                    row_errors.setdefault(line.id, _('A family needs at least one guardian.'))
-        if len(billing) == 1:
-            payer = billing[0]
+        payer = self._payer_line(group, guardians, billing, unpaid, row_errors)
+        if payer:
             payer.is_payer = True
             if payer.id not in row_errors:
                 self._validate_mandate_date(payer, row_errors)
         for line in group:
             line.error = row_errors.get(line.id, '')
             line.action = 'error' if row_errors.get(line.id) else 'create'
+
+    @staticmethod
+    def _payer_line(group, guardians, billing, unpaid, row_errors):
+        """Report the guardian and billing conflicts, and return the line that pays."""
+        if not guardians:
+            for line in group:
+                row_errors.setdefault(line.id, _('A family needs at least one guardian.'))
+            return None
+        for line in unpaid:
+            row_errors.setdefault(line.id, _('Only a guardian can pay the dues.'))
+        if len(billing) > 1:
+            for line in billing:
+                row_errors.setdefault(line.id, _('More than one billing guardian is marked.'))
+            return None
+        if not billing and len(guardians) > 1:
+            for line in guardians:
+                row_errors.setdefault(line.id, _('Mark which guardian pays the dues.'))
+            return None
+        if len(billing) == 1:
+            return billing[0]
+        if len(guardians) == 1:
+            return guardians[0]
+        return None
 
     def _validate_mandate_date(self, line, row_errors):
         if not line.iban or not self.create_mandates:
