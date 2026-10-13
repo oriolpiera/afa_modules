@@ -24,11 +24,41 @@ class ResPartner(models.Model):
     afa_is_student = fields.Boolean(
         compute='_compute_afa_is_student', store=True, compute_sudo=True
     )
+    # UI affordance: a many2one cannot point at an unsaved o2m row, so the family
+    # form flags the billing guardian from the guardians list instead.
+    afa_is_billing_guardian = fields.Boolean(
+        string='Billing Guardian',
+        compute='_compute_afa_is_billing_guardian',
+        inverse='_inverse_afa_is_billing_guardian',
+        store=True,
+        groups='afa_family.group_family_manager',
+        help='Checked for the guardian who receives the family invoices.',
+    )
 
     @api.depends('afa_family_role')
     def _compute_afa_is_student(self):
         for partner in self:
             partner.afa_is_student = partner.afa_family_role == 'student'
+
+    @api.depends('afa_family_id.billing_partner_id')
+    def _compute_afa_is_billing_guardian(self):
+        for partner in self:
+            partner.afa_is_billing_guardian = bool(partner.afa_family_id) and (
+                partner.afa_family_id.billing_partner_id == partner
+            )
+
+    def _inverse_afa_is_billing_guardian(self):
+        for partner in self:
+            family = partner.afa_family_id
+            if partner.afa_is_billing_guardian:
+                if not family:
+                    raise ValidationError(_('A billing guardian must belong to a family.'))
+                if family.billing_partner_id != partner:
+                    family.billing_partner_id = partner
+            elif family.billing_partner_id == partner:
+                raise ValidationError(
+                    _('Select another billing guardian before clearing this one.')
+                )
 
     def _can_manage_family(self):
         return self.env.su or self.env.user.has_group('afa_family.group_family_manager')
@@ -46,6 +76,8 @@ class ResPartner(models.Model):
             and not self._can_manage_family()
         ):
             raise AccessError(_('Only family managers may assign family membership or roles.'))
+        # A guardian flagged in create vals (e.g. an o2m line of a saved family)
+        # is applied by the field inverse, which sets the family payer.
         partners = super().create(vals_list)
         return partners
 

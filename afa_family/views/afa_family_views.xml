@@ -32,7 +32,8 @@
                     <notebook>
                         <page string="Guardians">
                             <field name="guardian_ids" context="{'default_afa_family_role': 'guardian'}">
-                                <list>
+                                <list editable="bottom">
+                                    <field name="afa_is_billing_guardian" widget="boolean_toggle"/>
                                     <field name="name"/>
                                     <field name="email"/>
                                     <field name="phone"/>

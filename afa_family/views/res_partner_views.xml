@@ -9,6 +9,7 @@
                 <group string="AFA Family" groups="afa_family.group_family_manager">
                     <field name="afa_family_role"/>
                     <field name="afa_family_id"/>
+                    <field name="afa_is_billing_guardian"/>
                 </group>
             </xpath>
         </field>

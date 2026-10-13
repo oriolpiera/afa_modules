@@ -145,3 +145,165 @@ class TestFamily(TransactionCase):
         student = self.Partner.create({'name': 'Student', 'afa_family_role': 'student'})
         with self.assertRaises(ValidationError), self.cr.savepoint():
             self.Family.create({'name': 'Invalid', 'billing_partner_id': student.id})
+
+
+class TestFamilyInlineBillingGuardian(TransactionCase):
+    def setUp(self):
+        super().setUp()
+        self.Partner = self.env['res.partner']
+        self.Family = self.env['afa.family']
+        self.guardian = self.Partner.create({'name': 'Guardian A', 'afa_family_role': 'guardian'})
+        self.family = self.Family.create(
+            {
+                'name': 'Family A',
+                'billing_partner_id': self.guardian.id,
+            }
+        )
+
+    def test_inline_guardian_flagged_as_billing_becomes_payer(self):
+        family = self.Family.create(
+            {
+                'name': 'Inline Family',
+                'guardian_ids': [
+                    (
+                        0,
+                        0,
+                        {
+                            'name': 'Inline Guardian',
+                            'afa_family_role': 'guardian',
+                            'afa_is_billing_guardian': True,
+                        },
+                    ),
+                    (0, 0, {'name': 'Second Guardian', 'afa_family_role': 'guardian'}),
+                ],
+            }
+        )
+        payer = family.billing_partner_id
+        self.assertEqual(payer.name, 'Inline Guardian')
+        self.assertEqual(payer.afa_family_id, family)
+        self.assertEqual(payer.afa_family_role, 'guardian')
+        self.assertTrue(payer.afa_is_billing_guardian)
+        self.assertIn(payer, family.guardian_ids)
+        self.assertEqual(
+            family.guardian_ids.filtered('afa_is_billing_guardian'),
+            payer,
+        )
+
+    def test_inline_billing_guardian_must_be_a_guardian(self):
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.Family.create(
+                {
+                    'name': 'Student Payer',
+                    'guardian_ids': [
+                        (
+                            0,
+                            0,
+                            {
+                                'name': 'Student Line',
+                                'afa_family_role': 'student',
+                                'afa_is_billing_guardian': True,
+                            },
+                        ),
+                    ],
+                }
+            )
+
+    def test_only_one_inline_billing_guardian_is_allowed(self):
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.Family.create(
+                {
+                    'name': 'Two Payers',
+                    'guardian_ids': [
+                        (
+                            0,
+                            0,
+                            {
+                                'name': 'One',
+                                'afa_family_role': 'guardian',
+                                'afa_is_billing_guardian': True,
+                            },
+                        ),
+                        (
+                            0,
+                            0,
+                            {
+                                'name': 'Two',
+                                'afa_family_role': 'guardian',
+                                'afa_is_billing_guardian': True,
+                            },
+                        ),
+                    ],
+                }
+            )
+
+    def test_field_and_inline_flag_cannot_be_combined(self):
+        outsider = self.Partner.create({'name': 'Outsider', 'afa_family_role': 'guardian'})
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.Family.create(
+                {
+                    'name': 'Both',
+                    'billing_partner_id': outsider.id,
+                    'guardian_ids': [
+                        (
+                            0,
+                            0,
+                            {
+                                'name': 'Inline',
+                                'afa_family_role': 'guardian',
+                                'afa_is_billing_guardian': True,
+                            },
+                        ),
+                    ],
+                }
+            )
+
+    def test_family_without_any_billing_guardian_is_rejected(self):
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.Family.create(
+                {
+                    'name': 'No Payer',
+                    'guardian_ids': [
+                        (0, 0, {'name': 'Quiet Guardian', 'afa_family_role': 'guardian'})
+                    ],
+                }
+            )
+
+    def test_flagging_an_existing_guardian_switches_the_payer(self):
+        second = self.Partner.create(
+            {
+                'name': 'Guardian B',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'guardian',
+            }
+        )
+        second.afa_is_billing_guardian = True
+        self.assertEqual(self.family.billing_partner_id, second)
+        self.assertTrue(second.afa_is_billing_guardian)
+        self.assertFalse(self.guardian.afa_is_billing_guardian)
+
+    def test_clearing_the_current_billing_flag_is_rejected(self):
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.guardian.afa_is_billing_guardian = False
+        self.assertEqual(self.family.billing_partner_id, self.guardian)
+
+    def test_adding_a_flagged_guardian_line_to_a_saved_family_switches_the_payer(self):
+        self.family.write(
+            {
+                'guardian_ids': [
+                    (
+                        0,
+                        0,
+                        {
+                            'name': 'New Guardian',
+                            'afa_family_role': 'guardian',
+                            'afa_is_billing_guardian': True,
+                        },
+                    ),
+                ],
+            }
+        )
+        payer = self.family.billing_partner_id
+        self.assertEqual(payer.name, 'New Guardian')
+        self.assertEqual(payer.afa_family_id, self.family)
+        self.assertTrue(payer.afa_is_billing_guardian)
+        self.assertFalse(self.guardian.afa_is_billing_guardian)
