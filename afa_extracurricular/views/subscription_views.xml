@@ -25,7 +25,7 @@
             <xpath expr="//field[@name='service_id']" position="after">
                 <field name="is_extracurricular" invisible="1"/>
                 <field name="group_id" invisible="not is_extracurricular"
-                       required="is_extracurricular"/>
+                       required="is_extracurricular" readonly="id"/>
             </xpath>
         </field>
     </record>
