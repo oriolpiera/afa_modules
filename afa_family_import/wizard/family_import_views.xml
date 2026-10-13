@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_family_import_wizard_form" model="ir.ui.view">
+        <field name="name">afa.family.import.wizard.form</field>
+        <field name="model">afa.family.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Load Families">
+                <sheet>
+                    <group>
+                        <group string="File">
+                            <field name="file" filename="filename"/>
+                            <field name="filename"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="create_mandates"/>
+                        </group>
+                        <group string="Template">
+                            <button name="action_template" type="object" icon="fa-download"
+                                    string="Download CSV Template" class="btn-secondary"/>
+                        </group>
+                    </group>
+                    <field name="line_ids" readonly="1">
+                        <list create="0" edit="0" delete="0"
+                              decoration-danger="action == 'error'"
+                              decoration-muted="action == 'skip'">
+                            <field name="sequence" column_invisible="1"/>
+                            <field name="family_name"/>
+                            <field name="role"/>
+                            <field name="is_billing"/>
+                            <field name="name"/>
+                            <field name="email"/>
+                            <field name="phone"/>
+                            <field name="course"/>
+                            <field name="iban"/>
+                            <field name="mandate_date"/>
+                            <field name="action"/>
+                            <field name="error"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button name="action_load" type="object" string="Load File"
+                            class="btn-primary"/>
+                    <button name="action_confirm" type="object" string="Confirm Import"
+                            class="btn-primary" invisible="not line_ids"
+                            confirm="Create the families shown below?"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_afa_family_import" model="ir.actions.act_window">
+        <field name="name">Load Families</field>
+        <field name="res_model">afa.family.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_afa_family_import" name="Load Families"
+              parent="afa_family.menu_afa_family_root" action="action_afa_family_import"
+              groups="afa_family.group_family_manager"/>
+</odoo>
