@@ -15,8 +15,7 @@ _WEEKDAY_SHORT = {
 
 
 def _format_hour(value):
-    hours = int(value)
-    minutes = round((value - hours) * 60)
+    hours, minutes = divmod(round(value * 60), 60)
     return f'{hours:02d}:{minutes:02d}'
 
 
