@@ -346,8 +346,10 @@ class TestFamilyImport(TransactionCase):
             return original(recordset, group)
 
         with patch.object(type(wizard), '_create_family', _create_family):
-            wizard.action_confirm()
+            action = wizard.action_confirm()
 
+        self.assertEqual(action['type'], 'ir.actions.act_window')
+        self.assertEqual(action['res_model'], 'afa.family.import.wizard')
         self.assertEqual(len(self._family('Fam Alpha')), 1)
         self.assertFalse(self._family('Fam Beta'))
         # The savepoint rolled back the partially created payer of the failed family.
@@ -355,6 +357,16 @@ class TestFamilyImport(TransactionCase):
         beta_line = wizard.line_ids.filtered(lambda line: line.family_name == 'Fam Beta')
         self.assertEqual(beta_line.action, 'error')
         self.assertIn('Beta cannot be created', beta_line.error)
+
+    def test_a_fully_successful_import_closes_the_assistant(self):
+        wizard = self._load(
+            [
+                self._row('Fam Clair', 'guardian', 'Clara Clair', is_billing='true'),
+                self._row('Fam Clair', 'student', 'Ivet Clair', course='4t'),
+            ]
+        )
+        self.assertFalse(self._errors(wizard))
+        self.assertEqual(wizard.action_confirm()['type'], 'ir.actions.act_window_close')
 
     def test_xlsx_file_is_read(self):
         try:

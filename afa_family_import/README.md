@@ -32,6 +32,7 @@ ISO 13616 mod-97 checksum and a mandate date cannot be in the future. Uncheck **
 Mandates** to store IBANs without generating mandates.
 
 **Confirm Import** creates each family in its own savepoint: a family that fails is rolled
-back and reported while the rest still imports. A family whose name already exists,
-including archived families, is skipped, so re-running the same file never duplicates
-families, people, bank accounts or mandates.
+back and reported while the rest still imports. The assistant stays open whenever at least
+one family failed, so the reasons stay on screen; it only closes once every family is in.
+A family whose name already exists, including archived families, is skipped, so re-running
+the same file never duplicates families, people, bank accounts or mandates.

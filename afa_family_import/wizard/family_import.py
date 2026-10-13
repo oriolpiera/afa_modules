@@ -79,6 +79,9 @@ class AfaFamilyImportWizard(models.TransientModel):
         line_model = self.env['afa.family.import.line']
         for line_ids in ids_by_family.values():
             self._create_family_group(line_model.browse(line_ids))
+        self.invalidate_recordset(['line_ids'])
+        if self.line_ids.filtered(lambda line: line.action == 'error'):
+            return self._action()
         return {'type': 'ir.actions.act_window_close'}
 
     def _create_family_group(self, group):
