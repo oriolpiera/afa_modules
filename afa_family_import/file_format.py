@@ -37,6 +37,8 @@ _TRUE_VALUES = frozenset({'true', '1', 'yes', 'y', 'si', 'sí', 's', 'x'})
 _FALSE_VALUES = frozenset({'false', '0', 'no', 'n', ''})
 
 _EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]{2,}$')
+# IBANs are ASCII only; isalnum()/isdigit() accept Unicode digits that int() rejects.
+_IBAN_RE = re.compile(r'^[A-Z0-9]+$')
 
 # ISO 13616 IBAN lengths. Unknown countries fall back to the generic bounds.
 _IBAN_LENGTHS = {
@@ -128,7 +130,7 @@ def valid_email(value):
 
 def valid_iban(value):
     iban = ''.join((value or '').split()).upper()
-    if len(iban) < 15 or len(iban) > 34 or not iban.isalnum():
+    if len(iban) < 15 or len(iban) > 34 or not _IBAN_RE.match(iban):
         return False
     expected = _IBAN_LENGTHS.get(iban[:2])
     if expected and len(iban) != expected:

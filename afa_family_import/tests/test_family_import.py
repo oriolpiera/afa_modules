@@ -275,6 +275,21 @@ class TestFamilyImport(TransactionCase):
         )
         self.assertIn('is not valid', self._errors(wizard)['Una Tur'])
 
+    def test_a_non_ascii_character_in_the_iban_is_reported(self):
+        wizard = self._load(
+            [
+                self._row(
+                    'Fam Tur',
+                    'guardian',
+                    'Una Tur',
+                    is_billing='true',
+                    iban='ES912100041845020005133²',
+                ),
+                self._row('Fam Tur', 'student', 'Dos Tur', course='4t'),
+            ]
+        )
+        self.assertIn('is not valid', self._errors(wizard)['Una Tur'])
+
     def test_unknown_role_is_reported(self):
         wizard = self._load([self._row('Fam Vila', 'guardia', 'Ana Vila', is_billing='true')])
         self.assertEqual(
