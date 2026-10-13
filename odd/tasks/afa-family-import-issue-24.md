@@ -6,9 +6,9 @@ Add an Odoo 19 Community `afa_family_import` addon that performs the initial loa
 ## Authorized behavior and acceptance
 - Input is one person per row, grouped by a shared `family_name`; the documented columns are `family_name, role, is_billing, name, email, phone, course, iban, mandate_date`. Headers are matched case-insensitively with spaces normalised to underscores.
 - Per family the load order is: billing guardian without a family, `afa.family` linked to that guardian, remaining guardians and students with `afa_family_id` and `afa_course_id`, `res.partner.bank` for each row carrying an IBAN, and for the billing guardian a SEPA Core recurrent mandate with `format='sepa'`, `scheme='CORE'`, `signature_date` and state `valid`.
-- Validation happens entirely before writing: role, name, email, IBAN mod-97 and country length, existing course for students, no course for non-students, at least one guardian and at most one billing guardian, and a non-future mandate signature date. A family with exactly one guardian and no marker auto-designates that guardian.
-- Confirmation creates each family inside a `savepoint`; only `UserError` and `IntegrityError` are caught, a failure is written back onto that family's staging lines, `env.invalidate_all()` runs after a rollback and the remaining families still import.
-- A family whose name already exists, including archived ones, is skipped and reported; re-running a file is therefore safe and creates no duplicates.
+- Validation happens entirely before writing: role, name, email, IBAN mod-97 and country length, existing course for students, no course for non-students, at least one guardian, at most one billing guardian, a billing guardian who is actually a guardian, and a non-future mandate signature date. A family with exactly one guardian and no marker auto-designates that guardian.
+- Confirmation creates each family inside a `savepoint`; only `UserError` and `IntegrityError` are caught, a failure is written back onto that family's staging lines, `env.invalidate_all()` runs after a rollback and the remaining families still import. The assistant reopens with the reasons whenever at least one family failed, and only closes once every family imported.
+- A family whose name already exists, including archived ones, is skipped and reported; re-running a file is therefore safe and creates no duplicates. Each family group also takes a transaction-level advisory lock on its name and re-checks existence under it, so two assistants confirming the same family at the same time cannot both create it.
 - Only `afa_family.group_family_manager` may load a file or confirm an import, enforced server-side.
 
 ## Repo evidence and assumptions to resolve during implementation
@@ -31,15 +31,29 @@ Add an Odoo 19 Community `afa_family_import` addon that performs the initial loa
 
 ## Delivery decision
 The forecast of 600–900 authored lines across four work units did not hold: the addon
-landed as one coherent feature of 1235 added lines and the four units do not slice by
-behaviour, only by layer, so splitting them would have left non-loadable intermediate
-steps. Delivery is therefore `single-pr`: one work-unit commit `9cf649d` on
-`feat/afa-family-import-issue-24`, maintainer-approved `size:exception`.
+landed as one coherent feature and the four units do not slice by behaviour, only by
+layer, so splitting them would have left non-loadable intermediate steps. Delivery is
+therefore `single-pr` on `feat/afa-family-import-issue-24`, maintainer-approved
+`size:exception`.
+
+## Review fixes
+Six Greptile findings on PR #25 were verified against the code and all were real. One
+commit each, priority order:
+
+| Severity | Finding | Commit |
+| --- | --- | --- |
+| P1 | A student marked `is_billing` became the payer and lost the course; the guardian rule was skipped whenever any row carried a marker | `1ebec61` |
+| P1 | Confirm closed the assistant even when families failed, so the reasons were never seen | `4fe97f4` |
+| P1 | Two concurrent confirms of the same name could both create the family | `aeefceb` |
+| P2 | A non-ASCII IBAN character passed `isalnum()` and crashed `int()` in the preview | `fa586be` |
+| P2 | Repeated headers silently overwrote contact and bank columns | `7962d50` |
+| P2 | The savepoint test raised before writing, so it proved nothing about rollback | `d64f1c9` |
 
 ## Recovery state / next step
-Work unit committed and pushed; pull request review is the remaining step. Fresh install on
-database `afa_fi_fresh2` reports `0 failed, 0 error(s) of 22 tests` for
-`--test-tags /afa_family_import`, and `ruff check`, `ruff format --check` and
-`pre-commit run --all-files` are clean over `afa_family_import`. If the stack is run on this
-machine, the PostgreSQL 16 volume behind `compose.test.yaml` still needs replacing so the
-default project starts again; run under an isolated project name until then.
+Work unit and six review fixes are committed and pushed; pull request review is the
+remaining step. Fresh install of `afa_family_import` with demo data and
+`--test-tags /afa_family_import` on database `afa_fi_fresh3` reports
+`0 failed, 0 error(s) of 28 tests`, and `ruff check`, `ruff format --check` and
+`pre-commit run --all-files` are clean. If the stack is run on this machine, the
+PostgreSQL 16 volume behind `compose.test.yaml` still needs replacing so the default
+project starts again; run under an isolated project name until then.
