@@ -2,7 +2,7 @@
 
 ## Odoo 19 local test stack
 
-The development-only stack in `compose.test.yaml` runs PostgreSQL 16 and Odoo 19
+The development-only stack in `compose.test.yaml` runs PostgreSQL 18 and Odoo 19
 with `afa_family`, `afa_membership`, `afa_member_pricing`, `afa_sepa`,
 `afa_service_subscription`, `afa_school_course`, and `afa_extracurricular`
 mounted from this checkout. It does not change the separate Odoo 16 stack.
@@ -30,6 +30,11 @@ This stack uses local development credentials; do not expose it to the network.
 Select database `afa_family_test` and sign in to Odoo with `admin` / `admin`.
 The `odoo` / `odoo` values in the Compose file authenticate Odoo to PostgreSQL;
 they are not an Odoo web account.
+
+If you ran this stack on PostgreSQL 16 before the upgrade to 18, the old cluster
+stays at the volume root but PostgreSQL 18 looks in a versioned subdirectory, so
+those databases are no longer listed. Back them up, or reset the test volumes
+with `docker compose -f compose.test.yaml down -v` and reinstall.
 
 ## Demo data and CI
 

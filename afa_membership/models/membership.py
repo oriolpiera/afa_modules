@@ -150,6 +150,8 @@ class Membership(models.Model):
         candidates = self.sudo().filtered(
             lambda link: (
                 link.active
+                and link.period_id.date_start
+                and link.period_id.date_end
                 and link.period_id.date_start <= check_date <= link.period_id.date_end
                 and link.invoice_id
                 and link.invoice_id.afa_membership_id == link

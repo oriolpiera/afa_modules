@@ -25,6 +25,7 @@
                     <group>
                         <field name="name"/>
                         <field name="billing_partner_id"
+                               context="{'default_afa_family_role': 'guardian'}"
                                domain="[('afa_family_role', '=', 'guardian'), ('afa_family_id', '=', id or False)]"/>
                         <field name="active" invisible="1"/>
                     </group>

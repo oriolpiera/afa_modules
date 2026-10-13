@@ -19,7 +19,7 @@ class ResPartner(models.Model):
         ):
             counts[subscription.student_id.id] += 1
         for partner in self:
-            partner.afa_extracurricular_count = counts[partner.id]
+            partner.afa_extracurricular_count = counts.get(partner.id, 0)
 
     def action_open_afa_extracurriculars(self):
         self.ensure_one()
@@ -66,7 +66,7 @@ class AfaFamily(models.Model):
         ):
             counts[subscription.family_id.id] += 1
         for family in self:
-            family.afa_extracurricular_count = counts[family.id]
+            family.afa_extracurricular_count = counts.get(family.id, 0)
 
     def action_open_afa_extracurriculars(self):
         self.ensure_one()

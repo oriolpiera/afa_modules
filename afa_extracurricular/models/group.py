@@ -15,8 +15,7 @@ _WEEKDAY_SHORT = {
 
 
 def _format_hour(value):
-    hours = int(value)
-    minutes = round((value - hours) * 60)
+    hours, minutes = divmod(round(value * 60), 60)
     return f'{hours:02d}:{minutes:02d}'
 
 
@@ -117,8 +116,9 @@ class AfaServiceGroup(models.Model):
             ):
                 counts[subscription.group_id.id] += 1
         for group in self:
-            group.enrolled_count = counts[group.id]
+            group.enrolled_count = counts.get(group.id, 0)
 
+    @api.depends('schedule_ids.weekday', 'schedule_ids.hour_from', 'schedule_ids.hour_to')
     def _compute_schedule_summary(self):
         for group in self:
             parts = []
