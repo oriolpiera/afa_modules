@@ -136,6 +136,24 @@ class TestFamilyImport(TransactionCase):
         )
         self.assertEqual(len(mandates), 1)
 
+    def test_a_family_that_appeared_after_the_preview_is_not_duplicated(self):
+        wizard = self._load([self._row('Fam Race', 'guardian', 'Rita Race', is_billing='true')])
+        line = wizard.line_ids
+        self.assertEqual(line.action, 'create')
+
+        # A concurrent load commits the same family between the preview and the confirm.
+        concurrent = self.env['res.partner'].create(
+            {'name': 'Rita Race', 'afa_family_role': 'guardian'}
+        )
+        self.env['afa.family'].create({'name': 'Fam Race', 'billing_partner_id': concurrent.id})
+
+        wizard._create_family_group(line)
+
+        self.assertEqual(line.action, 'skip')
+        self.assertFalse(line.error)
+        self.assertEqual(len(self._family('Fam Race')), 1)
+        self.assertEqual(len(self.env['res.partner'].search([('name', '=', 'Rita Race')])), 1)
+
     def test_unknown_course_is_reported_and_nothing_is_created(self):
         wizard = self._load(
             [

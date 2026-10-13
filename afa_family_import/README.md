@@ -35,4 +35,6 @@ Mandates** to store IBANs without generating mandates.
 back and reported while the rest still imports. The assistant stays open whenever at least
 one family failed, so the reasons stay on screen; it only closes once every family is in.
 A family whose name already exists, including archived families, is skipped, so re-running
-the same file never duplicates families, people, bank accounts or mandates.
+the same file never duplicates families, people, bank accounts or mandates. Two assistants
+confirming the same family name at the same time are serialised, so neither can create it
+twice.

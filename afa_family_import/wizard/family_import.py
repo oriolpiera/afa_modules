@@ -85,13 +85,27 @@ class AfaFamilyImportWizard(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
     def _create_family_group(self, group):
+        family_name = group[0].family_name
+        self._lock_family_name(family_name)
         try:
             with self.env.cr.savepoint():
+                if self._family_exists(family_name):
+                    group.write({'action': 'skip', 'error': '', 'is_payer': False})
+                    return
                 self._create_family(group)
         except (UserError, IntegrityError) as error:
             self.env.invalidate_all()
             line_model = self.env['afa.family.import.line']
             line_model.browse(group.ids).write({'action': 'error', 'error': self._message(error)})
+
+    def _lock_family_name(self, name):
+        """Hold the family name until the transaction ends, so concurrent loads queue."""
+        self.env.cr.execute('SELECT pg_advisory_xact_lock(hashtext(%s))', [name])
+
+    def _family_exists(self, name):
+        return bool(
+            self.env['afa.family'].with_context(active_test=False).search([('name', '=', name)])
+        )
 
     def _create_family(self, group):
         partner_model = self.env['res.partner']
