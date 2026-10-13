@@ -24,15 +24,22 @@ Add an Odoo 19 Community `afa_family_import` addon that performs the initial loa
 - Test runner: fresh Odoo 19 database in the isolated Compose stack with `-i afa_family_import --test-enable --test-tags /afa_family_import --stop-after-init`; assert the Odoo test summary rather than the process exit status. Use a new database name for every installation.
 
 ## Work units
-- [x] IMP-1 Addon skeleton and manager ACL. Check: fresh Odoo 19 install loads the addon. Route: delegated direct. Commit: pending; review: pending.
-- [x] IMP-2 CSV/Excel parsing, per-row validation, preview lines and template download. Check: focused parser/validation tests. Route: delegated direct. Commit: pending; review: pending.
-- [x] IMP-3 Confirm path with per-family savepoints, existing-family skip, bank account and SEPA mandate creation, atomicity and idempotency. Check: focused creation tests. Route: delegated direct. Commit: pending; review: pending.
-- [x] IMP-4 Addon and root documentation plus Compose and CI wiring. Check: `docker compose -f compose.test.yaml config -q` and a fresh focused install. Route: delegated direct. Commit: pending; review: pending.
+- [x] IMP-1 Addon skeleton and manager ACL. Check: fresh Odoo 19 install loads the addon. Route: delegated direct. Commit: `9cf649d`; review: pending.
+- [x] IMP-2 CSV/Excel parsing, per-row validation, preview lines and template download. Check: focused parser/validation tests. Route: delegated direct. Commit: `9cf649d`; review: pending.
+- [x] IMP-3 Confirm path with per-family savepoints, existing-family skip, bank account and SEPA mandate creation, atomicity and idempotency. Check: focused creation tests. Route: delegated direct. Commit: `9cf649d`; review: pending.
+- [x] IMP-4 Addon and root documentation plus Compose and CI wiring. Check: `docker compose -f compose.test.yaml config -q` and a fresh focused install. Route: delegated direct. Commit: `9cf649d`; review: pending.
+
+## Delivery decision
+The forecast of 600–900 authored lines across four work units did not hold: the addon
+landed as one coherent feature of 1235 added lines and the four units do not slice by
+behaviour, only by layer, so splitting them would have left non-loadable intermediate
+steps. Delivery is therefore `single-pr`: one work-unit commit `9cf649d` on
+`feat/afa-family-import-issue-24`, maintainer-approved `size:exception`.
 
 ## Recovery state / next step
-All four work units are implemented and verified. Fresh install on database `afa_fi_fresh2`
-reports `0 failed, 0 error(s) of 22 tests` for `--test-tags /afa_family_import`, and
-`ruff check` / `ruff format --check` are clean over `afa_family_import`. Remaining work is
-committing on `feat/afa-family-import-issue-24`, opening the PR against `main` and, if the
-stack is run on this machine, replacing the PostgreSQL 16 volume behind `compose.test.yaml`
-so the default project starts again.
+Work unit committed and pushed; pull request review is the remaining step. Fresh install on
+database `afa_fi_fresh2` reports `0 failed, 0 error(s) of 22 tests` for
+`--test-tags /afa_family_import`, and `ruff check`, `ruff format --check` and
+`pre-commit run --all-files` are clean over `afa_family_import`. If the stack is run on this
+machine, the PostgreSQL 16 volume behind `compose.test.yaml` still needs replacing so the
+default project starts again; run under an isolated project name until then.
