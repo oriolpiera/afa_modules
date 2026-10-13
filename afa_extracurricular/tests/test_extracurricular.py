@@ -239,6 +239,11 @@ class TestExtracurricular(TransactionCase):
         self.assertEqual(self.chess.enrollment_count, 1)
         self.assertEqual(self.robotics.enrollment_count, 1)
 
+    def test_schedule_summary_refreshes_after_slot_edit(self):
+        self.assertEqual(self.chess_b.schedule_summary, 'Tue 16:00-17:00')
+        self.chess_b.schedule_ids.write({'hour_from': 15.0, 'hour_to': 16.5})
+        self.assertEqual(self.chess_b.schedule_summary, 'Tue 15:00-16:30')
+
     def test_billing_covers_only_activity_months_with_tariffs_and_no_duplicates(self):
         self._enroll(group=self.chess_a)
         september = self._preview('2026-09-01')

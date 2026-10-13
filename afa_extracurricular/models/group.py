@@ -119,6 +119,7 @@ class AfaServiceGroup(models.Model):
         for group in self:
             group.enrolled_count = counts.get(group.id, 0)
 
+    @api.depends('schedule_ids.weekday', 'schedule_ids.hour_from', 'schedule_ids.hour_to')
     def _compute_schedule_summary(self):
         for group in self:
             parts = []
