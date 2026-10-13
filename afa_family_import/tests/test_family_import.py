@@ -367,16 +367,25 @@ class TestFamilyImport(TransactionCase):
         wizard = self._load(
             [
                 self._row('Fam Alpha', 'guardian', 'Alpha Payer', is_billing='true'),
-                self._row('Fam Beta', 'guardian', 'Beta Payer', is_billing='true'),
+                self._row(
+                    'Fam Beta',
+                    'guardian',
+                    'Beta Payer',
+                    is_billing='true',
+                    iban=VALID_IBAN,
+                    mandate_date=self.past_date,
+                ),
             ]
         )
         self.assertFalse(self._errors(wizard))
         original = type(wizard)._create_family
 
         def _create_family(recordset, group):
+            # Create the family for real, then fail, so the savepoint has writes to undo.
+            result = original(recordset, group)
             if group[0].family_name == 'Fam Beta':
                 raise ValidationError('Beta cannot be created.')
-            return original(recordset, group)
+            return result
 
         with patch.object(type(wizard), '_create_family', _create_family):
             action = wizard.action_confirm()
@@ -385,8 +394,8 @@ class TestFamilyImport(TransactionCase):
         self.assertEqual(action['res_model'], 'afa.family.import.wizard')
         self.assertEqual(len(self._family('Fam Alpha')), 1)
         self.assertFalse(self._family('Fam Beta'))
-        # The savepoint rolled back the partially created payer of the failed family.
         self.assertFalse(self.env['res.partner'].search([('name', '=', 'Beta Payer')]))
+        self.assertFalse(self.env['res.partner.bank'].search([('acc_number', '=', VALID_IBAN)]))
         beta_line = wizard.line_ids.filtered(lambda line: line.family_name == 'Fam Beta')
         self.assertEqual(beta_line.action, 'error')
         self.assertIn('Beta cannot be created', beta_line.error)
