@@ -436,6 +436,27 @@ class TestFamilyImport(TransactionCase):
         self.assertEqual(family.billing_partner_id.name, 'Tona Full')
         self.assertEqual(family.student_ids.mapped('name'), ['Iker Full'])
 
+    def test_repeated_columns_are_refused(self):
+        header = list(file_format.COLUMNS)
+        header.insert(header.index('email') + 1, 'Email')
+        values = dict.fromkeys(file_format.COLUMNS, '')
+        values.update(
+            {
+                'family_name': 'Fam Dup',
+                'role': 'guardian',
+                'is_billing': 'true',
+                'name': 'Dup Dup',
+                'email': 'dup@example.cat',
+            }
+        )
+        data = [values[column] for column in file_format.COLUMNS]
+        data.insert(header.index('Email'), '')
+        content = '\n'.join([','.join(header), ','.join(data)])
+        with self.assertRaisesRegex(UserError, 'repeated columns'):
+            self.env['afa.family.import.wizard'].create(
+                {'file': base64.b64encode(content.encode()), 'filename': 'families.csv'}
+            ).action_load()
+
     def test_missing_file_and_unsupported_extension_are_refused(self):
         wizard = self.env['afa.family.import.wizard'].create({})
         with self.assertRaises(UserError):

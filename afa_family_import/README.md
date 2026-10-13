@@ -19,8 +19,9 @@ rows of a family together under the same `family_name`:
 | `iban` | IBAN of that person, optional. |
 | `mandate_date` | SEPA signature date, `YYYY-MM-DD`, for the billing guardian. |
 
-Headers are matched ignoring case and spaces. For each new family the assistant creates
-the billing guardian first, then the family linked to it, then the remaining guardians and
+Headers are matched ignoring case and spaces, and a column that appears twice is refused
+rather than silently overwritten. For each new family the assistant creates the billing
+guardian first, then the family linked to it, then the remaining guardians and
 students with their course, then a bank account for every row carrying an IBAN and, for the
 billing guardian, a valid SEPA Core recurrent mandate.
 

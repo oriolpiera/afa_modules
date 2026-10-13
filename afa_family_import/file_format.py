@@ -198,6 +198,12 @@ def _read_dicts(rows):
     for row in rows:
         if header is None:
             header = [normalize_header(cell) for cell in row]
+            recognized = set(COLUMNS)
+            repeated = sorted(
+                {name for name in header if name in recognized and header.count(name) > 1}
+            )
+            if repeated:
+                raise UserError(_('The file has repeated columns: %s.') % ', '.join(repeated))
             missing = [name for name in ('family_name', 'role', 'name') if name not in header]
             if missing:
                 raise UserError(
