@@ -1,4 +1,5 @@
 from odoo.exceptions import ValidationError
+from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 
 
@@ -307,3 +308,19 @@ class TestFamilyInlineBillingGuardian(TransactionCase):
         self.assertEqual(payer.afa_family_id, self.family)
         self.assertTrue(payer.afa_is_billing_guardian)
         self.assertFalse(self.guardian.afa_is_billing_guardian)
+
+    def test_form_flow_saves_inline_flag_without_the_billing_field(self):
+        # Form drives the same client data model as the browser: virtual o2m
+        # rows, onchange rounds and create vals built from user edits.
+        family_form = Form(self.env['afa.family'])
+        family_form.name = 'Form Family'
+        with family_form.guardian_ids.new() as guardian:
+            guardian.name = 'Form Guardian'
+            guardian.afa_is_billing_guardian = True
+        self.assertFalse(family_form.billing_partner_id)
+        family = family_form.save()
+        payer = family.billing_partner_id
+        self.assertEqual(payer.name, 'Form Guardian')
+        self.assertEqual(payer.afa_family_id, family)
+        self.assertEqual(payer.afa_family_role, 'guardian')
+        self.assertTrue(payer.afa_is_billing_guardian)
