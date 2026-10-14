@@ -1,5 +1,5 @@
 from odoo import Command, _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 
 class AfaFamily(models.Model):
@@ -126,3 +126,25 @@ class AfaFamily(models.Model):
             'domain': [('afa_family_id', '=', self.id)],
             'context': {'default_afa_family_id': self.id},
         }
+
+    def _action_open_add_existing_members(self, role):
+        self.ensure_one()
+        if not self.env.user.has_group('afa_family.group_family_manager'):
+            raise AccessError(_('Only family managers may add family members.'))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Add Existing Contacts'),
+            'res_model': 'afa.family.member.add.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_family_id': self.id,
+                'default_role': role,
+            },
+        }
+
+    def action_open_add_existing_guardians(self):
+        return self._action_open_add_existing_members('guardian')
+
+    def action_open_add_existing_students(self):
+        return self._action_open_add_existing_members('student')

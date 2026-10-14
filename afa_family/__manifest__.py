@@ -11,6 +11,7 @@
         'security/family_rules.xml',
         'views/afa_family_views.xml',
         'views/res_partner_views.xml',
+        'wizard/afa_family_member_wizard_views.xml',
     ],
     'demo': ['demo/family_demo.xml'],
     'installable': True,

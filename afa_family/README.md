@@ -4,7 +4,9 @@ Install on Odoo 19 Community with `base` and `contacts`; no accounting module is
 required. Assign the **AFA Family Manager** group to users who manage families.
 The Families menu contains list and form views with guardian and student sections.
 The Members button opens Contacts filtered to the current family. Managers may also
-assign family roles and family association from a contact's form.
+assign family roles and family association from a contact's form. From the Guardians
+and Students tabs, managers can use **Add Existing** to link one or more unassigned
+contacts to the family without creating duplicate partners.
 
 Each partner has at most one AFA family and one role (`guardian` or `student`). A family
 can have several guardians and students. The billing guardian can be flagged on a
