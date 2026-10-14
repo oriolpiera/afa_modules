@@ -7,11 +7,14 @@ The Members button opens Contacts filtered to the current family. Managers may a
 assign family roles and family association from a contact's form.
 
 Each partner has at most one AFA family and one role (`guardian` or `student`). A family
-can have several guardians and students. The initial billing guardian must be an
-unassigned guardian partner; creating the family links that existing partner to it.
-After creation, choose a guardian already linked to that family as payer. Moving,
-demoting or deleting the current payer is rejected until a replacement is selected.
-This link never uses `res.partner.parent_id` and does not duplicate partners.
+can have several guardians and students. The billing guardian can be flagged on a
+guardians-tab line (also while creating the family, without saving first) or selected
+in the Billing Guardian field when the guardian is an existing unassigned contact;
+either way that guardian is linked to the family as payer. After creation, switch
+payer by flagging another family guardian or selecting one already linked to the
+family. Moving, demoting or deleting the current payer is rejected until a
+replacement is selected. This link never uses `res.partner.parent_id` and does not
+duplicate partners.
 
 Student contacts are excluded from generic Contacts searches and direct reads for
 non-managers by a global record rule on a stored technical student flag. Family
