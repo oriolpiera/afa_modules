@@ -51,6 +51,18 @@ class TestSchoolCourseSetup(TransactionCase):
         self._wizard(primaria=True, secundaria=True).action_confirm()
         self._assert_chain(FULL_LADDER[3:])
 
+    def test_zero_sequence_course_is_accepted(self):
+        self.Course.create({'name': 'i3', 'sequence': 0})
+        self._wizard(infantil=True).action_confirm()
+        courses = self._assert_chain(FULL_LADDER[:3])
+        self.assertEqual(courses.mapped('sequence'), [0, 1, 2])
+
+    def test_a_ladder_can_start_below_the_existing_numbering(self):
+        self.Course.create({'name': 'i4', 'sequence': 1})
+        self._wizard(infantil=True).action_confirm()
+        courses = self._assert_chain(FULL_LADDER[:3])
+        self.assertEqual(courses.mapped('sequence'), [0, 1, 2])
+
     def test_a_single_stage_ends_without_a_successor(self):
         self._wizard(secundaria=True).action_confirm()
         self._assert_chain(FULL_LADDER[9:])

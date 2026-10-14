@@ -27,24 +27,31 @@ class AfaSchoolCourseSetupWizard(models.TransientModel):
         return [name for stage, names in STAGES if self[stage] for name in names]
 
     def _free_sequence(self, lower, upper, used):
-        candidate = lower + 1
+        candidate = 1 if lower is None else lower + 1
         while upper is None or candidate < upper:
             if candidate not in used:
                 used.add(candidate)
                 return candidate
             candidate += 1
-        raise ValidationError(
-            _(
-                'No free course sequence between %(lower)s and %(upper)s. '
-                'Adjust the existing course sequences first.'
+        if lower is not None:
+            raise ValidationError(
+                _(
+                    'No free course sequence between %(lower)s and %(upper)s. '
+                    'Adjust the existing course sequences first.'
+                )
+                % {'lower': lower, 'upper': upper}
             )
-            % {'lower': lower, 'upper': upper}
-        )
+        # The ladder has to start below the usual numbering: fit under an existing course.
+        candidate = upper - 1
+        while candidate in used:
+            candidate -= 1
+        used.add(candidate)
+        return candidate
 
     def _ladder(self, names, existing, used):
         Course = self.env['afa.school.course']
         ladder = []
-        lower = 0
+        lower = None
         for index, name in enumerate(names):
             course = existing.get(name)
             next_index = next(
@@ -57,7 +64,9 @@ class AfaSchoolCourseSetupWizard(models.TransientModel):
             )
             upper = existing[names[next_index]].sequence if next_index is not None else None
             if course:
-                if not lower < course.sequence or (upper is not None and course.sequence >= upper):
+                if (lower is not None and course.sequence <= lower) or (
+                    upper is not None and course.sequence >= upper
+                ):
                     raise ValidationError(
                         _(
                             'Course %(course)s has sequence %(sequence)s, which does not fit '
