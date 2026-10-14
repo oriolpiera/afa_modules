@@ -109,6 +109,52 @@ class TestFamilySecurity(TransactionCase):
         self.assertEqual(action['context']['default_afa_family_id'], self.family.id)
         self.assertFalse(self.env['afa.family'].with_user(self.staff).has_access('read'))
 
+    def test_existing_member_wizard_is_manager_only(self):
+        wizard_model = self.env['afa.family.member.add.wizard']
+        self.assertTrue(wizard_model.with_user(self.manager).has_access('create'))
+        self.assertFalse(wizard_model.with_user(self.staff).has_access('create'))
+        with self.assertRaises(AccessError):
+            wizard_model.with_user(self.staff).create(
+                {
+                    'family_id': self.family.id,
+                    'role': 'guardian',
+                    'partner_ids': [(6, 0, [self.unrelated.id])],
+                }
+            )
+
+        wizard = wizard_model.create(
+            {
+                'family_id': self.family.id,
+                'role': 'guardian',
+                'partner_ids': [(6, 0, [self.unrelated.id])],
+            }
+        )
+        with self.assertRaises(AccessError):
+            wizard.with_user(self.staff).action_add_members()
+        with self.assertRaises(AccessError):
+            self.family.with_user(self.staff).action_open_add_existing_guardians()
+
+        candidate = (
+            self.env['res.partner']
+            .with_user(self.manager)
+            .create({'name': 'Manager-selected Guardian'})
+        )
+        manager_wizard = wizard_model.with_user(self.manager).create(
+            {
+                'family_id': self.family.id,
+                'role': 'guardian',
+                'partner_ids': [(6, 0, [candidate.id])],
+            }
+        )
+        manager_wizard.action_add_members()
+        self.assertEqual(candidate.afa_family_id, self.family)
+        self.assertEqual(candidate.afa_family_role, 'guardian')
+
+    def test_family_form_has_add_existing_actions_on_both_tabs(self):
+        form = self.env.ref('afa_family.view_afa_family_form')
+        self.assertIn('action_open_add_existing_guardians', form.arch_db)
+        self.assertIn('action_open_add_existing_students', form.arch_db)
+
     def test_staff_cannot_read_family_fields_on_visible_guardian(self):
         guardian = self.guardian.with_user(self.staff)
         with self.assertRaises(AccessError):

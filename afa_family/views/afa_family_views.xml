@@ -31,6 +31,9 @@
                     </group>
                     <notebook>
                         <page string="Guardians">
+                            <button name="action_open_add_existing_guardians" type="object"
+                                    string="Add Existing" class="btn-secondary"
+                                    groups="afa_family.group_family_manager"/>
                             <field name="guardian_ids" context="{'default_afa_family_role': 'guardian'}">
                                 <list editable="bottom">
                                     <field name="afa_is_billing_guardian" widget="boolean_toggle"/>
@@ -41,6 +44,9 @@
                             </field>
                         </page>
                         <page string="Students">
+                            <button name="action_open_add_existing_students" type="object"
+                                    string="Add Existing" class="btn-secondary"
+                                    groups="afa_family.group_family_manager"/>
                             <field name="student_ids" context="{'default_afa_family_role': 'student'}">
                                 <list>
                                     <field name="name"/>
