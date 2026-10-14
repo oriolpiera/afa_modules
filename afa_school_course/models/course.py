@@ -83,3 +83,20 @@ class AfaSchoolCourse(models.Model):
                 ]
             ):
                 raise ValidationError(_('Course names and sequence numbers must be unique.'))
+
+    def _check_single_ladder(self):
+        if not self:
+            return
+        predecessors = set(self.mapped('next_course_id').ids)
+        roots = self.filtered(lambda course: course.id not in predecessors)
+        if len(roots) != 1:
+            raise ValidationError(_('Configure one connected course ladder.'))
+        seen = set()
+        course = roots
+        while course:
+            if course.id in seen:
+                raise ValidationError(_('The course ladder must not contain cycles.'))
+            seen.add(course.id)
+            course = course.next_course_id
+        if len(seen) != len(self):
+            raise ValidationError(_('Configure one connected course ladder.'))

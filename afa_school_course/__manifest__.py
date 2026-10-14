@@ -8,6 +8,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/course_views.xml',
+        'wizard/course_setup_views.xml',
         'wizard/promotion_views.xml',
     ],
     'installable': True,
