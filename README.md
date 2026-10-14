@@ -62,8 +62,9 @@ See [AFA Member Pricing](afa_member_pricing/README.md) for sales and web pricing
 See [AFA SEPA Collections](afa_sepa/README.md) for setup, bank validation, and returns.
 See [Monthly Service Subscriptions](afa_service_subscription/README.md) for service
 windows, staff enrollment, monthly review, and family invoicing.
-See [School Courses](afa_school_course/README.md) for the course ladder and
-once-per-year bulk promotion and graduation workflow.
+See [School Courses](afa_school_course/README.md) for the course ladder, the
+quick course setup assistant, and the once-per-year bulk promotion and
+graduation workflow.
 See [Extracurriculars](afa_extracurricular/README.md) for activity groups,
 weekly schedules, and staff student enrollment.
 See [Initial Family Load](afa_family_import/README.md) for the CSV/Excel load of
