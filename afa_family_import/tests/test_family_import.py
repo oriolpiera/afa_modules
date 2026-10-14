@@ -94,6 +94,23 @@ class TestFamilyImport(TransactionCase):
         self.assertEqual(mandate.partner_id, family.billing_partner_id)
         self.assertEqual(mandate.signature_date, fields.Date.to_date(self.past_date))
 
+    def test_preview_and_validation_errors_keep_import_dialog_open(self):
+        content = '\n'.join(
+            [
+                ','.join(file_format.COLUMNS),
+                self._row('Fam Dialog', 'student', 'Aina Dialog'),
+            ]
+        )
+        wizard = self.env['afa.family.import.wizard'].create(
+            {'file': base64.b64encode(content.encode()), 'filename': 'families.csv'}
+        )
+
+        preview_action = wizard.action_load()
+        self.assertEqual(preview_action['target'], 'new')
+
+        validation_action = wizard.action_confirm()
+        self.assertEqual(validation_action['target'], 'new')
+
     def test_single_guardian_without_marker_becomes_the_payer(self):
         wizard = self._load(
             [

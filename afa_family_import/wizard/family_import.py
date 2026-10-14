@@ -33,7 +33,7 @@ class AfaFamilyImportWizard(models.TransientModel):
             'res_model': self._name,
             'res_id': self.id,
             'view_mode': 'form',
-            'target': 'current',
+            'target': 'new',
         }
 
     def action_template(self):
