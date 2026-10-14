@@ -14,8 +14,10 @@
                     <p class="text-muted">
                         Creates the missing courses, orders them and links each course to its
                         successor. The last course of the last selected stage is left without a
-                        successor, which means graduation. Existing courses are never modified:
-                        only missing courses and empty successors are filled in.
+                        successor, which means graduation; a successor that is already configured
+                        is kept. Existing courses are never modified: only missing courses and
+                        empty successors are filled in, and the whole set must remain one
+                        connected ladder.
                     </p>
                 </sheet>
                 <footer>
