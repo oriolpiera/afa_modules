@@ -113,6 +113,16 @@ class AfaSchoolCourseSetupWizard(models.TransientModel):
         existing = {course.name: course for course in courses}
         used = set(courses.mapped('sequence'))
         self._link(self._ladder(names, existing, used))
+        try:
+            self.env['afa.school.course'].search([])._check_single_ladder()
+        except ValidationError as error:
+            raise ValidationError(
+                _(
+                    'The selected stages leave the school courses in more than one ladder. '
+                    'Also select the stages that continue the existing courses, or link '
+                    'them by hand.'
+                )
+            ) from error
         return self.env['ir.actions.actions']._for_xml_id(
             'afa_school_course.action_afa_school_course'
         )

@@ -39,20 +39,7 @@ class AfaSchoolPromotionWizard(models.TransientModel):
                 }
             )
         courses = self.env['afa.school.course'].search([])
-        if courses:
-            predecessors = set(courses.mapped('next_course_id').ids)
-            roots = courses.filtered(lambda course: course.id not in predecessors)
-            if len(roots) != 1:
-                raise ValidationError(_('Configure one connected course ladder before promotion.'))
-            seen = set()
-            course = roots
-            while course:
-                if course.id in seen:
-                    raise ValidationError(_('The course ladder must not contain cycles.'))
-                seen.add(course.id)
-                course = course.next_course_id
-            if len(seen) != len(courses):
-                raise ValidationError(_('Configure one connected course ladder before promotion.'))
+        courses._check_single_ladder()
         missing = students.filtered(lambda student: not student.afa_course_id)
         if missing:
             raise ValidationError(

@@ -79,11 +79,25 @@ class TestSchoolCourseSetup(TransactionCase):
         self.assertEqual(courses[3], existing)
         self.assertEqual(courses.mapped('sequence'), [1, 2, 3, 5, 6, 7])
 
-    def test_unrelated_courses_keep_their_sequences(self):
+    def test_an_orphan_course_blocks_the_setup(self):
         self.Course.create({'name': 'Batxillerat', 'sequence': 2})
-        self._wizard(infantil=True).action_confirm()
-        courses = self._assert_chain(FULL_LADDER[:3])
-        self.assertEqual(courses.mapped('sequence'), [1, 3, 4])
+        with (
+            self.assertRaisesRegex(ValidationError, 'more than one ladder'),
+            self.cr.savepoint(),
+        ):
+            self._wizard(infantil=True).action_confirm()
+        self.assertFalse(self.Course.search([('name', '=', 'i3')]))
+
+    def test_a_stage_that_does_not_continue_the_ladder_is_refused(self):
+        self._wizard(primaria=True).action_confirm()
+        with (
+            self.assertRaisesRegex(ValidationError, 'more than one ladder'),
+            self.cr.savepoint(),
+        ):
+            self._wizard(secundaria=True).action_confirm()
+        self.assertFalse(self.Course.search([('name', 'like', 'ESO')]))
+        self._wizard(primaria=True, secundaria=True).action_confirm()
+        self._assert_chain(FULL_LADDER[3:])
 
     def test_a_second_run_creates_nothing(self):
         self._wizard(infantil=True, primaria=True, secundaria=True).action_confirm()
