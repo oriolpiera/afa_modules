@@ -1,7 +1,8 @@
+import base64
 from datetime import date
 from unittest.mock import patch
 
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -133,6 +134,14 @@ class TestExtracurricular(TransactionCase):
         wizard = self.env['afa.service.billing'].create({'month': month})
         wizard.action_preview()
         return wizard
+
+    def _import_wizard(self, content):
+        return self.env['afa.extracurricular.import.wizard'].create(
+            {
+                'filename': 'enrollments.csv',
+                'file': base64.b64encode(content.encode()),
+            }
+        )
 
     def test_activity_configuration_and_schedule_validation(self):
         with self.assertRaises(ValidationError), self.cr.savepoint():
@@ -306,3 +315,169 @@ class TestExtracurricular(TransactionCase):
         self.assertEqual(new_student.afa_extracurricular_count, 0)
         new_group = self.env['afa.service.group'].new({})
         self.assertEqual(new_group.enrolled_count, 0)
+
+    def test_csv_import_enrolls_in_named_groups_with_one_or_many_groups(self):
+        course = self.env['afa.school.course'].create({'name': 'i4', 'sequence': 900})
+        self.student.afa_course_id = course
+        crafts = self._activity(
+            'Crafts',
+            enrollment=('2026-09-10', '2026-09-20'),
+            member_price=20,
+            nonmember_price=30,
+        )
+        self._window(crafts)
+        crafts_groups = [
+            self._group(crafts, f'Crafts {letter}', slots=[])
+            for letter in ('A', 'B', 'C', 'D', 'E')
+        ]
+        content = (
+            'curs,nen,telefon,extraescolar,grup\n'
+            'i4,Student One,666666666,Robotics,Robotics A\n'
+            'i4,Student One,666666666,Chess,Chess A\n'
+            f'i4,Student One,666666666,Crafts,{crafts_groups[4].name}\n'
+        )
+        wizard = self._import_wizard(content)
+
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            wizard.action_load()
+            self.assertEqual(wizard.line_ids.mapped('action'), ['create', 'create', 'create'])
+            wizard.action_confirm()
+
+        subscriptions = self.env['afa.service.subscription'].search(
+            [('student_id', '=', self.student.id)]
+        )
+        self.assertEqual(len(subscriptions), 3)
+        self.assertEqual(
+            set(subscriptions.mapped('group_id').ids),
+            {self.robotics_a.id, self.chess_a.id, crafts_groups[4].id},
+        )
+        self.assertFalse(self.student.phone)
+
+    def test_csv_import_blocks_confirmation_when_any_row_has_an_error(self):
+        course = self.env['afa.school.course'].create({'name': 'i4', 'sequence': 901})
+        self.student.afa_course_id = course
+        content = (
+            'curs,nen,telefon,extraescolar,grup\n'
+            'i4,Student One,666666666,Robotics,Robotics A\n'
+            'i4,Missing Student,000000000,Chess,Chess A\n'
+        )
+        wizard = self._import_wizard(content)
+
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            wizard.action_load()
+            self.assertEqual(wizard.line_ids.mapped('action'), ['create', 'error'])
+            action = wizard.action_confirm()
+
+        self.assertEqual(action['res_id'], wizard.id)
+        self.assertFalse(
+            self.env['afa.service.subscription'].search(
+                [('student_id', '=', self.student.id), ('service_id', '=', self.robotics.id)]
+            )
+        )
+
+    def test_csv_import_invalidates_preview_when_file_changes(self):
+        course = self.env['afa.school.course'].create({'name': 'i4', 'sequence': 903})
+        self.student.afa_course_id = course
+        first_file = 'curs,nen,extraescolar,grup\ni4,Student One,Chess,Chess A\n'
+        replacement_file = 'curs,nen,extraescolar,grup\ni4,Student One,Chess,Chess B\n'
+        wizard = self._import_wizard(first_file)
+
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            wizard.action_load()
+            old_checksum = wizard.preview_checksum
+            wizard.write({'file': base64.b64encode(replacement_file.encode())})
+            action = wizard.action_confirm()
+
+            self.assertEqual(action['res_id'], wizard.id)
+            self.assertFalse(wizard.line_ids)
+            self.assertFalse(wizard.preview_checksum)
+            self.assertTrue(wizard.preview_message)
+            self.assertFalse(
+                self.env['afa.service.subscription'].search(
+                    [('student_id', '=', self.student.id), ('service_id', '=', self.chess.id)]
+                )
+            )
+
+            wizard.action_load()
+            self.assertNotEqual(wizard.preview_checksum, old_checksum)
+            wizard.action_confirm()
+
+        subscription = self.env['afa.service.subscription'].search(
+            [('student_id', '=', self.student.id), ('service_id', '=', self.chess.id)]
+        )
+        self.assertEqual(subscription.group_id, self.chess_b)
+
+    def test_csv_import_detects_existing_future_enrollment_conflict(self):
+        course = self.env['afa.school.course'].create({'name': 'i4', 'sequence': 904})
+        self.student.afa_course_id = course
+        crafts = self._activity(
+            'Crafts',
+            enrollment=('2026-09-01', '2026-09-20'),
+            member_price=20,
+            nonmember_price=30,
+        )
+        future_window = self.env['afa.service.window'].create(
+            {
+                'service_id': crafts.id,
+                'kind': 'join',
+                'date_start': '2026-09-01',
+                'date_end': '2026-09-05',
+                'effective_month': '2026-11-01',
+            }
+        )
+        self.env['afa.service.window'].create(
+            {
+                'service_id': crafts.id,
+                'kind': 'join',
+                'date_start': '2026-09-06',
+                'date_end': '2026-09-20',
+                'effective_month': '2026-10-01',
+            }
+        )
+        crafts_a = self._group(crafts, 'Crafts A', slots=[])
+        self._group(crafts, 'Crafts B', slots=[])
+        with patch('odoo.fields.Date.context_today', return_value=date(2026, 9, 3)):
+            self.env['afa.service.subscription'].create(
+                {
+                    'student_id': self.student.id,
+                    'service_id': crafts.id,
+                    'group_id': crafts_a.id,
+                    'join_window_id': future_window.id,
+                }
+            )
+
+        wizard = self._import_wizard('curs,nen,extraescolar,grup\ni4,Student One,Crafts,Crafts B\n')
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            wizard.action_load()
+            self.assertEqual(wizard.line_ids.action, 'error')
+            self.assertIn('conflicts with this group', wizard.line_ids.error)
+            wizard.action_confirm()
+
+        subscriptions = self.env['afa.service.subscription'].search(
+            [('student_id', '=', self.student.id), ('service_id', '=', crafts.id)]
+        )
+        self.assertEqual(len(subscriptions), 1)
+        self.assertEqual(subscriptions.start_month, date(2026, 11, 1))
+
+    def test_csv_import_skips_existing_same_group_and_rejects_duplicate_students(self):
+        course = self.env['afa.school.course'].create({'name': 'i4', 'sequence': 902})
+        self.student.afa_course_id = course
+        content = 'curs,nen,extraescolar,grup\ni4,Student One,Chess,Chess A\n'
+        wizard = self._import_wizard(content)
+
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            wizard.action_load()
+            wizard.action_confirm()
+            second_import = self._import_wizard(content)
+            second_import.action_load()
+            self.assertEqual(second_import.line_ids.action, 'skip')
+            with self.assertRaises(UserError):
+                second_import.action_confirm()
+
+        duplicate = self._student('Student One')
+        duplicate.afa_course_id = course
+        ambiguous_import = self._import_wizard(content)
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            ambiguous_import.action_load()
+        self.assertEqual(ambiguous_import.line_ids.action, 'error')
+        self.assertIn('More than one student', ambiguous_import.line_ids.error)

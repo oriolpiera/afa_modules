@@ -3,8 +3,9 @@
 Staff define extracurricular activities per school year with an informative
 registration period, monthly member/non-member fees, groups, weekly schedules and
 informational seats, and enroll students into one group per activity. This addon
-depends on `afa_service_subscription` and reuses its change windows, monthly
-billing and family invoicing; it adds no portal or web self-registration.
+depends on `afa_service_subscription` and `afa_school_course`; it reuses the
+subscription change windows, monthly billing and family invoicing, and adds no
+portal or web self-registration.
 
 ## Configure
 
@@ -32,6 +33,28 @@ billing and family invoicing; it adds no portal or web self-registration.
 3. Request a withdrawal on the subscription as usual. Informational seat counts
    never block an enrollment, and overlapping schedules across activities are
    allowed and shown as information only.
+
+## Import enrollments
+
+Family managers can use **AFA Families → Import Extracurricular Enrollments** to
+load a CSV with one row per student and activity. The required columns are
+`curs,nen,extraescolar,grup`; `telefon` is optional and shown for review only.
+For example:
+
+```csv
+curs,nen,telefon,extraescolar,grup
+i4,Joan,666666666,Manualitats,Dilluns 12:30
+3r,Maria,555555555,Manualitats,Dilluns 13:30
+i5,Marc,111111111,Circ,Dimarts 12:30
+```
+
+Students are matched by name and school course. Activities must have an open join
+window, and each group value must exactly match a group name within that activity.
+Create students, activities, and groups before importing; the importer only
+creates enrollments. It previews every row first, reports ambiguous or missing
+matches and conflicting enrollments, and blocks confirmation while errors remain.
+An enrollment already assigned to the same group is skipped. The existing
+subscription flow remains responsible for family, join-window, and billing rules.
 
 ## Bill
 
