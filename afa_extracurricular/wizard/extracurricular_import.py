@@ -218,17 +218,21 @@ class AfaExtracurricularImportWizard(models.TransientModel):
             overlapping = [
                 subscription
                 for subscription in subscriptions_by_key.get(key, [])
-                if subscription.start_month <= effective_month
-                and (not subscription.end_month or subscription.end_month > effective_month)
+                if not subscription.end_month or subscription.end_month > effective_month
             ]
             if overlapping:
-                if all(subscription.group_id == line.group_id for subscription in overlapping):
+                if all(
+                    subscription.group_id == line.group_id
+                    and subscription.start_month <= effective_month
+                    for subscription in overlapping
+                ):
                     line.action = 'skip'
                     line.error = _('The student is already enrolled in this group.')
                     planned[key] = line.group_id.id
                 else:
                     line.error = _(
-                        'The student already has an overlapping enrollment in another group.'
+                        'The student already has an enrollment that conflicts with this group '
+                        'and start date.'
                     )
                 continue
 

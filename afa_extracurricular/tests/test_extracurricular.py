@@ -407,6 +407,58 @@ class TestExtracurricular(TransactionCase):
         )
         self.assertEqual(subscription.group_id, self.chess_b)
 
+    def test_csv_import_detects_existing_future_enrollment_conflict(self):
+        course = self.env['afa.school.course'].create({'name': 'i4', 'sequence': 904})
+        self.student.afa_course_id = course
+        crafts = self._activity(
+            'Crafts',
+            enrollment=('2026-09-01', '2026-09-20'),
+            member_price=20,
+            nonmember_price=30,
+        )
+        future_window = self.env['afa.service.window'].create(
+            {
+                'service_id': crafts.id,
+                'kind': 'join',
+                'date_start': '2026-09-01',
+                'date_end': '2026-09-05',
+                'effective_month': '2026-11-01',
+            }
+        )
+        self.env['afa.service.window'].create(
+            {
+                'service_id': crafts.id,
+                'kind': 'join',
+                'date_start': '2026-09-06',
+                'date_end': '2026-09-20',
+                'effective_month': '2026-10-01',
+            }
+        )
+        crafts_a = self._group(crafts, 'Crafts A', slots=[])
+        self._group(crafts, 'Crafts B', slots=[])
+        with patch('odoo.fields.Date.context_today', return_value=date(2026, 9, 3)):
+            self.env['afa.service.subscription'].create(
+                {
+                    'student_id': self.student.id,
+                    'service_id': crafts.id,
+                    'group_id': crafts_a.id,
+                    'join_window_id': future_window.id,
+                }
+            )
+
+        wizard = self._import_wizard('curs,nen,extraescolar,grup\ni4,Student One,Crafts,Crafts B\n')
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            wizard.action_load()
+            self.assertEqual(wizard.line_ids.action, 'error')
+            self.assertIn('conflicts with this group', wizard.line_ids.error)
+            wizard.action_confirm()
+
+        subscriptions = self.env['afa.service.subscription'].search(
+            [('student_id', '=', self.student.id), ('service_id', '=', crafts.id)]
+        )
+        self.assertEqual(len(subscriptions), 1)
+        self.assertEqual(subscriptions.start_month, date(2026, 11, 1))
+
     def test_csv_import_skips_existing_same_group_and_rejects_duplicate_students(self):
         course = self.env['afa.school.course'].create({'name': 'i4', 'sequence': 902})
         self.student.afa_course_id = course
