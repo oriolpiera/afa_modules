@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_list_afa_school_course" model="ir.ui.view">
+        <field name="name">res.partner.list.afa.school.course</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list/field[@name='afa_family_role']" position="after">
+                <field name="afa_course_id" optional="show"
+                       groups="afa_family.group_family_manager"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

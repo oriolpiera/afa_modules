@@ -22,6 +22,9 @@ Student contacts are excluded from generic Contacts searches and direct reads fo
 non-managers by a global record rule on a stored technical student flag. Family
 linkage and role fields are restricted to managers at field and mutation level;
 unrelated contacts remain available under their existing Contacts permissions.
+In Contacts, managers can show the AFA Role column; course and effective
+membership columns are contributed by their respective addons. These AFA fields
+remain hidden from non-managers.
 The rule treats all student-role contacts as
 private because this addon does not store an age or minor flag. Managers can still
 read and maintain all family contacts. Only managers can delete family members.

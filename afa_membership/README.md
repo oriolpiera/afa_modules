@@ -37,7 +37,9 @@ invoice eligibility. Archived links remain visible in **Family Period Links**
 so managers can inspect their canceled status. The family form shows the current
 school year and dues invoice reference (not a link to an accounting record that
 family-only managers cannot open). The intention and derived status can only be
-changed by AFA Family Managers. No membership flag is added to contacts.
+changed by AFA Family Managers. Contacts includes a read-only **AFA Member** column
+for family managers; it reflects the contact's family's effective membership and
+is not a separate per-contact membership value.
 Use the **Intends to Be a Member** filter in the Families list when preparing the
 annual dues collection.
 

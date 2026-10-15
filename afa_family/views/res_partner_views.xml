@@ -14,4 +14,16 @@
             </xpath>
         </field>
     </record>
+
+    <record id="view_partner_list_afa_family" model="ir.ui.view">
+        <field name="name">res.partner.list.afa.family</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list/field[@name='display_name']" position="after">
+                <field name="afa_family_role" optional="show"
+                       groups="afa_family.group_family_manager"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>
