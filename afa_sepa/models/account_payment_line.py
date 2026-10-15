@@ -150,4 +150,8 @@ class AccountPaymentLine(models.Model):
                     _('The invoice must be reopened before releasing a returned debit.')
                 )
             line.sudo().write({'afa_returned': True})
+            invoice = line.move_line_id.move_id.sudo()
+            membership = invoice.afa_membership_id
+            if membership and membership.family_id == line.afa_family_id:
+                membership._record_returned_dues(invoice)
         return True

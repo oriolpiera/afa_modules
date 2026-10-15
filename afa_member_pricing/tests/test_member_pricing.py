@@ -10,7 +10,6 @@ from odoo.addons.afa_member_pricing.controllers.main import AfaWebsiteSale
 class TestMemberPricing(TransactionCase):
     def setUp(self):
         super().setUp()
-        self.env['res.config.settings'].create({'afa_membership_mode': 'manual'}).set_values()
         self.website = self.env['website'].search(
             [('company_id', '=', self.env.company.id)], limit=1
         )

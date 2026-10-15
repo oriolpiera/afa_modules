@@ -119,7 +119,11 @@ class AfaFamilyImportWizard(models.TransientModel):
             }
         )
         family = self.env['afa.family'].create(
-            {'name': payer_line.family_name, 'billing_partner_id': payer.id}
+            {
+                'name': payer_line.family_name,
+                'billing_partner_id': payer.id,
+                'manual_member': file_format.parse_bool(payer_line.membership_intent),
+            }
         )
         partners = {payer_line.id: payer}
         for line in group - payer_line:
@@ -201,6 +205,12 @@ class AfaFamilyImportWizard(models.TransientModel):
         payer = self._payer_line(group, guardians, billing, unpaid, row_errors)
         if payer:
             payer.is_payer = True
+            for line in group:
+                if line.membership_intent and line != payer:
+                    row_errors.setdefault(
+                        line.id,
+                        _('Set membership intention on the billing guardian row.'),
+                    )
             if payer.id not in row_errors:
                 self._validate_mandate_date(payer, row_errors)
         for line in group:
@@ -253,6 +263,8 @@ class AfaFamilyImportWizard(models.TransientModel):
             return _('The role must be "guardian" or "student".')
         if not line.name:
             return _('The name is missing.')
+        if line.membership_intent and file_format.parse_bool(line.membership_intent) is None:
+            return _('Membership intention must be true or false.')
         if line.email and not file_format.valid_email(line.email):
             return _('The email address "%s" is not valid.') % line.email
         if line.iban and not file_format.valid_iban(line.iban):

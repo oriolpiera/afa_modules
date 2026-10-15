@@ -275,9 +275,8 @@ class TestExtracurricular(TransactionCase):
         june = self._preview('2027-06-01')
         self.assertFalse(june.line_ids)
 
-    def test_member_tariff_uses_manual_family_state(self):
+    def test_member_tariff_uses_family_membership_intention(self):
         self._enroll(group=self.chess_a)
-        self.env['ir.config_parameter'].sudo().set_param('afa_membership.mode', 'manual')
         self.family.manual_member = True
         wizard = self._preview()
         self.assertTrue(wizard.line_ids.member)

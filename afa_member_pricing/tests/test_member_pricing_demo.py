@@ -22,7 +22,6 @@ class TestMemberPricingDemo(TransactionCase):
 
         guardian = self.env.ref('afa_family.demo_cedar_payer')
         outsider = self.env.ref('afa_family.demo_maple_payer')
-        self.env['res.config.settings'].create({'afa_membership_mode': 'manual'}).set_values()
         self.env.ref('afa_family.demo_family_cedar').manual_member = True
 
         for product, member_price, nonmember_price in (
@@ -79,7 +78,6 @@ class TestMemberPricingWebsite(HttpCase):
                 self.fail('AFA pricing demo records are required for this test run')
             self.skipTest('AFA pricing demo records were not loaded')
 
-        self.env['res.config.settings'].create({'afa_membership_mode': 'manual'}).set_values()
         self.env.ref('afa_family.demo_family_cedar').manual_member = True
         login = 'afa-pricing-website-guardian'
         password = 'test-website-guardian'

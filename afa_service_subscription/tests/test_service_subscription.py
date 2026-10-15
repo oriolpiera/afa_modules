@@ -266,7 +266,6 @@ class TestServiceSubscription(TransactionCase):
 
     def test_member_tariff_uses_selected_school_year_not_today(self):
         self._subscribe()
-        self.env['ir.config_parameter'].sudo().set_param('afa_membership.mode', 'manual')
         self.family.manual_member = True
         wizard = self._preview()
         self.assertTrue(wizard.line_ids.member)
