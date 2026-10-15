@@ -375,6 +375,38 @@ class TestExtracurricular(TransactionCase):
             )
         )
 
+    def test_csv_import_invalidates_preview_when_file_changes(self):
+        course = self.env['afa.school.course'].create({'name': 'i4', 'sequence': 903})
+        self.student.afa_course_id = course
+        first_file = 'curs,nen,extraescolar,grup\ni4,Student One,Chess,Chess A\n'
+        replacement_file = 'curs,nen,extraescolar,grup\ni4,Student One,Chess,Chess B\n'
+        wizard = self._import_wizard(first_file)
+
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            wizard.action_load()
+            old_checksum = wizard.preview_checksum
+            wizard.write({'file': base64.b64encode(replacement_file.encode())})
+            action = wizard.action_confirm()
+
+            self.assertEqual(action['res_id'], wizard.id)
+            self.assertFalse(wizard.line_ids)
+            self.assertFalse(wizard.preview_checksum)
+            self.assertTrue(wizard.preview_message)
+            self.assertFalse(
+                self.env['afa.service.subscription'].search(
+                    [('student_id', '=', self.student.id), ('service_id', '=', self.chess.id)]
+                )
+            )
+
+            wizard.action_load()
+            self.assertNotEqual(wizard.preview_checksum, old_checksum)
+            wizard.action_confirm()
+
+        subscription = self.env['afa.service.subscription'].search(
+            [('student_id', '=', self.student.id), ('service_id', '=', self.chess.id)]
+        )
+        self.assertEqual(subscription.group_id, self.chess_b)
+
     def test_csv_import_skips_existing_same_group_and_rejects_duplicate_students(self):
         course = self.env['afa.school.course'].create({'name': 'i4', 'sequence': 902})
         self.student.afa_course_id = course

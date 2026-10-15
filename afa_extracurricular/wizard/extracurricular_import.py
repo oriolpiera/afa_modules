@@ -1,7 +1,8 @@
+import hashlib
 import unicodedata
 from collections import defaultdict
 
-from odoo import _, fields, models
+from odoo import Command, _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
 from . import csv_format
@@ -20,6 +21,25 @@ class AfaExtracurricularImportWizard(models.TransientModel):
     file = fields.Binary()
     filename = fields.Char()
     line_ids = fields.One2many('afa.extracurricular.import.line', 'wizard_id', readonly=True)
+    preview_checksum = fields.Char(readonly=True, copy=False)
+    preview_message = fields.Char(readonly=True, copy=False)
+
+    def _file_checksum(self):
+        self.ensure_one()
+        content = self.file or b''
+        if isinstance(content, str):
+            content = content.encode('ascii')
+        return hashlib.sha256(content).hexdigest() if content else False
+
+    @api.onchange('file')
+    def _onchange_file(self):
+        for wizard in self:
+            if wizard.preview_checksum and wizard.preview_checksum != wizard._file_checksum():
+                wizard.line_ids = [Command.clear()]
+                wizard.preview_checksum = False
+                wizard.preview_message = _(
+                    'The selected CSV changed. Preview it again before confirming.'
+                )
 
     def _check_manager(self):
         if not self.env.su and not self.env.user.has_group('afa_family.group_family_manager'):
@@ -44,6 +64,7 @@ class AfaExtracurricularImportWizard(models.TransientModel):
 
         records = csv_format.parse_rows(self.file)
         self.line_ids.unlink()
+        self.preview_message = False
         self.env['afa.extracurricular.import.line'].create(
             [
                 {
@@ -59,6 +80,7 @@ class AfaExtracurricularImportWizard(models.TransientModel):
             ]
         )
         self.invalidate_recordset(['line_ids'])
+        self.preview_checksum = self._file_checksum()
         self._validate_lines()
         return self._action()
 
@@ -66,7 +88,17 @@ class AfaExtracurricularImportWizard(models.TransientModel):
         self.ensure_one()
         self._check_manager()
         if not self.line_ids:
+            if self.preview_message:
+                return self._action()
             raise UserError(_('Load a CSV file before confirming.'))
+
+        if not self.preview_checksum or self.preview_checksum != self._file_checksum():
+            self.line_ids.unlink()
+            self.preview_checksum = False
+            self.preview_message = _(
+                'The selected CSV changed. Preview it again before confirming.'
+            )
+            return self._action()
 
         self._validate_lines()
         if self.line_ids.filtered(lambda line: line.action == 'error'):
