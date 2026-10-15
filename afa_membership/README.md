@@ -1,7 +1,7 @@
 # AFA Membership
 
-`afa_membership` adds July–June school years, family-period dues invoices, and a
-configurable manual membership mode to Odoo 19 Community. It depends on
+`afa_membership` adds a persistent family membership intention, July–June school
+years, and family-period dues invoices to Odoo 19 Community. It depends on
 `afa_family`, `account`, and `product`; `afa_family` can still be installed alone.
 
 ## Manager workflow
@@ -14,36 +14,36 @@ configurable manual membership mode to Odoo 19 Community. It depends on
 3. Create a **Family Period Link** for that year. Choose a saleable dues product
    with a positive price and select **Create Dues Invoice**. The selected
    billing guardian becomes the invoice recipient at creation; later family
-    payer changes do not rewrite that invoice. Only one non-canceled invoice is
-    authoritative for each link. A canceled invoice remains linked as history and
-    may be replaced from the link form.
-4. Post the invoice and reconcile the full payment. In default **invoice** mode,
-   the family is a member while today is within the linked school year and the
-   invoice is currently posted and fully `paid`. Partial payments, unrelated
-   partner invoices, and draft invoices never qualify. A posted customer credit
-   note reversing that exact invoice revokes membership, even if Odoo still
-   displays the original invoice as `paid`; draft, canceled, and unrelated
-   credit notes do not.
+   payer changes do not rewrite that invoice. Only one non-canceled invoice is
+   authoritative for each link. A canceled invoice remains linked as history and
+   may be replaced from the link form.
+4. Mark **Intends to Be a Member** on the family. This persistent choice makes
+   the family a member for all AFA pricing and billing purposes before the annual
+   dues are invoiced or paid. A returned SEPA debit suspends membership while
+   that dues invoice remains unpaid, including across school years; paying it
+   successfully later restores membership without clearing the family flag. A
+   posted customer credit note reversing the current dues invoice also revokes
+   membership, even if Odoo still displays the original invoice as `paid`; draft,
+   canceled, and unrelated credit notes do not. Returns of course or service
+   invoices do not affect membership.
 
-The link's **Invoice Link Status** is separate from family membership mode:
+The link's **Invoice Link Status** remains a payment-workflow status, separate
+from the family's effective membership:
 `pending` before a year or while dues are unpaid, `active` when its paid invoice
 qualifies during the year, `expired` after June 30, and `canceled` when the link
 is archived. Valid From/Through come from its school year and cannot be edited
 on the link. Archiving is administrative; an archived link never counts as
-invoice-mode membership. Archived links remain visible in **Family Period Links**
-so managers can inspect their canceled status.
+invoice eligibility. Archived links remain visible in **Family Period Links**
+so managers can inspect their canceled status. The family form shows the current
+school year and dues invoice reference (not a link to an accounting record that
+family-only managers cannot open). The intention and derived status can only be
+changed by AFA Family Managers. No membership flag is added to contacts.
+Use the **Intends to Be a Member** filter in the Families list when preparing the
+annual dues collection.
 
-## Manual mode
-
-A system administrator can select **Manual Family Flag** in Settings → AFA
-Membership. An AFA Family Manager then edits **Manual Membership** on the family
-form. This flag remains as set across July 1 until a manager changes it, even
-without an invoice or period link. Switching back to invoice mode does not
-erase the flag. The family form shows read-only effective status and, in invoice
-mode, the current school year and invoice reference (not a link to an accounting
-record that family-only managers cannot open). Neither the derived status nor
-the setting can be changed by ordinary family staff. No membership flag is added
-to contacts.
+When upgrading from the previous invoice-based mode, currently eligible paid-dues
+families are automatically marked as intending to remain members. Other families
+can be reviewed and marked by an AFA Family Manager.
 
 ## Local tests
 

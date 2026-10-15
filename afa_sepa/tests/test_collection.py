@@ -144,6 +144,8 @@ class TestAfaSepa(TransactionCase):
         self.assertEqual(self.mandate.partner_bank_id.acc_type, 'iban')
 
     def test_xml_duplicate_and_return(self):
+        self.family.manual_member = True
+        self.assertTrue(self.family.is_member)
         self.wizard.action_preview()
         self.assertTrue(self.wizard.line_ids.eligible, self.wizard.line_ids.reason)
         action = self.wizard.action_prepare()
@@ -181,6 +183,9 @@ class TestAfaSepa(TransactionCase):
         self.assertTrue(line.afa_returned)
         self.assertGreater(self.invoice.amount_residual, 0)
         self.assertNotEqual(self.invoice.payment_state, 'paid')
+        self.assertEqual(self.invoice.afa_membership_id.returned_dues_invoice_id, self.invoice)
+        self.assertFalse(self.family.is_member)
+
         replacement = self.env['account.payment.order'].browse(
             self.wizard.action_prepare()['res_id']
         )
@@ -380,3 +385,44 @@ class TestAfaSepa(TransactionCase):
         self.assertFalse(receivable.reconciled)
         self.assertEqual(self.invoice.amount_residual, self.invoice.amount_total)
         self.assertTrue(line.afa_returned)
+
+    def test_returned_service_invoice_does_not_revoke_membership(self):
+        self.family.manual_member = True
+        service_invoice = self.env['account.move'].create(
+            {
+                'move_type': 'out_invoice',
+                'partner_id': self.family.billing_partner_id.id,
+                'currency_id': self.env.ref('base.EUR').id,
+                'invoice_line_ids': [
+                    (
+                        0,
+                        0,
+                        {
+                            'product_id': self.invoice.invoice_line_ids.product_id.id,
+                            'quantity': 1,
+                            'price_unit': 25,
+                        },
+                    )
+                ],
+            }
+        )
+        service_invoice.action_post()
+        wizard = self.env['afa.sepa.wizard'].create(
+            {
+                'invoice_ids': [(6, 0, service_invoice.ids)],
+                'payment_mode_id': self.mode.id,
+                'journal_id': self.journal.id,
+            }
+        )
+        wizard.action_preview()
+        self.assertTrue(wizard.line_ids.eligible, wizard.line_ids.reason)
+        action = wizard.action_prepare()
+        self.assertEqual(action['res_model'], 'account.payment.order')
+        order = self.env['account.payment.order'].browse(action['res_id'])
+        order.draft2open()
+        order.open2generated()
+        order.generated2uploaded()
+
+        order.payment_line_ids.action_record_return()
+
+        self.assertTrue(self.family.is_member)

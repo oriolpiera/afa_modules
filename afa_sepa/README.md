@@ -46,6 +46,10 @@ reconcile it against the original bank credit as appropriate. Do not cancel an
 uploaded order while it contains unresolved AFA debits. If the bank applies
 fees, account for them separately.
 
+Recording a returned annual dues debit suspends the family's membership while
+that dues invoice remains unpaid. A later successful payment of the same invoice
+restores membership. Returned course or service debits do not change membership.
+
 Each line keeps its original invoice, family, payer, mandate, and order.
 Uploaded lines remain reserved even if the invoice is manually unreconciled;
 only **Record Return** releases them. The AFA views hide the debtor bank account

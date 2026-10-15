@@ -13,6 +13,7 @@ COLUMNS = (
     'family_name',
     'role',
     'is_billing',
+    'membership_intent',
     'name',
     'email',
     'phone',
@@ -23,11 +24,11 @@ COLUMNS = (
 
 _TEMPLATE_HEADER = ','.join(COLUMNS)
 _TEMPLATE_PAYER = (
-    'Roure family,guardian,true,Anna Roure,anna@example.cat,+34600000001,,'
+    'Roure family,guardian,true,true,Anna Roure,anna@example.cat,+34600000001,,'
     'ES9121000418450200051332,2026-09-01'
 )
-_TEMPLATE_GUARDIAN = 'Roure family,guardian,false,Jordi Roure,jordi@example.cat,+34600000002,,,'
-_TEMPLATE_STUDENT = 'Roure family,student,false,Pol Roure,,,4t Primària,,'
+_TEMPLATE_GUARDIAN = 'Roure family,guardian,false,,Jordi Roure,jordi@example.cat,+34600000002,,,'
+_TEMPLATE_STUDENT = 'Roure family,student,false,,Pol Roure,,,4t Primària,,'
 
 _TEMPLATE_ROWS = (_TEMPLATE_HEADER, _TEMPLATE_PAYER, _TEMPLATE_GUARDIAN, _TEMPLATE_STUDENT)
 

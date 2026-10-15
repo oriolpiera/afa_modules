@@ -56,8 +56,8 @@ suite. CI also checks Odoo's result summary and confirms the family and pricing
 demo fixtures and all eight addons' test classes ran.
 Odoo can log test failures while returning a successful process exit status.
 Local tests do not constitute remote CI evidence; check the PR's Actions status.
-See [AFA Membership](afa_membership/README.md) for period, invoice, refund,
-manual-mode, and access rules. `afa_family` can still be installed alone.
+See [AFA Membership](afa_membership/README.md) for family membership intention,
+period, dues invoice, return, and access rules. `afa_family` can still be installed alone.
 See [AFA Member Pricing](afa_member_pricing/README.md) for sales and web pricing setup.
 See [AFA SEPA Collections](afa_sepa/README.md) for setup, bank validation, and returns.
 See [Monthly Service Subscriptions](afa_service_subscription/README.md) for service

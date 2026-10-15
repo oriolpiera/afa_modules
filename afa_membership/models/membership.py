@@ -34,6 +34,14 @@ class Membership(models.Model):
         copy=False,
         readonly=True,
     )
+    returned_dues_invoice_id = fields.Many2one(
+        'account.move',
+        string='Returned Dues Invoice',
+        ondelete='restrict',
+        copy=False,
+        readonly=True,
+        groups='afa_family.group_family_manager',
+    )
     invoice_state = fields.Selection(related='invoice_id.state', string='Dues Invoice Status')
     dues_product_id = fields.Many2one(
         'product.product',
@@ -53,6 +61,8 @@ class Membership(models.Model):
     def create(self, vals_list):
         if any(self._derived_link_fields.intersection(vals) for vals in vals_list):
             raise ValidationError(_('Membership status and validity dates are calculated.'))
+        if any('returned_dues_invoice_id' in vals for vals in vals_list):
+            raise ValidationError(_('Returned dues history cannot be edited directly.'))
         if any(vals.get('invoice_id') for vals in vals_list):
             raise ValidationError(_('Create the dues invoice from the family-period link.'))
         try:
@@ -70,6 +80,8 @@ class Membership(models.Model):
             raise ValidationError(_('Membership status and validity dates are calculated.'))
         if 'invoice_id' in vals and not self.env.context.get('_afa_link_dues_invoice'):
             raise ValidationError(_('Create the dues invoice from the family-period link.'))
+        if 'returned_dues_invoice_id' in vals:
+            raise ValidationError(_('Returned dues history cannot be edited directly.'))
         if {'family_id', 'period_id'} & vals.keys() and self.filtered('invoice_id'):
             raise ValidationError(_('A billed family-period link cannot be reassigned.'))
         try:
@@ -140,9 +152,41 @@ class Membership(models.Model):
             'view_mode': 'form',
         }
 
+    def _record_returned_dues(self, invoice):
+        self.ensure_one()
+        invoice = invoice.sudo()
+        if (
+            invoice != self.invoice_id
+            or invoice.afa_membership_id != self
+            or invoice.move_type != 'out_invoice'
+            or invoice.state == 'cancel'
+        ):
+            raise ValidationError(_('Only the linked dues invoice can be recorded as returned.'))
+        return super(Membership, self.sudo()).write({'returned_dues_invoice_id': invoice.id})
+
     def is_invoice_member_on(self, check_date):
         self.ensure_one()
         return bool(self._invoice_member_links(check_date))
+
+    def _membership_fee_revoked_links(self):
+        candidates = self.filtered('invoice_id')
+        if not candidates:
+            return candidates
+        invoice_ids = candidates.mapped('invoice_id').ids
+        credited_invoice_ids = set(
+            self.env['account.move']
+            .sudo()
+            .search(
+                [
+                    ('reversed_entry_id', 'in', invoice_ids),
+                    ('move_type', '=', 'out_refund'),
+                    ('state', '=', 'posted'),
+                ]
+            )
+            .mapped('reversed_entry_id')
+            .ids
+        )
+        return candidates.filtered(lambda link: link.invoice_id.id in credited_invoice_ids)
 
     def _invoice_member_links(self, check_date):
         # The caller has access to these family links; only their accounting

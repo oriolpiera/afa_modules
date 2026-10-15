@@ -18,29 +18,7 @@ class AfaServiceBilling(models.TransientModel):
                 raise ValidationError(_('Choose the first day of the billing month.'))
 
     def _member_for(self, family, month):
-        mode = self.env['ir.config_parameter'].sudo().get_param('afa_membership.mode', 'invoice')
-        if mode == 'manual':
-            return bool(family.manual_member)
-        period = self.env['afa.membership.period'].search(
-            [
-                ('date_start', '<=', month),
-                ('date_end', '>=', month),
-            ],
-            limit=1,
-        )
-        link = (
-            self.env['afa.membership'].search(
-                [
-                    ('family_id', '=', family.id),
-                    ('period_id', '=', period.id),
-                    ('active', '=', True),
-                ],
-                limit=1,
-            )
-            if period
-            else self.env['afa.membership']
-        )
-        return bool(link and link.is_invoice_member_on(month))
+        return family.is_member_on(month)
 
     def _snapshot(self, subscription):
         family = subscription.family_id

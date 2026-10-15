@@ -9,7 +9,6 @@ class AfaFamily(models.Model):
         {
             'is_member',
             'membership_state',
-            'membership_mode',
             'current_period_id',
             'current_dues_invoice_id',
             'current_dues_invoice_reference',
@@ -21,9 +20,12 @@ class AfaFamily(models.Model):
         'family_id',
         string='Period Links',
         groups='afa_family.group_family_manager',
+        context={'active_test': False},
     )
     manual_member = fields.Boolean(
-        string='Manual Membership', groups='afa_family.group_family_manager'
+        string='Intends to Be a Member',
+        help='Keep enabled while this family intends to remain an AFA member.',
+        groups='afa_family.group_family_manager',
     )
     is_member = fields.Boolean(
         compute='_compute_membership_status',
@@ -32,16 +34,9 @@ class AfaFamily(models.Model):
         compute_sudo=True,
     )
     membership_state = fields.Selection(
-        [('inactive', 'Not a Member'), ('manual', 'Manual Member'), ('paid', 'Paid Dues')],
+        [('inactive', 'Not a Member'), ('member', 'Member')],
         compute='_compute_membership_status',
         string='Membership Status',
-        groups='afa_family.group_family_manager',
-        compute_sudo=True,
-    )
-    membership_mode = fields.Selection(
-        [('invoice', 'Invoice'), ('manual', 'Manual')],
-        compute='_compute_membership_status',
-        string='Membership Mode',
         groups='afa_family.group_family_manager',
         compute_sudo=True,
     )
@@ -82,7 +77,7 @@ class AfaFamily(models.Model):
         if 'manual_member' in vals and not (
             self.env.su or self.env.user.has_group('afa_family.group_family_manager')
         ):
-            raise AccessError(_('Only family managers may edit manual membership.'))
+            raise AccessError(_('Only family managers may edit membership intention.'))
 
     @api.depends(
         'manual_member',
@@ -92,16 +87,16 @@ class AfaFamily(models.Model):
         'membership_ids.period_id.date_start',
         'membership_ids.period_id.date_end',
         'membership_ids.invoice_id',
+        'membership_ids.returned_dues_invoice_id',
         'membership_ids.invoice_id.amount_total',
         'membership_ids.invoice_id.state',
         'membership_ids.invoice_id.payment_state',
         'membership_ids.invoice_id.reversal_move_ids',
         'membership_ids.invoice_id.reversal_move_ids.state',
+        'membership_ids.returned_dues_invoice_id.state',
+        'membership_ids.returned_dues_invoice_id.payment_state',
     )
     def _compute_membership_status(self):
-        mode = self.env['ir.config_parameter'].sudo().get_param('afa_membership.mode', 'invoice')
-        if mode not in ('invoice', 'manual'):
-            mode = 'invoice'
         today = fields.Date.context_today(self)
         period = self.env['afa.membership.period'].search(
             [('date_start', '<=', today), ('date_end', '>=', today)], limit=1
@@ -118,20 +113,60 @@ class AfaFamily(models.Model):
             else self.env['afa.membership']
         )
         by_family = {link.family_id.id: link for link in links}
+        revoked_links = links._membership_fee_revoked_links()
+        suspended_family_ids = self._families_with_unpaid_returned_dues()
+        suspended_family_ids.update(revoked_links.mapped('family_id').ids)
         for family in self:
             link = by_family.get(family.id)
-            paid = bool(link and link.is_invoice_member_on(today)) if mode == 'invoice' else False
-            family.membership_mode = mode
             family.current_period_id = period
             family.current_dues_invoice_id = link.invoice_id if link else False
             family.current_dues_invoice_reference = (
                 link.invoice_id.display_name if link and link.invoice_id else False
             )
-            family.is_member = family.manual_member if mode == 'manual' else paid
-            family.membership_state = (
-                'manual'
-                if mode == 'manual' and family.manual_member
-                else 'paid'
-                if paid
-                else 'inactive'
+            family.is_member = bool(family.manual_member and family.id not in suspended_family_ids)
+            family.membership_state = 'member' if family.is_member else 'inactive'
+
+    def is_member_on(self, check_date):
+        """Return the family's effective membership for a date in a school year."""
+        self.ensure_one()
+        if not self.manual_member:
+            return False
+        if self._families_with_unpaid_returned_dues():
+            return False
+        period = self.env['afa.membership.period'].search(
+            [('date_start', '<=', check_date), ('date_end', '>=', check_date)], limit=1
+        )
+        if not period:
+            return True
+        link = self.env['afa.membership'].search(
+            [
+                ('family_id', '=', self.id),
+                ('period_id', '=', period.id),
+                ('active', '=', True),
+            ],
+            limit=1,
+        )
+        return not bool(link and link._membership_fee_revoked_links())
+
+    def _families_with_unpaid_returned_dues(self):
+        links = (
+            self.env['afa.membership']
+            .sudo()
+            .with_context(active_test=False)
+            .search(
+                [
+                    ('family_id', 'in', self.ids),
+                    ('returned_dues_invoice_id', '!=', False),
+                ]
             )
+        )
+        return set(
+            links.filtered(
+                lambda link: (
+                    link.returned_dues_invoice_id.state != 'cancel'
+                    and link.returned_dues_invoice_id.payment_state != 'paid'
+                )
+            )
+            .mapped('family_id')
+            .ids
+        )

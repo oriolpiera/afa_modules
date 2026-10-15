@@ -26,6 +26,7 @@
                             <field name="family_name"/>
                             <field name="role"/>
                             <field name="is_billing"/>
+                            <field name="membership_intent"/>
                             <field name="name"/>
                             <field name="email"/>
                             <field name="phone"/>

@@ -49,6 +49,7 @@ class TestFamilyImport(TransactionCase):
                     'guardian',
                     'Anna Roure',
                     is_billing='true',
+                    membership_intent='true',
                     email='anna@example.cat',
                     phone='+34600000001',
                     iban=VALID_IBAN,
@@ -70,6 +71,8 @@ class TestFamilyImport(TransactionCase):
 
         family = self._family('Fam Roure')
         self.assertEqual(len(family), 1)
+        self.assertTrue(family.manual_member)
+        self.assertTrue(family.is_member)
         self.assertEqual(family.billing_partner_id.name, 'Anna Roure')
         self.assertEqual(family.billing_partner_id.afa_family_role, 'guardian')
         self.assertEqual(family.billing_partner_id.email, 'anna@example.cat')
@@ -204,6 +207,45 @@ class TestFamilyImport(TransactionCase):
         )
         message = 'Mark which guardian pays the dues.'
         self.assertEqual(self._errors(wizard), {'Un Marc': message, 'Dos Marc': message})
+
+    def test_membership_intent_must_be_on_the_billing_guardian_row(self):
+        wizard = self._load(
+            [
+                self._row(
+                    'Fam Intent',
+                    'guardian',
+                    'Payer Intent',
+                    is_billing='true',
+                ),
+                self._row(
+                    'Fam Intent',
+                    'guardian',
+                    'Other Intent',
+                    membership_intent='true',
+                ),
+            ]
+        )
+        self.assertEqual(
+            self._errors(wizard),
+            {'Other Intent': 'Set membership intention on the billing guardian row.'},
+        )
+
+    def test_invalid_membership_intent_is_reported(self):
+        wizard = self._load(
+            [
+                self._row(
+                    'Fam Invalid Intent',
+                    'guardian',
+                    'Payer Invalid Intent',
+                    is_billing='true',
+                    membership_intent='maybe',
+                )
+            ]
+        )
+        self.assertEqual(
+            self._errors(wizard),
+            {'Payer Invalid Intent': 'Membership intention must be true or false.'},
+        )
 
     def test_a_student_cannot_pay_the_dues(self):
         wizard = self._load(
@@ -494,6 +536,25 @@ class TestFamilyImport(TransactionCase):
                 [self._row('Fam X', 'guardian', 'X', is_billing='true')], filename='families.ods'
             )
 
+    def test_csv_without_membership_intent_column_defaults_to_false(self):
+        columns = [column for column in file_format.COLUMNS if column != 'membership_intent']
+        values = {
+            'family_name': 'Fam Legacy CSV',
+            'role': 'guardian',
+            'is_billing': 'true',
+            'name': 'Legacy Payer',
+        }
+        content = '\n'.join(
+            [','.join(columns), ','.join(values.get(column, '') for column in columns)]
+        )
+        wizard = self.env['afa.family.import.wizard'].create(
+            {'file': base64.b64encode(content.encode()), 'filename': 'families.csv'}
+        )
+        wizard.action_load()
+        self.assertFalse(self._errors(wizard))
+        wizard.action_confirm()
+        self.assertFalse(self._family('Fam Legacy CSV').manual_member)
+
     def test_staff_user_cannot_load_a_file(self):
         staff = self.env['res.users'].create(
             {
@@ -516,6 +577,7 @@ class TestFamilyImport(TransactionCase):
     def test_template_documents_the_expected_columns(self):
         self.assertEqual(file_format.TEMPLATE_CSV.splitlines()[0], ','.join(file_format.COLUMNS))
         self.assertIn('family_name', file_format.TEMPLATE_CSV)
+        self.assertIn('membership_intent', file_format.TEMPLATE_CSV)
         self.assertIn('mandate_date', file_format.TEMPLATE_CSV)
 
     def test_every_template_row_matches_the_column_count(self):
@@ -523,6 +585,9 @@ class TestFamilyImport(TransactionCase):
         self.assertGreaterEqual(len(rows), 4)
         for row in rows:
             self.assertEqual(len(row), len(file_format.COLUMNS), msg=str(row))
-        self.assertEqual(rows[1][6], '')
-        self.assertEqual(rows[1][7], VALID_IBAN)
-        self.assertEqual(rows[1][8], '2026-09-01')
+        self.assertEqual(rows[1][3], 'true')
+        self.assertEqual(rows[2][3], '')
+        self.assertEqual(rows[3][3], '')
+        self.assertEqual(rows[1][7], '')
+        self.assertEqual(rows[1][8], VALID_IBAN)
+        self.assertEqual(rows[1][9], '2026-09-01')

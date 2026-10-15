@@ -14,6 +14,7 @@ class AfaFamilyImportLine(models.TransientModel):
     family_name = fields.Char()
     role = fields.Char()
     is_billing = fields.Char()
+    membership_intent = fields.Char()
     name = fields.Char()
     email = fields.Char()
     phone = fields.Char()
