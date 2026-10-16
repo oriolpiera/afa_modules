@@ -18,9 +18,10 @@ not determine the direct-debit version.
    **disable Group Lines** so a return can be traced to one invoice.
 3. Create a signed, valid SEPA Core mandate attached to an IBAN belonging to
    the **same person billed on the invoice**. Post the dues invoice.
-4. From **AFA Families → Prepare SEPA Collections**, select invoices and choose
-   **Check Eligibility**. Excluded invoices show a reason. **Create Debit Order**
-   opens the OCA order; confirm, generate the XML, and upload it to the bank.
+4. From **AFA Families → Collections → Prepare SEPA Collections**, select invoices
+   and choose **Check Eligibility**. Excluded invoices show a reason. **Create
+   Debit Order** opens the OCA order; confirm, generate the XML, and upload it to
+   the bank.
    If another operator reserves an invoice after preview, the wizard shows the
    new exclusion and keeps the other invoices in the order. Use **Open Debit
    Order** to continue with those invoices. If the invoice selection changes,

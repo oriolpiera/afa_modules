@@ -36,8 +36,8 @@ portal or web self-registration.
 
 ## Import enrollments
 
-Family managers can use **AFA Families → Import Extracurricular Enrollments** to
-load a CSV with one row per student and activity. The required columns are
+Family managers can use **AFA Families → Configuration → Import Enrollments**
+to load a CSV with one row per student and activity. The required columns are
 `curs,nen,extraescolar,grup`; `telefon` is optional and shown for review only.
 For example:
 
@@ -59,10 +59,11 @@ subscription flow remains responsible for family, join-window, and billing rules
 ## Bill
 
 Billing is unchanged from `afa_service_subscription`: refresh a month in
-**Monthly Service Billing**, charge only months inside the activity's execution
-period with the member tariff of the family for that month, and generate one
-draft invoice per family and month. Repeating the preview and confirmation never
-duplicates charges. Scheduled activities need no attendance control.
+**AFA Families → Collections → Monthly Service Billing**. Charge only months
+inside the activity's execution period, using the family's member tariff for
+that month, and generate one draft invoice per family and month. Repeating the
+preview and confirmation never duplicates charges. Scheduled activities need no
+attendance control.
 
 Run the Odoo 19 test stack as described in the repository README, including
 `afa_extracurricular` in the installation list and `/afa_extracurricular` in

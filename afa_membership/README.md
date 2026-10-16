@@ -9,8 +9,9 @@ years, and family-period dues invoices to Odoo 19 Community. It depends on
 1. Install both addons and assign **AFA Family Manager** to staff managing
    families. Accounting access is also needed to create, post, and reconcile
    invoices; being a family manager alone does not grant accounting access.
-2. Create a school year under **AFA Families → School Years**. For example,
-   **2026/27** runs from **2026-07-01** through **2027-06-30**, inclusive.
+2. Create a school year under **AFA Families → Configuration → School Years**.
+   For example, **2026/27** runs from **2026-07-01** through **2027-06-30**,
+   inclusive.
 3. Create a **Family Period Link** for that year. Choose a saleable dues product
    with a positive price and select **Create Dues Invoice**. The selected
    billing guardian becomes the invoice recipient at creation; later family
@@ -33,8 +34,9 @@ from the family's effective membership:
 qualifies during the year, `expired` after June 30, and `canceled` when the link
 is archived. Valid From/Through come from its school year and cannot be edited
 on the link. Archiving is administrative; an archived link never counts as
-invoice eligibility. Archived links remain visible in **Family Period Links**
-so managers can inspect their canceled status. The family form shows the current
+invoice eligibility. Archived links remain visible under
+**AFA Families → Collections → Family Period Links** so managers can inspect
+their canceled status. The family form shows the current
 school year and dues invoice reference (not a link to an accounting record that
 family-only managers cannot open). The intention and derived status can only be
 changed by AFA Family Managers. Contacts includes a read-only **AFA Member** column
