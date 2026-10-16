@@ -55,11 +55,11 @@ class AfaAcollidaConfig(models.Model):
             ) from error
 
     def write(self, vals):
-        if 'period_id' in vals and self.env['afa.acollida.charge'].with_context(
-            active_test=False
-        ).search_count([('config_id', 'in', self.ids)]):
+        if {'period_id', 'company_id'} & vals.keys() and self.env[
+            'afa.acollida.charge'
+        ].with_context(active_test=False).search_count([('config_id', 'in', self.ids)]):
             raise ValidationError(
-                _('A configuration with imported charges cannot change school year.')
+                _('A configuration with imported charges cannot change school year or company.')
             )
         try:
             with self.env.cr.savepoint():

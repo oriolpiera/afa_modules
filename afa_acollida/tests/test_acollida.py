@@ -319,6 +319,16 @@ class TestAcollida(TransactionCase):
             2,
         )
 
+    def test_configuration_company_is_immutable_after_charge_history(self):
+        self._import(self._csv([{'october': ''}])).action_confirm()
+        invoice = self.env['account.move'].browse(self._bill().action_generate()['domain'][0][2][0])
+        invoice.button_cancel()
+        self.assertFalse(self.env['afa.acollida.charge'].search([('active', '=', True)]))
+
+        other_company = self.env['res.company'].create({'name': 'Other Acollida Company'})
+        with self.assertRaises(ValidationError):
+            self.config.write({'company_id': other_company.id})
+
     def test_acollida_and_monthly_service_share_family_invoice(self):
         self._import(self._csv([{}])).action_confirm()
         acollida_invoice = self.env['account.move'].browse(
