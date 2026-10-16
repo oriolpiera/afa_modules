@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_afa_acollida_config_manager,afa.acollida.config.manager,model_afa_acollida_config,afa_family.group_family_manager,1,1,1,1
+access_afa_acollida_charge_manager,afa.acollida.charge.manager,model_afa_acollida_charge,afa_family.group_family_manager,1,1,1,0
+access_afa_acollida_import_wizard_manager,afa.acollida.import.wizard.manager,model_afa_acollida_import_wizard,afa_family.group_family_manager,1,1,1,1
+access_afa_acollida_import_line_manager,afa.acollida.import.line.manager,model_afa_acollida_import_line,afa_family.group_family_manager,1,1,1,1
+access_afa_acollida_billing_manager,afa.acollida.billing.manager,model_afa_acollida_billing,afa_family.group_family_manager,1,1,1,1
+access_afa_acollida_billing_line_manager,afa.acollida.billing.line.manager,model_afa_acollida_billing_line,afa_family.group_family_manager,1,1,1,1

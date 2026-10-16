@@ -33,6 +33,7 @@ services:
       - ./afa_school_course:/mnt/extra-addons/afa_school_course:ro
       - ./afa_extracurricular:/mnt/extra-addons/afa_extracurricular:ro
       - ./afa_family_import:/mnt/extra-addons/afa_family_import:ro
+      - ./afa_acollida:/mnt/extra-addons/afa_acollida:ro
       - ./.oca-bank-payment/account_payment_mode:/mnt/extra-addons/account_payment_mode:ro
       - ./.oca-bank-payment/account_payment_order:/mnt/extra-addons/account_payment_order:ro
       - ./.oca-bank-payment/account_banking_pain_base:/mnt/extra-addons/account_banking_pain_base:ro
