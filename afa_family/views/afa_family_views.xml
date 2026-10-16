@@ -68,5 +68,11 @@
     <menuitem id="menu_afa_family_root" name="AFA Families"
               groups="afa_family.group_family_manager" sequence="50"/>
     <menuitem id="menu_afa_family" name="Families" parent="menu_afa_family_root"
-              action="action_afa_family" groups="afa_family.group_family_manager"/>
+              action="action_afa_family" groups="afa_family.group_family_manager" sequence="10"/>
+    <menuitem id="menu_afa_family_collections" name="Collections"
+              parent="menu_afa_family_root" groups="afa_family.group_family_manager"
+              sequence="80"/>
+    <menuitem id="menu_afa_family_configuration" name="Configuration"
+              parent="menu_afa_family_root" groups="afa_family.group_family_manager"
+              sequence="90"/>
 </odoo>

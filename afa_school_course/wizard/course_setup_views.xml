@@ -35,6 +35,6 @@
         <field name="target">new</field>
     </record>
     <menuitem id="menu_afa_school_course_setup_wizard" name="Quick Course Setup"
-              parent="afa_family.menu_afa_family_root" action="action_afa_school_course_setup_wizard"
-              groups="afa_family.group_family_manager"/>
+              parent="afa_family.menu_afa_family_configuration" action="action_afa_school_course_setup_wizard"
+              groups="afa_family.group_family_manager" sequence="50"/>
 </odoo>

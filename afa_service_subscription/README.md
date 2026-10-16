@@ -8,7 +8,8 @@ one draft customer invoice per family and billing month. This module depends on
 
 1. Give staff the **AFA Family Manager** group. Generating invoices also requires
    **Accounting** access. Install `afa_service_subscription`.
-2. Create a school year, then **Monthly Services**. Select a saleable service product,
+2. Create a school year under **AFA Families → Configuration → School Years**,
+   then open **Monthly Services**. Select a saleable service product,
    complete-month start/end dates and member/non-member monthly prices (before tax).
 3. Add join and leave windows with request dates and an effective month. For example,
    September requests can take effect in October; December withdrawal requests can
@@ -18,7 +19,8 @@ one draft customer invoice per family and billing month. This module depends on
    window is open. Use **Request Withdrawal** on the subscription to select an open
    leave window. Dates are recorded when the staff action occurs. A withdrawal
    effective in January bills December but not January.
-5. Under **Monthly Service Billing**, select the first day of a month and click
+5. Under **AFA Families → Collections → Monthly Service Billing**, select the
+   first day of a month and click
    **Refresh Preview**. Review student, service, family, payer, membership tariff,
    unit price (before tax), and any exclusion reason. Uncheck unwanted charges,
    then click **Generate Draft Invoices**. Review and post the Odoo invoices normally.

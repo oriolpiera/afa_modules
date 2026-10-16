@@ -47,6 +47,6 @@
         <field name="binding_view_types">list</field>
     </record>
     <menuitem id="menu_afa_sepa_wizard" name="Prepare SEPA Collections"
-              parent="afa_family.menu_afa_family_root" action="action_afa_sepa_wizard"
-              groups="afa_family.group_family_manager"/>
+              parent="afa_family.menu_afa_family_collections" action="action_afa_sepa_wizard"
+              groups="afa_family.group_family_manager" sequence="30"/>
 </odoo>

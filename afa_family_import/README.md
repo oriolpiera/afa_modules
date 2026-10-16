@@ -1,9 +1,9 @@
 # Initial family load
 
-Install `afa_family_import` after the family, school course and SEPA addons. It adds
-**AFA Families → Load Families**, a family-manager-only assistant that creates complete
-families from a CSV or Excel file, which is what an AFA needs for its first load of the
-school year.
+Install `afa_family_import` after the family, school course and SEPA addons. It
+adds **AFA Families → Configuration → Load Families**, a family-manager-only
+assistant that creates complete families from a CSV or Excel file for the AFA's
+initial school-year load.
 
 Download the CSV template from the assistant and fill one **row per person**, keeping the
 rows of a family together under the same `family_name`:
