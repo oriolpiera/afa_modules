@@ -31,6 +31,6 @@
         <field name="view_mode">form</field><field name="target">current</field>
     </record>
     <menuitem id="menu_afa_service_billing" name="Monthly Service Billing"
-        parent="afa_family.menu_afa_family_root" action="action_afa_service_billing"
-        groups="afa_family.group_family_manager"/>
+        parent="afa_family.menu_afa_family_collections" action="action_afa_service_billing"
+        groups="afa_family.group_family_manager" sequence="20"/>
 </odoo>
