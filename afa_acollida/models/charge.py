@@ -82,7 +82,11 @@ class AfaAcollidaCharge(models.Model):
             ):
                 raise ValidationError(_('The invoice line does not match this Acollida charge.'))
             return super().write(vals)
-        if self.env.context.get('_afa_cancel_acollida_invoice') and vals == {'active': False}:
+        if (
+            self.env.context.get('_afa_cancel_acollida_invoice')
+            and vals == {'active': False}
+            and all(charge.invoice_id and charge.invoice_id.state == 'cancel' for charge in self)
+        ):
             return super().write(vals)
         raise ValidationError(_('Imported Acollida charge history cannot be edited.'))
 

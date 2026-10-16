@@ -4,6 +4,7 @@ import io
 from datetime import date
 from unittest.mock import patch
 
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 from ..wizard import file_format
@@ -276,6 +277,10 @@ class TestAcollida(TransactionCase):
         self._import(content).action_confirm()
         invoice = self.env['account.move'].browse(self._bill().action_generate()['domain'][0][2][0])
         original_charges = invoice.afa_acollida_charge_ids
+        with self.assertRaises(ValidationError):
+            original_charges.with_context(_afa_cancel_acollida_invoice=True).write(
+                {'active': False}
+            )
 
         invoice.button_cancel()
 
