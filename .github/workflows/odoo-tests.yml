@@ -47,7 +47,7 @@ jobs:
               for marker in (
                   "Starting TestMembershipDomain.test_school_year_bounds_include_july_first_and_june_thirtieth",
                   "Starting TestMembershipInvoice.test_posted_invoice_requires_full_payment_and_period_bounds",
-                  "Starting TestMembershipSettings.test_manual_mode_persists_through_july_and_mode_switch",
+                  "Starting TestMembershipIntent.test_contact_membership_column_projects_effective_family_status",
               )
           )
           pricing_tests_ran = "Starting TestMemberPricing.test_payment_gate_rejects_stale_member_cart_without_writing" in output

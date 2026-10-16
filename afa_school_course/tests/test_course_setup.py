@@ -37,6 +37,11 @@ class TestSchoolCourseSetup(TransactionCase):
         self.assertFalse(courses[-1].next_course_id)
         return courses
 
+    def test_contacts_list_shows_school_course_to_family_managers(self):
+        view = self.env.ref('afa_school_course.view_partner_list_afa_school_course')
+        self.assertIn('afa_course_id', view.arch_db)
+        self.assertIn('afa_family.group_family_manager', view.arch_db)
+
     def test_every_stage_builds_the_full_ladder(self):
         action = self._wizard(infantil=True, primaria=True, secundaria=True).action_confirm()
         self.assertEqual(action['res_model'], 'afa.school.course')

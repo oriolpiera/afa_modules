@@ -175,3 +175,6 @@ class TestFamilySecurity(TransactionCase):
         )
         partner_form = self.env.ref('afa_family.view_partner_form_afa_family')
         self.assertIn('afa_family.group_family_manager', partner_form.arch_db)
+        partner_list = self.env.ref('afa_family.view_partner_list_afa_family')
+        self.assertIn('afa_family_role', partner_list.arch_db)
+        self.assertIn('afa_family.group_family_manager', partner_list.arch_db)
