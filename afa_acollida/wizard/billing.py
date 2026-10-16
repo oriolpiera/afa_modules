@@ -17,7 +17,7 @@ class AfaAcollidaBilling(models.TransientModel):
             if wizard.month and wizard.month.day != 1:
                 raise ValidationError(_('Choose the first day of the billing month.'))
 
-    def _check_access(self, accounting=False):
+    def _check_billing_permissions(self, accounting=False):
         if not self.env.su and not self.env.user.has_group('afa_family.group_family_manager'):
             raise AccessError(_('Only family managers can review Acollida billing.'))
         if (
@@ -46,15 +46,20 @@ class AfaAcollidaBilling(models.TransientModel):
         }
 
     def _existing_invoice(self, family, journal, payment_mode):
-        return self.env['account.move'].search(
-            [
-                ('afa_service_family_id', '=', family.id),
-                ('afa_service_month', '=', self.month),
-                ('journal_id', '=', journal.id),
-                ('payment_mode_id', '=', payment_mode.id),
-                ('state', '!=', 'cancel'),
-            ],
-            limit=1,
+        # Managers may review charges without accounting access; sudo only this identity lookup.
+        return (
+            self.env['account.move']
+            .sudo()
+            .search(
+                [
+                    ('afa_service_family_id', '=', family.id),
+                    ('afa_service_month', '=', self.month),
+                    ('journal_id', '=', journal.id),
+                    ('payment_mode_id', '=', payment_mode.id),
+                    ('state', '!=', 'cancel'),
+                ],
+                limit=1,
+            )
         )
 
     def _reason(self, charge, snapshot):
@@ -84,7 +89,7 @@ class AfaAcollidaBilling(models.TransientModel):
 
     def action_preview(self):
         self.ensure_one()
-        self._check_access()
+        self._check_billing_permissions()
         self._check_month()
         self.line_ids.unlink()
         for charge in self._charges():
@@ -110,7 +115,7 @@ class AfaAcollidaBilling(models.TransientModel):
 
     def action_generate(self):
         self.ensure_one()
-        self._check_access(accounting=True)
+        self._check_billing_permissions(accounting=True)
         if not self.line_ids:
             raise ValidationError(_('Preview the month before generating invoices.'))
         if any(line.month != self.month for line in self.line_ids):

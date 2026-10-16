@@ -4,7 +4,8 @@ import io
 from datetime import date
 from unittest.mock import patch
 
-from odoo.exceptions import ValidationError
+from odoo import Command
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
 from ..wizard import file_format
@@ -245,6 +246,35 @@ class TestAcollida(TransactionCase):
             )
         )
         missing_hours.action_confirm()
+
+    def test_billing_manager_without_accounting_can_preview_but_not_generate(self):
+        self._import(self._csv([{}])).action_confirm()
+        reviewer = self.env['res.users'].create(
+            {
+                'name': 'Acollida Billing Reviewer',
+                'login': 'acollida-billing-reviewer',
+                'group_ids': [
+                    Command.set(
+                        [
+                            self.env.ref('base.group_user').id,
+                            self.env.ref('afa_family.group_family_manager').id,
+                        ]
+                    )
+                ],
+                'company_id': self.env.company.id,
+                'company_ids': [Command.set([self.env.company.id])],
+            }
+        )
+        billing = (
+            self.env['afa.acollida.billing'].with_user(reviewer).create({'month': '2026-09-01'})
+        )
+
+        billing.action_preview()
+
+        self.assertEqual(len(billing.line_ids), 1)
+        self.assertTrue(billing.line_ids.include)
+        with self.assertRaises(AccessError):
+            billing.action_generate()
 
     def test_imported_charge_keeps_the_family_at_import_time(self):
         self._import(self._csv([{}])).action_confirm()
