@@ -253,7 +253,7 @@ class AfaAcollidaImportWizard(models.TransientModel):
             self._validate_charge_line(line, student, existing_by_key)
 
     def _resolve_student(self, line, courses_by_key, students_by_key):
-        if not line.student_name.strip() or not line.course_name.strip():
+        if not (line.student_name or '').strip() or not (line.course_name or '').strip():
             return False, _('Student name and course are required.')
         courses = courses_by_key.get(file_format.normalize_course(line.course_name), [])
         if not courses:
@@ -301,7 +301,7 @@ class AfaAcollidaImportWizard(models.TransientModel):
 
     def _row_warnings(self, line, monthly_amount=None):
         warnings = []
-        if not line.weekly_hours.strip():
+        if not (line.weekly_hours or '').strip():
             hours = None
             warnings.append(_('Weekly hours are missing.'))
         else:

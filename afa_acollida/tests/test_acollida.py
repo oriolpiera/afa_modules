@@ -226,6 +226,26 @@ class TestAcollida(TransactionCase):
         wizard.action_confirm()
         self.assertFalse(self.env['afa.acollida.charge'].search([]))
 
+    def test_blank_student_and_course_are_reported_and_blank_hours_warn(self):
+        invalid = self._import(self._csv([{'student': '', 'course': '', 'hours': ''}]))
+        self.assertEqual(set(invalid.line_ids.mapped('action')), {'error'})
+        self.assertTrue(
+            all(
+                'Student name and course are required' in error
+                for error in invalid.line_ids.mapped('error')
+            )
+        )
+
+        missing_hours = self._import(self._csv([{'hours': ''}]))
+        self.assertEqual(set(missing_hours.line_ids.mapped('action')), {'create'})
+        self.assertTrue(
+            all(
+                'Weekly hours are missing' in warning
+                for warning in missing_hours.line_ids.mapped('warnings')
+            )
+        )
+        missing_hours.action_confirm()
+
     def test_imported_charge_keeps_the_family_at_import_time(self):
         self._import(self._csv([{}])).action_confirm()
         other_guardian = self.env['res.partner'].create(
