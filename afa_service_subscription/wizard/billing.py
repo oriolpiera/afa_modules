@@ -32,13 +32,17 @@ class AfaServiceBilling(models.TransientModel):
                 if member
                 else subscription.service_id.nonmember_price
             ),
+            'journal_id': subscription.service_id.invoice_journal_id.id,
+            'payment_mode_id': subscription.service_id.payment_mode_id.id,
         }
 
-    def _existing_invoice(self, family):
+    def _existing_invoice(self, family, journal, payment_mode):
         return self.env['account.move'].search(
             [
                 ('afa_service_family_id', '=', family.id),
                 ('afa_service_month', '=', self.month),
+                ('journal_id', '=', journal.id),
+                ('payment_mode_id', '=', payment_mode.id),
                 ('state', '!=', 'cancel'),
             ],
             limit=1,
@@ -59,6 +63,10 @@ class AfaServiceBilling(models.TransientModel):
     def _reason(self, subscription, snapshot):
         if not snapshot['family_id'] or not snapshot['payer_id']:
             return _('Student has no billing family or guardian.')
+        if not snapshot['journal_id']:
+            return _('Configure an invoice journal on the monthly service.')
+        if not snapshot['payment_mode_id']:
+            return _('Configure a payment mode on the monthly service.')
         if (
             self.env['afa.service.charge']
             .sudo()
@@ -71,7 +79,11 @@ class AfaServiceBilling(models.TransientModel):
             )
         ):
             return _('Already invoiced.')
-        invoice = self._existing_invoice(subscription.family_id)
+        invoice = self._existing_invoice(
+            subscription.family_id,
+            subscription.service_id.invoice_journal_id,
+            subscription.service_id.payment_mode_id,
+        )
         if invoice and invoice.state != 'draft':
             return _('The family invoice is already posted; cancel it before billing new services.')
         if invoice and (
@@ -97,6 +109,8 @@ class AfaServiceBilling(models.TransientModel):
                     'payer_id': snapshot['payer_id'],
                     'member': snapshot['member'],
                     'price': snapshot['price'],
+                    'journal_id': snapshot['journal_id'],
+                    'payment_mode_id': snapshot['payment_mode_id'],
                     'include': not bool(reason),
                     'reason': reason,
                 }
@@ -119,24 +133,32 @@ class AfaServiceBilling(models.TransientModel):
         if not selected:
             raise ValidationError(_('Select at least one eligible charge.'))
         invoice_ids = []
-        for family in selected.mapped('family_id').sorted('id'):
+        grouped_lines = {}
+        for line in selected:
+            key = (line.family_id.id, line.journal_id.id, line.payment_mode_id.id)
+            grouped_lines.setdefault(key, self.env['afa.service.billing.line'])
+            grouped_lines[key] |= line
+
+        for (family_id, journal_id, payment_mode_id), lines in sorted(grouped_lines.items()):
+            family = self.env['afa.family'].browse(family_id)
+            journal = self.env['account.journal'].browse(journal_id)
+            payment_mode = self.env['account.payment.mode'].browse(payment_mode_id)
             # Lock the family, not merely invoices: two first-time billing requests
             # must not both conclude that there is no invoice yet.
             self.env.cr.execute('SELECT id FROM afa_family WHERE id = %s FOR UPDATE', [family.id])
-            for student in (
-                selected.filtered(lambda line, current=family: line.family_id == current)
-                .mapped('student_id')
-                .sorted('id')
-            ):
+            for student in lines.mapped('student_id').sorted('id'):
                 self.env['afa.service.subscription']._lock_student(student)
             self.env.invalidate_all()
             if set(self.line_ids.mapped('subscription_id').ids) != set(self._candidates().ids):
                 raise ValidationError(_('Subscriptions changed; refresh the preview.'))
-            invoice = self._existing_invoice(family)
-            lines = selected.filtered(lambda line, current=family: line.family_id == current)
             if len(set(lines.mapped('subscription_id.service_id.company_id').ids)) != 1:
                 raise ValidationError(
                     _('A family cannot be billed across companies on one invoice.')
+                )
+            company = lines[0].subscription_id.service_id.company_id
+            if journal.company_id != company or payment_mode.company_id != company:
+                raise ValidationError(
+                    _('Invoice journal and payment mode must match the service company.')
                 )
             prepared = []
             for line in lines:
@@ -148,11 +170,13 @@ class AfaServiceBilling(models.TransientModel):
                     or line.payer_id.id != snapshot['payer_id']
                     or line.member != snapshot['member']
                     or line.price != snapshot['price']
+                    or line.journal_id.id != snapshot['journal_id']
+                    or line.payment_mode_id.id != snapshot['payment_mode_id']
                 ):
                     raise ValidationError(_('Billing details changed; refresh the preview.'))
                 prepared.append((line, sub, snapshot))
+            invoice = self._existing_invoice(family, journal, payment_mode)
             if not invoice:
-                service = prepared[0][1].service_id
                 invoice = (
                     self.env['account.move']
                     .with_context(_afa_generate_service_invoices=True)
@@ -160,7 +184,9 @@ class AfaServiceBilling(models.TransientModel):
                         {
                             'move_type': 'out_invoice',
                             'partner_id': family.billing_partner_id.id,
-                            'company_id': service.company_id.id,
+                            'company_id': company.id,
+                            'journal_id': journal.id,
+                            'payment_mode_id': payment_mode.id,
                             'invoice_date': self.month,
                             'afa_service_month': self.month,
                             'afa_service_family_id': family.id,
@@ -208,7 +234,7 @@ class AfaServiceBilling(models.TransientModel):
             'res_model': self._name,
             'res_id': self.id,
             'view_mode': 'form',
-            'target': 'current',
+            'target': 'new',
         }
 
     def _check_access(self, accounting=False):
@@ -236,5 +262,7 @@ class AfaServiceBillingLine(models.TransientModel):
     member = fields.Boolean(readonly=True)
     price = fields.Monetary(readonly=True, currency_field='currency_id')
     currency_id = fields.Many2one(related='subscription_id.service_id.currency_id')
+    journal_id = fields.Many2one('account.journal', readonly=True)
+    payment_mode_id = fields.Many2one('account.payment.mode', readonly=True)
     include = fields.Boolean()
     reason = fields.Char(readonly=True)

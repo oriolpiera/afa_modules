@@ -1,16 +1,18 @@
 # Monthly service subscriptions
 
 Staff can enroll students in monthly AFA services and review charges before creating
-one draft customer invoice per family and billing month. This module depends on
-`afa_membership` and is independent of annual membership dues.
+draft customer invoices grouped by family, billing month, invoice journal, and payment
+mode. This module is independent of annual membership dues.
 
 ## Configure and bill
 
 1. Give staff the **AFA Family Manager** group. Generating invoices also requires
    **Accounting** access. Install `afa_service_subscription`.
 2. Create a school year under **AFA Families → Configuration → School Years**,
-   then open **Monthly Services**. Select a saleable service product,
-   complete-month start/end dates and member/non-member monthly prices (before tax).
+   then open **Monthly Services**. Select a saleable service product, complete-month
+   start/end dates, member/non-member monthly prices (before tax), the sales journal,
+   and the inbound payment mode. The product or its category determines the income
+   account on invoice lines.
 3. Add join and leave windows with request dates and an effective month. For example,
    September requests can take effect in October; December withdrawal requests can
    take effect in January. Configure dates for each service rather than assuming
@@ -29,19 +31,22 @@ one draft customer invoice per family and billing month. This module depends on
 
 - A subscription bills one full month if active on its first day and its service
   covers that month. There is no proration.
-- Because each family receives a single invoice per month, its services in the
-  same school year must belong to the same Odoo company. Enrollment rejects
+- Services for the same family and month are invoiced together only when they use
+  the same sales journal and payment mode. Different accounting settings produce
+  separate customer invoices.
+- Services on one invoice must belong to the same Odoo company. Enrollment rejects
   cross-company combinations before they can become unbillable.
 - Invoice-mode membership checks the paid, unreversed annual dues link for the
   selected school year when generating; manual mode checks the current family
   manual-member flag. A later change does not change an existing invoice.
 - The invoice keeps the billing guardian, price, membership decision, and each
   service charge. Odoo computes taxes from the configured product/fiscal position.
-- Repeated billing skips charged subscriptions. New charges for the same family
-  and month can be added to its **draft** invoice; after posting, cancel that invoice
-  before regenerating the month. Canceled invoices and their original charges
-  remain in the history and cannot be reopened. Cancellation uses Odoo's normal
-  accounting rules; paid invoices may need reversing/reconciliation first.
+- Repeated billing skips charged subscriptions. New charges for the same family,
+  month, journal, and payment mode can be added to its **draft** invoice; after
+  posting, cancel that invoice before regenerating the group. Canceled invoices
+  and their original charges remain in the history and cannot be reopened.
+  Cancellation uses Odoo's normal accounting rules; paid invoices may need
+  reversing/reconciliation first.
 - If a future month was already invoiced, cancel its invoice before recording
   a withdrawal effective in that month or earlier.
 - Posted unpaid EUR invoices can be collected by `afa_sepa` when the payer has a

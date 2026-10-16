@@ -7,14 +7,18 @@
                 <field name="line_ids" readonly="0">
                     <list create="0" delete="0" edit="1"><field name="include"/>
                         <field name="student_id" readonly="1"/><field name="service_id" readonly="1"/>
+                        <field name="journal_id" readonly="1"/><field name="payment_mode_id" readonly="1"/>
                         <field name="family_id" readonly="1"/><field name="payer_id" readonly="1"/>
                         <field name="member" readonly="1"/><field name="price" readonly="1"/>
                         <field name="reason" readonly="1"/></list>
                 </field>
-                <footer><button name="action_preview" type="object" string="Refresh Preview"/>
-                    <button name="action_generate" type="object" string="Generate Draft Invoices"
-                        class="btn-primary" invisible="not line_ids"/></footer>
-            </sheet></form>
+            </sheet>
+            <footer>
+                <button name="action_preview" type="object" string="Refresh Preview"/>
+                <button name="action_generate" type="object" string="Generate Draft Invoices"
+                    class="btn-primary" invisible="not line_ids"/>
+            </footer>
+            </form>
         </field>
     </record>
     <record id="view_afa_service_leave_form" model="ir.ui.view">
@@ -28,7 +32,7 @@
     </record>
     <record id="action_afa_service_billing" model="ir.actions.act_window">
         <field name="name">Monthly Service Billing</field><field name="res_model">afa.service.billing</field>
-        <field name="view_mode">form</field><field name="target">current</field>
+        <field name="view_mode">form</field><field name="target">new</field>
     </record>
     <menuitem id="menu_afa_service_billing" name="Monthly Service Billing"
         parent="afa_family.menu_afa_family_collections" action="action_afa_service_billing"

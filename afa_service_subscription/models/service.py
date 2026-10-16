@@ -15,6 +15,18 @@ class AfaService(models.Model):
     product_id = fields.Many2one(
         'product.product', required=True, ondelete='restrict', domain=[('sale_ok', '=', True)]
     )
+    invoice_journal_id = fields.Many2one(
+        'account.journal',
+        string='Invoice Journal',
+        domain="[('type', '=', 'sale'), ('company_id', '=', company_id)]",
+        check_company=True,
+    )
+    payment_mode_id = fields.Many2one(
+        'account.payment.mode',
+        string='Payment Mode',
+        domain="[('payment_type', '=', 'inbound'), ('company_id', '=', company_id)]",
+        check_company=True,
+    )
     member_price = fields.Monetary(required=True, currency_field='currency_id')
     nonmember_price = fields.Monetary(required=True, currency_field='currency_id')
     company_id = fields.Many2one(
@@ -50,6 +62,8 @@ class AfaService(models.Model):
         'nonmember_price',
         'product_id',
         'company_id',
+        'invoice_journal_id',
+        'payment_mode_id',
     )
     def _check_configuration(self):
         for service in self:
@@ -69,6 +83,16 @@ class AfaService(models.Model):
                 )
             if service.member_price < 0 or service.nonmember_price < 0:
                 raise ValidationError(_('Service prices cannot be negative.'))
+            if service.invoice_journal_id and (
+                service.invoice_journal_id.type != 'sale'
+                or service.invoice_journal_id.company_id != service.company_id
+            ):
+                raise ValidationError(_('Choose a sales journal in the service company.'))
+            if service.payment_mode_id and (
+                service.payment_mode_id.payment_type != 'inbound'
+                or service.payment_mode_id.company_id != service.company_id
+            ):
+                raise ValidationError(_('Choose an inbound payment mode in the service company.'))
             product_company = service.product_id.company_id
             if service.product_id and (
                 not service.product_id.sale_ok

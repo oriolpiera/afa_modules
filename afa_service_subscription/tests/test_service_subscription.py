@@ -1,6 +1,8 @@
 from datetime import date
 from unittest.mock import patch
 
+from lxml import etree
+
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -10,6 +12,29 @@ class TestServiceSubscription(TransactionCase):
         super().setUp()
         self.today = date(2026, 9, 10)
         self.env['account.chart.template'].try_loading('generic_coa', self.env.company)
+        self.invoice_journal = self.env['account.journal'].search(
+            [('company_id', '=', self.env.company.id), ('type', '=', 'sale')], limit=1
+        )
+        inbound_method = self.env['account.payment.method'].search(
+            [('payment_type', '=', 'inbound')], limit=1
+        )
+        self.payment_mode = self.env['account.payment.mode'].create(
+            {
+                'name': 'AFA Direct Debit',
+                'company_id': self.env.company.id,
+                'payment_method_id': inbound_method.id,
+                'bank_account_link': 'variable',
+            }
+        )
+        product = self.env['product.product'].create(
+            {
+                'name': 'Morning Care',
+                'list_price': 45.0,
+            }
+        )
+        product.with_company(
+            self.env.company
+        ).property_account_income_id = self.invoice_journal.default_account_id
         guardian = self.env['res.partner'].create(
             {'name': 'Billing Guardian', 'afa_family_role': 'guardian'}
         )
@@ -36,14 +61,9 @@ class TestServiceSubscription(TransactionCase):
                 'period_id': period.id,
                 'date_start': '2026-09-01',
                 'date_end': '2027-06-30',
-                'product_id': self.env['product.product']
-                .create(
-                    {
-                        'name': 'Morning Care',
-                        'list_price': 45.0,
-                    }
-                )
-                .id,
+                'product_id': product.id,
+                'invoice_journal_id': self.invoice_journal.id,
+                'payment_mode_id': self.payment_mode.id,
                 'member_price': 30,
                 'nonmember_price': 45,
             }
@@ -81,6 +101,21 @@ class TestServiceSubscription(TransactionCase):
         wizard = self.env['afa.service.billing'].create({'month': month})
         wizard.action_preview()
         return wizard
+
+    def test_monthly_billing_actions_are_in_form_footer(self):
+        view = self.env.ref('afa_service_subscription.view_afa_service_billing_form')
+        arch = etree.fromstring(view.arch_db.encode())
+        footer = arch.find('footer')
+
+        action = self.env.ref('afa_service_subscription.action_afa_service_billing')
+        self.assertEqual(action.target, 'new')
+        self.assertIsNotNone(footer)
+        self.assertEqual(
+            [button.get('name') for button in footer.findall('button')],
+            ['action_preview', 'action_generate'],
+        )
+        wizard = self.env['afa.service.billing'].create({'month': '2026-11-01'})
+        self.assertEqual(wizard.action_preview()['target'], 'new')
 
     def test_window_enrollment_overlap_and_effective_withdrawal(self):
         subscription = self._subscribe()
@@ -160,10 +195,19 @@ class TestServiceSubscription(TransactionCase):
     def test_family_cannot_mix_companies_in_same_school_year(self):
         self._subscribe()
         other_company = self.env['res.company'].create({'name': 'Second AFA Company'})
+        self.env['account.chart.template'].try_loading('generic_coa', other_company)
+        other_journal = self.env['account.journal'].search(
+            [('company_id', '=', other_company.id), ('type', '=', 'sale')], limit=1
+        )
+        other_payment_mode = self.payment_mode.copy(
+            {'name': 'Second AFA Direct Debit', 'company_id': other_company.id}
+        )
         other_service = self.service.copy(
             {
                 'name': 'Other Company Service',
                 'company_id': other_company.id,
+                'invoice_journal_id': other_journal.id,
+                'payment_mode_id': other_payment_mode.id,
             }
         )
         other_window = self.env['afa.service.window'].create(
@@ -221,6 +265,12 @@ class TestServiceSubscription(TransactionCase):
         result = wizard.action_generate()
         invoice = self.env['account.move'].browse(result['domain'][0][2][0])
         self.assertEqual(invoice.partner_id, self.family.billing_partner_id)
+        self.assertEqual(invoice.journal_id, self.invoice_journal)
+        self.assertEqual(invoice.payment_mode_id, self.payment_mode)
+        self.assertEqual(
+            set(invoice.invoice_line_ids.mapped('account_id').ids),
+            {self.invoice_journal.default_account_id.id},
+        )
         self.assertEqual(len(invoice.afa_service_charge_ids), 2)
         self.assertEqual(len(invoice.invoice_line_ids), 2)
         self.assertEqual(sorted(invoice.invoice_line_ids.mapped('price_unit')), [45, 45])
@@ -231,6 +281,42 @@ class TestServiceSubscription(TransactionCase):
             wizard.action_generate()
         with self.assertRaises(ValidationError), self.cr.savepoint():
             first.charge_ids.invoice_line_id.write({'price_unit': 9})
+
+    def test_family_invoices_split_by_journal(self):
+        first = self._subscribe()
+        other_journal = self.invoice_journal.copy(
+            {'name': 'Separate Service Sales', 'code': 'SVC2'}
+        )
+        other_service = self.service.copy(
+            {'name': 'Afternoon Care', 'invoice_journal_id': other_journal.id}
+        )
+        other_window = self.env['afa.service.window'].create(
+            {
+                'service_id': other_service.id,
+                'kind': 'join',
+                'date_start': '2026-09-01',
+                'date_end': '2026-09-30',
+                'effective_month': '2026-10-01',
+            }
+        )
+        second = self._subscribe(other_service, other_window)
+
+        wizard = self._preview()
+        results = wizard.action_generate()
+        invoices = self.env['account.move'].browse(results['domain'][0][2])
+
+        self.assertEqual(len(invoices), 2)
+        self.assertEqual(
+            set(invoices.mapped('journal_id').ids), {self.invoice_journal.id, other_journal.id}
+        )
+        self.assertEqual(set(invoices.mapped('payment_mode_id').ids), {self.payment_mode.id})
+        self.assertEqual(
+            {
+                invoice.journal_id.id: set(invoice.afa_service_charge_ids.subscription_id.ids)
+                for invoice in invoices
+            },
+            {self.invoice_journal.id: {first.id}, other_journal.id: {second.id}},
+        )
 
     def test_cancel_and_regenerate_preserves_original_history(self):
         subscription = self._subscribe()

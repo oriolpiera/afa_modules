@@ -12,9 +12,11 @@ class AccountMove(models.Model):
     afa_service_charge_ids = fields.One2many('afa.service.charge', 'invoice_id', readonly=True)
 
     def init(self):
+        self.env.cr.execute('DROP INDEX IF EXISTS afa_service_invoice_family_month_uniq')
         self.env.cr.execute(
-            'CREATE UNIQUE INDEX IF NOT EXISTS afa_service_invoice_family_month_uniq '
-            'ON account_move (afa_service_family_id, afa_service_month) '
+            'CREATE UNIQUE INDEX IF NOT EXISTS afa_service_invoice_group_uniq '
+            'ON account_move '
+            '(afa_service_family_id, afa_service_month, journal_id, COALESCE(payment_mode_id, 0)) '
             "WHERE afa_service_family_id IS NOT NULL AND state != 'cancel'"
         )
 
@@ -28,9 +30,28 @@ class AccountMove(models.Model):
 
     def write(self, vals):
         billed = self.filtered('afa_service_month')
-        if billed and {'partner_id', 'afa_service_month', 'afa_service_family_id'} & vals.keys():
+        if (
+            billed
+            and {
+                'partner_id',
+                'afa_service_month',
+                'afa_service_family_id',
+            }
+            & vals.keys()
+        ):
             raise ValidationError(
                 _('A service invoice cannot change its payer or billing identity.')
+            )
+        if (
+            billed.filtered(lambda move: move.state != 'draft')
+            and {
+                'journal_id',
+                'payment_mode_id',
+            }
+            & vals.keys()
+        ):
+            raise ValidationError(
+                _('Posted service invoices cannot change their journal or payment mode.')
             )
         if (
             vals.get('state')

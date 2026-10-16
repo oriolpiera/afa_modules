@@ -4,7 +4,9 @@
         <field name="name">afa.service.list</field><field name="model">afa.service</field>
         <field name="arch" type="xml">
             <list><field name="name"/><field name="period_id"/><field name="date_start"/>
-                <field name="date_end"/><field name="member_price"/><field name="nonmember_price"/></list>
+                <field name="date_end"/><field name="invoice_journal_id"/>
+                <field name="payment_mode_id"/><field name="member_price"/>
+                <field name="nonmember_price"/></list>
         </field>
     </record>
     <record id="view_afa_service_form" model="ir.ui.view">
@@ -14,6 +16,12 @@
                 <field name="date_start"/><field name="date_end"/><field name="product_id"/>
                 <field name="company_id"/><field name="currency_id" invisible="1"/>
                 <field name="member_price"/><field name="nonmember_price"/></group>
+                <group string="Billing">
+                    <field name="invoice_journal_id" required="1"
+                           domain="[('type', '=', 'sale'), ('company_id', '=', company_id)]"/>
+                    <field name="payment_mode_id" required="1"
+                           domain="[('payment_type', '=', 'inbound'), ('company_id', '=', company_id)]"/>
+                </group>
                 <group string="Enrollment and withdrawal windows">
                     <field name="window_ids">
                         <list editable="bottom"><field name="kind"/><field name="date_start"/>
