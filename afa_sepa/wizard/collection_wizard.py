@@ -126,7 +126,7 @@ class AfaSepaWizard(models.TransientModel):
 
     def action_preview(self):
         self.ensure_one()
-        self._check_access()
+        self._check_afa_sepa_access()
         if not self._matches_prepared_order():
             self.order_id = False
             self.prepared_invoice_ids = False
@@ -151,7 +151,7 @@ class AfaSepaWizard(models.TransientModel):
 
     def action_prepare(self):
         self.ensure_one()
-        self._check_access()
+        self._check_afa_sepa_access()
         if not self.invoice_ids:
             raise UserError(_('Select at least one invoice.'))
         if set(self.line_ids.mapped('invoice_id').ids) != set(self.invoice_ids.ids):
@@ -214,7 +214,7 @@ class AfaSepaWizard(models.TransientModel):
 
     def action_open_order(self):
         self.ensure_one()
-        self._check_access()
+        self._check_afa_sepa_access()
         if not self.order_id:
             raise UserError(_('There is no prepared debit order.'))
         if not self._matches_prepared_order():
@@ -251,7 +251,7 @@ class AfaSepaWizard(models.TransientModel):
             'target': 'new',
         }
 
-    def _check_access(self):
+    def _check_afa_sepa_access(self):
         if (
             not self.env.user.has_group('afa_family.group_family_manager')
             or not (self.env.user.has_group('account.group_account_user'))

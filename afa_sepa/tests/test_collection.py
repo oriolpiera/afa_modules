@@ -143,6 +143,26 @@ class TestAfaSepa(TransactionCase):
         )
         self.assertEqual(self.mandate.partner_bank_id.acc_type, 'iban')
 
+    def test_wizard_preserves_orm_access_check_signature(self):
+        operator = self.env['res.users'].create(
+            {
+                'name': 'SEPA Operator',
+                'login': 'afa_sepa_operator',
+                'group_ids': [
+                    (
+                        6,
+                        0,
+                        [
+                            self.env.ref('afa_family.group_family_manager').id,
+                            self.env.ref('account.group_account_user').id,
+                            self.env.ref('account_payment_order.group_account_payment').id,
+                        ],
+                    )
+                ],
+            }
+        )
+        self.env['afa.sepa.wizard'].with_user(operator).check_access('read')
+
     def test_xml_duplicate_and_return(self):
         self.family.manual_member = True
         self.assertTrue(self.family.is_member)
