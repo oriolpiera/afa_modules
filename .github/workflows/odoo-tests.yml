@@ -26,7 +26,7 @@ jobs:
       - name: Install AFA addons with demo and run focused tests
         run: |
           set -o pipefail
-          docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_demo_ci -i afa_family,afa_membership,afa_member_pricing,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import --with-demo --test-enable --test-tags /afa_family,/afa_membership,/afa_member_pricing,/afa_sepa,/afa_service_subscription,/afa_school_course,/afa_extracurricular,/afa_family_import --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
+          docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_demo_ci -i afa_family,afa_membership,afa_member_pricing,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida --with-demo --test-enable --test-tags /afa_family,/afa_membership,/afa_member_pricing,/afa_sepa,/afa_service_subscription,/afa_school_course,/afa_extracurricular,/afa_family_import,/afa_acollida --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
           import re
           import sys
 
@@ -61,5 +61,6 @@ jobs:
           school_tests_ran = "Starting TestSchoolPromotion.test_withdraws_services_before_archiving" in output
           extracurricular_tests_ran = "Starting TestExtracurricular.test_billing_covers_only_activity_months_with_tariffs_and_no_duplicates" in output
           import_tests_ran = "Starting TestFamilyImport.test_import_creates_family_guardians_students_bank_and_mandate" in output
-          sys.exit(0 if passed and demo_loaded and demo_test_ran and membership_tests_ran and pricing_tests_ran and pricing_demo_ran and sepa_tests_ran and service_tests_ran and school_tests_ran and extracurricular_tests_ran and import_tests_ran else 1)
+          acollida_tests_ran = "Starting TestAcollida.test_imported_charges_generate_one_family_invoice_with_month_amounts" in output
+          sys.exit(0 if passed and demo_loaded and demo_test_ran and membership_tests_ran and pricing_tests_ran and pricing_demo_ran and sepa_tests_ran and service_tests_ran and school_tests_ran and extracurricular_tests_ran and import_tests_ran and acollida_tests_ran else 1)
           '

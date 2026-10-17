@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_acollida_billing_form" model="ir.ui.view">
+        <field name="name">afa.acollida.billing.form</field>
+        <field name="model">afa.acollida.billing</field>
+        <field name="arch" type="xml">
+            <form string="Review Monthly Acollida Billing">
+                <sheet>
+                    <group>
+                        <field name="month"/>
+                    </group>
+                    <field name="line_ids" readonly="0">
+                        <list create="0" delete="0" edit="1">
+                            <field name="include"/>
+                            <field name="student_id" readonly="1"/>
+                            <field name="family_id" readonly="1"/>
+                            <field name="payer_id" readonly="1"/>
+                            <field name="amount" readonly="1"/>
+                            <field name="journal_id" readonly="1"/>
+                            <field name="payment_mode_id" readonly="1"/>
+                            <field name="reason" readonly="1"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button name="action_preview" type="object" string="Refresh Preview"/>
+                    <button name="action_generate" type="object" string="Generate Draft Invoices"
+                            class="btn-primary" invisible="not line_ids"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_afa_acollida_billing" model="ir.actions.act_window">
+        <field name="name">Acollida Monthly Billing</field>
+        <field name="res_model">afa.acollida.billing</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_afa_acollida_billing" name="Acollida Monthly Billing"
+              parent="afa_family.menu_afa_family_collections"
+              action="action_afa_acollida_billing"
+              groups="afa_family.group_family_manager" sequence="30"/>
+</odoo>

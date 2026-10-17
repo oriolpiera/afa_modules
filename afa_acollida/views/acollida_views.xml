@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_acollida_config_list" model="ir.ui.view">
+        <field name="name">afa.acollida.config.list</field>
+        <field name="model">afa.acollida.config</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="period_id"/>
+                <field name="product_id"/>
+                <field name="invoice_journal_id"/>
+                <field name="payment_mode_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_afa_acollida_config_form" model="ir.ui.view">
+        <field name="name">afa.acollida.config.form</field>
+        <field name="model">afa.acollida.config</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="period_id"/>
+                        <field name="product_id"/>
+                        <field name="company_id"/>
+                        <field name="currency_id" invisible="1"/>
+                    </group>
+                    <group string="Billing">
+                        <field name="invoice_journal_id"/>
+                        <field name="payment_mode_id"/>
+                    </group>
+                    <group string="Imported Charges">
+                        <field name="charge_ids" readonly="1" context="{'active_test': False}">
+                            <list>
+                                <field name="month"/>
+                                <field name="student_id"/>
+                                <field name="family_id"/>
+                                <field name="amount"/>
+                                <field name="invoice_id"/>
+                                <field name="active"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_afa_acollida_config" model="ir.actions.act_window">
+        <field name="name">Acollida Billing Setup</field>
+        <field name="res_model">afa.acollida.config</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_afa_acollida_config" name="Acollida Billing Setup"
+              parent="afa_family.menu_afa_family_configuration"
+              action="action_afa_acollida_config"
+              groups="afa_family.group_family_manager" sequence="30"/>
+</odoo>

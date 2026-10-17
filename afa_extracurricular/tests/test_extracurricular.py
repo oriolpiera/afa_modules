@@ -11,6 +11,20 @@ class TestExtracurricular(TransactionCase):
         super().setUp()
         self.today = date(2026, 9, 10)
         self.env['account.chart.template'].try_loading('generic_coa', self.env.company)
+        self.invoice_journal = self.env['account.journal'].search(
+            [('company_id', '=', self.env.company.id), ('type', '=', 'sale')], limit=1
+        )
+        inbound_method = self.env['account.payment.method'].search(
+            [('payment_type', '=', 'inbound')], limit=1
+        )
+        self.payment_mode = self.env['account.payment.mode'].create(
+            {
+                'name': 'Extracurricular Direct Debit',
+                'company_id': self.env.company.id,
+                'payment_method_id': inbound_method.id,
+                'bank_account_link': 'variable',
+            }
+        )
         guardian = self.env['res.partner'].create(
             {'name': 'Billing Guardian', 'afa_family_role': 'guardian'}
         )
@@ -55,6 +69,8 @@ class TestExtracurricular(TransactionCase):
                 'date_start': '2026-09-01',
                 'date_end': '2027-06-30',
                 'product_id': self.product.id,
+                'invoice_journal_id': self.invoice_journal.id,
+                'payment_mode_id': self.payment_mode.id,
                 'member_price': 30,
                 'nonmember_price': 45,
             }
@@ -80,6 +96,8 @@ class TestExtracurricular(TransactionCase):
                 'date_start': '2026-10-01',
                 'date_end': '2027-05-31',
                 'product_id': self.product.id,
+                'invoice_journal_id': self.invoice_journal.id,
+                'payment_mode_id': self.payment_mode.id,
                 'is_extracurricular': True,
                 'enrollment_date_start': enrollment[0],
                 'enrollment_date_end': enrollment[1],

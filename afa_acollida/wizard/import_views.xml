@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_acollida_import_wizard_form" model="ir.ui.view">
+        <field name="name">afa.acollida.import.wizard.form</field>
+        <field name="model">afa.acollida.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Fixed Acollida Fees">
+                <sheet>
+                    <group>
+                        <field name="config_id"/>
+                        <field name="file" filename="filename"/>
+                        <field name="filename" invisible="1"/>
+                        <field name="preview_checksum" invisible="1"/>
+                        <field name="preview_config_id" invisible="1"/>
+                    </group>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not preview_message">
+                        <field name="preview_message" nolabel="1"/>
+                    </div>
+                    <p class="text-muted">
+                        Upload one row per student with Alumne, Curs, TRAM,
+                        HORES/SETMANA, IMPORT/MES and month columns from SETEMBRE to JUNY.
+                        Monthly amounts are billed as provided. Review warnings before confirming.
+                    </p>
+                    <field name="line_ids" readonly="1">
+                        <list create="0" edit="0" delete="0"
+                              decoration-danger="action == 'error'"
+                              decoration-warning="warnings"
+                              decoration-muted="action == 'skip'">
+                            <field name="sequence" column_invisible="1"/>
+                            <field name="source_row" optional="hide"/>
+                            <field name="student_name" string="Student"/>
+                            <field name="parent_name" string="Parent" optional="hide"/>
+                            <field name="course_name" string="Course"/>
+                            <field name="tranche"/>
+                            <field name="weekly_hours"/>
+                            <field name="base_amount"/>
+                            <field name="month"/>
+                            <field name="amount"/>
+                            <field name="family_id" optional="hide"/>
+                            <field name="action"/>
+                            <field name="message" optional="hide"/>
+                            <field name="warnings" optional="show"/>
+                            <field name="error" optional="show"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button name="action_preview" type="object" string="Preview File"
+                            class="btn-secondary"/>
+                    <button name="action_confirm" type="object" string="Confirm Import"
+                            class="btn-primary" invisible="not line_ids"
+                            confirm="Import the Acollida monthly charges shown in the preview?"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_afa_acollida_import" model="ir.actions.act_window">
+        <field name="name">Import Fixed Fees</field>
+        <field name="res_model">afa.acollida.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_afa_acollida_import" name="Import Fixed Fees"
+              parent="afa_family.menu_afa_family_configuration"
+              action="action_afa_acollida_import"
+              groups="afa_family.group_family_manager" sequence="31"/>
+</odoo>
