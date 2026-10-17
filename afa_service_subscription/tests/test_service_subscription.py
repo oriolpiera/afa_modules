@@ -117,6 +117,20 @@ class TestServiceSubscription(TransactionCase):
         wizard = self.env['afa.service.billing'].create({'month': '2026-11-01'})
         self.assertEqual(wizard.action_preview()['target'], 'new')
 
+    def test_customer_invoice_list_shows_family_for_family_managers(self):
+        base_view = self.env.ref('account.view_invoice_tree')
+        view = self.env['account.move'].get_view(view_id=base_view.id, view_type='list')
+        arch = etree.fromstring(view['arch'].encode())
+        family_columns = arch.xpath("//field[@name='afa_service_family_id']")
+
+        self.assertEqual(len(family_columns), 1)
+        self.assertEqual(family_columns[0].get('string'), 'Family')
+        self.assertEqual(family_columns[0].get('optional'), 'show')
+        self.assertEqual(
+            self.env['account.move']._fields['afa_service_family_id'].groups,
+            'afa_family.group_family_manager',
+        )
+
     def test_window_enrollment_overlap_and_effective_withdrawal(self):
         subscription = self._subscribe()
         self.assertEqual(subscription.join_requested_on, self.today)
