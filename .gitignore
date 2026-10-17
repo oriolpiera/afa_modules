@@ -207,7 +207,13 @@ tempCodeRunnerFile.py
 
 # Ruff stuff:
 .ruff_cache/
+
+# Odoo OCA repos
+.oca-account-reconcile/
 .oca-bank-payment/
+.oca-bank-statement-import/
+.oca-l10n-spain/
+
 
 # PyPI configuration file
 .pypirc

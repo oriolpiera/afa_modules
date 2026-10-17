@@ -39,6 +39,14 @@ services:
       - ./.oca-bank-payment/account_banking_pain_base:/mnt/extra-addons/account_banking_pain_base:ro
       - ./.oca-bank-payment/account_banking_mandate:/mnt/extra-addons/account_banking_mandate:ro
       - ./.oca-bank-payment/account_banking_sepa_direct_debit:/mnt/extra-addons/account_banking_sepa_direct_debit:ro
+      - ./.oca-account-reconcile/account_reconcile_oca:/mnt/extra-addons/account_reconcile_oca:ro
+      - ./.oca-account-reconcile/account_statement_base:/mnt/extra-addons/account_statement_base:ro
+      - ./.oca-l10n-spain/l10n_es_account_statement_import_n43:/mnt/extra-addons/l10n_es_account_statement_import_n43:ro
+      - ./.oca-bank-statement-import/account_statement_import_base:/mnt/extra-addons/account_statement_import_base:ro
+      - ./.oca-bank-statement-import/account_statement_import_file:/mnt/extra-addons/account_statement_import_file:ro
+      - ./.oca-bank-statement-import/account_statement_import_sheet_file:/mnt/extra-addons/account_statement_import_sheet_file:ro
+      - ./.oca-bank-statement-import/account_statement_import_sheet_file_xls:/mnt/extra-addons/account_statement_import_sheet_file_xls:ro
+      - ./.oca-bank-statement-import/account_statement_import_sheet_file_xlsx:/mnt/extra-addons/account_statement_import_sheet_file_xlsx:ro
       - odoo_test_data:/var/lib/odoo
 
 volumes:
