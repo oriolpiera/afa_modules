@@ -8,6 +8,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/service_views.xml',
+        'views/account_move_views.xml',
         'wizard/billing_views.xml',
     ],
     'installable': True,

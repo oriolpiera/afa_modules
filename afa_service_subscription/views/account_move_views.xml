@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_out_invoice_tree_afa_family" model="ir.ui.view">
+        <field name="name">account.move.out.invoice.list.afa.family</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_partner_display_name'][2]" position="after">
+                <field name="afa_service_family_id" string="Family"
+                       groups="afa_family.group_family_manager" optional="show"
+                       column_invisible="context.get('default_move_type') not in ('out_invoice', 'out_refund', 'out_receipt')"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
