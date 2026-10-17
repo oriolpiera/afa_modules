@@ -1,0 +1,121 @@
+x-odoo-common: &odoo-common
+  image: odoo:19.0
+  depends_on:
+    db:
+      condition: service_healthy
+  environment:
+    HOST: db
+    USER: odoo
+    PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+  volumes:
+    - ./afa_modules:/mnt/afa:ro
+    - ./.oca-account-reconcile:/mnt/oca-reconcile:ro
+    - ./.oca-bank-payment:/mnt/oca-payment:ro
+    - ./.oca-bank-statement-import:/mnt/oca-import:ro
+    - ./.oca-l10n-spain:/mnt/oca-spain:ro
+    - ./.oca-web:/mnt/oca-web:ro
+    - ./odoo.conf:/etc/odoo/odoo.conf:ro
+    - ./set_admin_password.py:/tmp/set_admin_password.py:ro
+    - odoo_data:/var/lib/odoo
+  networks:
+    - backend
+
+services:
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - backend
+
+  odoo:
+    <<: *odoo-common
+    restart: unless-stopped
+    command:
+      - --config=/etc/odoo/odoo.conf
+    expose:
+      - "8069"
+      - "8072"
+    networks:
+      - backend
+      - frontend
+
+  initialize:
+    <<: *odoo-common
+    profiles:
+      - initialize
+    command:
+      - --config=/etc/odoo/odoo.conf
+      - --init=afa_family,afa_membership,afa_member_pricing,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida
+      - --stop-after-init
+      - --workers=0
+      - --max-cron-threads=1
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - odoo
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - frontend
+
+  backup:
+    image: postgres:18
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    user: "0:0"
+    entrypoint: []
+    command:
+      - /bin/sh
+      - -c
+      - >-
+        umask 077;
+        set -eu;
+        while true; do
+        stamp=$$(date -u +%Y%m%dT%H%M%SZ);
+        pg_dump -h db -U odoo -d afa_prod -Fc -f "/backups/.afa_prod-$${stamp}.dump.tmp";
+        mv "/backups/.afa_prod-$${stamp}.dump.tmp" "/backups/afa_prod-$${stamp}.dump";
+        tar -czf "/backups/.afa_filestore-$${stamp}.tar.gz.tmp" -C /odoo-data filestore/afa_prod;
+        mv "/backups/.afa_filestore-$${stamp}.tar.gz.tmp" "/backups/afa_filestore-$${stamp}.tar.gz";
+        find /backups -type f -mtime +14 -delete;
+        sleep 86400;
+        done
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - odoo_data:/odoo-data:ro
+      - ./backups:/backups
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+  odoo_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  backend:
+  frontend:
