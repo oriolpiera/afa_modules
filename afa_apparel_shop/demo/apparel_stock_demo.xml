@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="afa_member_pricing.demo_tracksuit" model="product.template">
+        <field name="is_storable" eval="True"/>
+        <field name="allow_out_of_stock_order" eval="False"/>
+    </record>
+    <record id="afa_member_pricing.demo_short_sleeve_tshirt" model="product.template">
+        <field name="is_storable" eval="True"/>
+        <field name="allow_out_of_stock_order" eval="False"/>
+    </record>
+    <record id="afa_member_pricing.demo_long_sleeve_tshirt" model="product.template">
+        <field name="is_storable" eval="True"/>
+        <field name="allow_out_of_stock_order" eval="False"/>
+    </record>
+</odoo>

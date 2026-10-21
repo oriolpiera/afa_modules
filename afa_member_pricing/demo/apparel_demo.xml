@@ -4,6 +4,50 @@
         <field name="name">Size</field>
         <field name="create_variant">always</field>
     </record>
+    <record id="demo_size_2" model="product.attribute.value">
+        <field name="name">2</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_3_4" model="product.attribute.value">
+        <field name="name">3-4</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_4" model="product.attribute.value">
+        <field name="name">4</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_5_6" model="product.attribute.value">
+        <field name="name">5-6</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_6" model="product.attribute.value">
+        <field name="name">6</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_7_8" model="product.attribute.value">
+        <field name="name">7-8</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_8" model="product.attribute.value">
+        <field name="name">8</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_9_10" model="product.attribute.value">
+        <field name="name">9-10</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_10" model="product.attribute.value">
+        <field name="name">10</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_11_12" model="product.attribute.value">
+        <field name="name">11-12</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
+    <record id="demo_size_12" model="product.attribute.value">
+        <field name="name">12</field>
+        <field name="attribute_id" ref="demo_size_attribute"/>
+    </record>
     <record id="demo_size_s" model="product.attribute.value">
         <field name="name">S</field>
         <field name="attribute_id" ref="demo_size_attribute"/>
@@ -18,18 +62,25 @@
     </record>
 
     <record id="demo_tracksuit" model="product.template">
-        <field name="name">Xandall</field>
+        <field name="name">Jaqueta Xandall NOU MODEL</field>
         <field name="type">consu</field>
         <field name="list_price">35</field>
         <field name="is_published" eval="True"/>
-        <field name="attribute_line_ids" eval="[(0, 0, {'attribute_id': ref('demo_size_attribute'), 'value_ids': [(6, 0, [ref('demo_size_s'), ref('demo_size_m'), ref('demo_size_l')])]})]"/>
+        <field name="attribute_line_ids" eval="[(0, 0, {'attribute_id': ref('demo_size_attribute'), 'value_ids': [(6, 0, [ref('demo_size_2'), ref('demo_size_4'), ref('demo_size_6'), ref('demo_size_8'), ref('demo_size_10'), ref('demo_size_12'), ref('demo_size_s'), ref('demo_size_m'), ref('demo_size_l')])]})]"/>
     </record>
     <record id="demo_short_sleeve_tshirt" model="product.template">
         <field name="name">Samarreta màniga curta</field>
         <field name="type">consu</field>
         <field name="list_price">15</field>
         <field name="is_published" eval="True"/>
-        <field name="attribute_line_ids" eval="[(0, 0, {'attribute_id': ref('demo_size_attribute'), 'value_ids': [(6, 0, [ref('demo_size_s'), ref('demo_size_m'), ref('demo_size_l')])]})]"/>
+        <field name="attribute_line_ids" eval="[(0, 0, {'attribute_id': ref('demo_size_attribute'), 'value_ids': [(6, 0, [ref('demo_size_3_4'), ref('demo_size_5_6'), ref('demo_size_7_8'), ref('demo_size_9_10'), ref('demo_size_11_12'), ref('demo_size_s'), ref('demo_size_m'), ref('demo_size_l')])]})]"/>
+    </record>
+    <record id="demo_long_sleeve_tshirt" model="product.template">
+        <field name="name">Samarreta màniga llarga</field>
+        <field name="type">consu</field>
+        <field name="list_price">18</field>
+        <field name="is_published" eval="True"/>
+        <field name="attribute_line_ids" eval="[(0, 0, {'attribute_id': ref('demo_size_attribute'), 'value_ids': [(6, 0, [ref('demo_size_3_4'), ref('demo_size_5_6'), ref('demo_size_7_8'), ref('demo_size_9_10'), ref('demo_size_11_12'), ref('demo_size_s'), ref('demo_size_m'), ref('demo_size_l')])]})]"/>
     </record>
 
     <record id="demo_member_pricelist" model="product.pricelist">
@@ -52,7 +103,7 @@
         <field name="applied_on">1_product</field>
         <field name="product_tmpl_id" ref="demo_tracksuit"/>
         <field name="compute_price">fixed</field>
-        <field name="fixed_price">25</field>
+        <field name="fixed_price">30</field>
     </record>
     <record id="demo_nonmember_tracksuit_price" model="product.pricelist.item">
         <field name="pricelist_id" ref="demo_nonmember_pricelist"/>
@@ -68,12 +119,26 @@
         <field name="compute_price">fixed</field>
         <field name="fixed_price">12</field>
     </record>
+    <record id="demo_member_long_sleeve_tshirt_price" model="product.pricelist.item">
+        <field name="pricelist_id" ref="demo_member_pricelist"/>
+        <field name="applied_on">1_product</field>
+        <field name="product_tmpl_id" ref="demo_long_sleeve_tshirt"/>
+        <field name="compute_price">fixed</field>
+        <field name="fixed_price">15</field>
+    </record>
     <record id="demo_nonmember_tshirt_price" model="product.pricelist.item">
         <field name="pricelist_id" ref="demo_nonmember_pricelist"/>
         <field name="applied_on">1_product</field>
         <field name="product_tmpl_id" ref="demo_short_sleeve_tshirt"/>
         <field name="compute_price">fixed</field>
         <field name="fixed_price">15</field>
+    </record>
+    <record id="demo_nonmember_long_sleeve_tshirt_price" model="product.pricelist.item">
+        <field name="pricelist_id" ref="demo_nonmember_pricelist"/>
+        <field name="applied_on">1_product</field>
+        <field name="product_tmpl_id" ref="demo_long_sleeve_tshirt"/>
+        <field name="compute_price">fixed</field>
+        <field name="fixed_price">18</field>
     </record>
 
     <record id="base.main_company" model="res.company">

@@ -40,12 +40,12 @@ rather than on every cart update.
 ## Verify locally
 
 An installation **with demo data** configures EUR pricelists on the default
-website and publishes two products: **Xandall** (S/M/L, member €25,
-non-member €35) and **Samarreta màniga curta** (S/M/L, member €12,
-non-member €15). Each product has three native variants and one native rule
-per product and pricelist. Demo data does not change the membership mode or
+website and publishes the three apparel products documented in
+[`afa_apparel_shop`](../afa_apparel_shop/README.md), with native size variants and
+member/non-member price rules. Demo data does not change the membership mode or
 grant membership to demo families; set membership according to the manager
-workflow to see the member price.
+workflow to see the member price. These records are fixtures, not production
+product or stock data.
 
 Use an unused database name; inspect the Odoo test result summary, not just
 the command exit status:
