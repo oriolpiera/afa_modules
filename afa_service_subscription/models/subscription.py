@@ -137,16 +137,22 @@ class AfaServiceSubscription(models.Model):
             or window.effective_month <= self.start_month
         ):
             raise ValidationError(_('Select an open leave window after the enrollment month.'))
-        if (
+        charges = (
             self.env['afa.service.charge']
             .sudo()
-            .search_count(
+            .with_context(active_test=False)
+            .search(
                 [
                     ('subscription_id', '=', self.id),
                     ('month', '>=', window.effective_month),
-                    ('active', '=', True),
                 ]
             )
+        )
+        if any(
+            charge.active
+            or (charge.invoice_id and charge.invoice_id.state != 'cancel')
+            or (charge.sponsor_invoice_id and charge.sponsor_invoice_id.state != 'cancel')
+            for charge in charges
         ):
             raise ValidationError(
                 _('Cancel invoices for months after the withdrawal takes effect first.')

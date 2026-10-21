@@ -11,14 +11,40 @@ class AfaServiceCharge(models.Model):
         'afa.service.subscription', required=True, ondelete='restrict', index=True
     )
     month = fields.Date(required=True, index=True)
-    invoice_line_id = fields.Many2one('account.move.line', required=True, ondelete='restrict')
+    invoice_line_id = fields.Many2one('account.move.line', ondelete='restrict')
     invoice_id = fields.Many2one('account.move', related='invoice_line_id.move_id', store=True)
+    sponsor_invoice_line_id = fields.Many2one('account.move.line', ondelete='restrict')
+    sponsor_invoice_id = fields.Many2one(
+        'account.move', related='sponsor_invoice_line_id.move_id', store=True
+    )
     family_id = fields.Many2one('afa.family', required=True, ondelete='restrict')
     payer_id = fields.Many2one('res.partner', required=True, ondelete='restrict')
+    sponsor_id = fields.Many2one('res.partner', ondelete='restrict')
     member = fields.Boolean(string='Member at Invoicing')
-    price = fields.Monetary(required=True, currency_field='currency_id')
+    price = fields.Monetary(required=True, string='Tariff Price', currency_field='currency_id')
+    family_price = fields.Monetary(
+        compute='_compute_family_price',
+        store=True,
+        string='Family Amount',
+        currency_field='currency_id',
+    )
+    sponsor_price = fields.Monetary(
+        default=0, string='Sponsor Amount', currency_field='currency_id'
+    )
+    subsidy_percent = fields.Float(default=0, digits=(5, 2))
+    tariff_basis = fields.Selection(
+        [('membership', 'Membership-based tariff'), ('member', 'Member tariff')],
+        required=True,
+        default='membership',
+    )
     currency_id = fields.Many2one('res.currency', required=True)
     active = fields.Boolean(default=True, copy=False)
+
+    @api.depends('price', 'sponsor_price', 'currency_id')
+    def _compute_family_price(self):
+        for charge in self:
+            amount = charge.price - charge.sponsor_price
+            charge.family_price = charge.currency_id.round(amount) if charge.currency_id else amount
 
     def init(self):
         self.env.cr.execute(
@@ -31,6 +57,38 @@ class AfaServiceCharge(models.Model):
         if not self.env.context.get('_afa_generate_service_invoices'):
             raise ValidationError(_('Generate charges from the monthly billing review.'))
         return super().create(vals_list)
+
+    @api.constrains(
+        'price',
+        'family_price',
+        'sponsor_id',
+        'sponsor_price',
+        'subsidy_percent',
+        'currency_id',
+        'invoice_line_id',
+        'sponsor_invoice_line_id',
+    )
+    def _check_charge_allocation(self):
+        for charge in self:
+            if (
+                charge.price < 0
+                or charge.sponsor_price < 0
+                or charge.sponsor_price > charge.price
+                or not 0 <= charge.subsidy_percent <= 100
+            ):
+                raise ValidationError(_('Service charge amounts and subsidy must be valid.'))
+            if charge.currency_id.compare_amounts(
+                charge.family_price + charge.sponsor_price, charge.price
+            ):
+                raise ValidationError(_('Family and sponsor amounts must equal the tariff.'))
+            if not charge.invoice_line_id and not charge.sponsor_invoice_line_id:
+                raise ValidationError(_('A service charge must have at least one invoice line.'))
+            if charge.family_price and not charge.invoice_line_id:
+                raise ValidationError(_('The family amount must have an invoice line.'))
+            if charge.sponsor_price and (
+                not charge.sponsor_id or not charge.sponsor_invoice_line_id
+            ):
+                raise ValidationError(_('The sponsor amount must have a sponsor and invoice line.'))
 
     def write(self, vals):
         if (
