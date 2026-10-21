@@ -65,6 +65,21 @@ that month, and generate one draft invoice per family and month. Repeating the
 preview and confirmation never duplicates charges. Scheduled activities need no
 attendance control.
 
+## Scholarships
+
+On a family record, configure at most one extracurricular scholarship per school
+year with its Council Comarcal sponsor, the percentage paid by the Council, and the
+tariff basis. Choose either the family's effective membership tariff or the member
+tariff regardless of actual membership. Using the member tariff does not change the
+family's membership status.
+
+Monthly billing shows the full tariff and the split. It creates a family invoice for
+the remaining amount and a separate invoice to the Council for that family and month.
+Council invoices use the activity sales journal and are not assigned the family's
+direct-debit payment mode. If either invoice is canceled, cancel its paired invoice
+before regenerating the charge. The original charge records preserve both amounts
+and the tariff/subsidy settings used for that billing month.
+
 Run the Odoo 19 test stack as described in the repository README, including
 `afa_extracurricular` in the installation list and `/afa_extracurricular` in
 `--test-tags`.

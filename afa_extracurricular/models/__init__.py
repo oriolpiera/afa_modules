@@ -1,1 +1,1 @@
-from . import service, group, schedule, subscription, partner
+from . import service, group, schedule, subscription, partner, aid, charge

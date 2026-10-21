@@ -29,6 +29,18 @@
                     <field name="afa_extracurricular_count" widget="statinfo"/>
                 </button>
             </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Extracurricular Scholarships">
+                    <field name="extracurricular_aid_ids" context="{'default_family_id': id}">
+                        <list editable="bottom">
+                            <field name="period_id"/>
+                            <field name="sponsor_id"/>
+                            <field name="subsidy_percent"/>
+                            <field name="tariff_basis"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
         </field>
     </record>
 </odoo>

@@ -117,6 +117,20 @@ class TestServiceSubscription(TransactionCase):
         wizard = self.env['afa.service.billing'].create({'month': '2026-11-01'})
         self.assertEqual(wizard.action_preview()['target'], 'new')
 
+    def test_customer_invoice_list_shows_family_for_family_managers(self):
+        base_view = self.env.ref('account.view_invoice_tree')
+        view = self.env['account.move'].get_view(view_id=base_view.id, view_type='list')
+        arch = etree.fromstring(view['arch'].encode())
+        family_columns = arch.xpath("//field[@name='afa_service_family_id']")
+
+        self.assertEqual(len(family_columns), 1)
+        self.assertEqual(family_columns[0].get('string'), 'Family')
+        self.assertEqual(family_columns[0].get('optional'), 'show')
+        self.assertEqual(
+            self.env['account.move']._fields['afa_service_family_id'].groups,
+            'afa_family.group_family_manager',
+        )
+
     def test_window_enrollment_overlap_and_effective_withdrawal(self):
         subscription = self._subscribe()
         self.assertEqual(subscription.join_requested_on, self.today)
@@ -412,6 +426,40 @@ class TestServiceSubscription(TransactionCase):
                     'join_window_id': self.join.id,
                 }
             )
+
+    def test_new_service_charge_is_blocked_when_existing_family_invoice_has_old_payer(self):
+        self._subscribe()
+        self._preview().action_generate()
+        new_guardian = self.env['res.partner'].create(
+            {
+                'name': 'Replacement Billing Guardian',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'guardian',
+            }
+        )
+        self.family.billing_partner_id = new_guardian
+        second_student = self.env['res.partner'].create(
+            {
+                'name': 'Second Student',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'student',
+            }
+        )
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            second_subscription = self.env['afa.service.subscription'].create(
+                {
+                    'student_id': second_student.id,
+                    'service_id': self.service.id,
+                    'join_window_id': self.join.id,
+                }
+            )
+
+        line = self._preview().line_ids.filtered(
+            lambda candidate: candidate.subscription_id == second_subscription
+        )
+
+        self.assertFalse(line.include)
+        self.assertIn('different payer', line.reason)
 
     def test_manager_only_and_window_validation(self):
         user = self.env['res.users'].create(

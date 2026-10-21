@@ -1,8 +1,8 @@
 # Monthly service subscriptions
 
 Staff can enroll students in monthly AFA services and review charges before creating
-draft customer invoices grouped by family, billing month, invoice journal, and payment
-mode. This module is independent of annual membership dues.
+draft customer invoices grouped by family, billing month, invoice recipient, invoice
+journal, and payment mode. This module is independent of annual membership dues.
 
 ## Configure and bill
 
@@ -24,16 +24,26 @@ mode. This module is independent of annual membership dues.
 5. Under **AFA Families → Collections → Monthly Service Billing**, select the
    first day of a month and click
    **Refresh Preview**. Review student, service, family, payer, membership tariff,
-   unit price (before tax), and any exclusion reason. Uncheck unwanted charges,
-   then click **Generate Draft Invoices**. Review and post the Odoo invoices normally.
+   base tariff, family amount, sponsor amount, and any exclusion reason. Uncheck
+   unwanted charges, then click **Generate Draft Invoices**. Review and post the
+   Odoo invoices normally.
 
 ## Billing rules
 
 - A subscription bills one full month if active on its first day and its service
   covers that month. There is no proration.
-- Services for the same family and month are invoiced together only when they use
-  the same sales journal and payment mode. Different accounting settings produce
+- Services for the same family, month, invoice recipient, sales journal, and payment
+  mode share a draft invoice. Different recipients or accounting settings produce
   separate customer invoices.
+- Extracurricular scholarships are configured per family and school year. The
+  scholarship can use the effective membership tariff or always use the member
+  tariff without changing the family's actual membership status. The configured
+  percentage is the Council's share; its invoice is separate for each family and
+  month and is not assigned the family's direct-debit payment mode.
+- A scholarship charge stores the selected tariff, actual membership state,
+  percentage, family amount, sponsor, and sponsor amount. These values do not
+  change when the scholarship is edited later. Cancel both invoices for a split
+  charge before regenerating it, so neither payer is billed twice.
 - Services on one invoice must belong to the same Odoo company. Enrollment rejects
   cross-company combinations before they can become unbillable.
 - Invoice-mode membership checks the paid, unreversed annual dues link for the
