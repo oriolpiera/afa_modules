@@ -40,6 +40,32 @@ class SaleOrder(models.Model):
             for line in reserved_lines
         )
 
+    def _afa_has_active_web_stock_reservation(self):
+        self.ensure_one()
+        order = self.sudo()
+        return bool(
+            order.website_id
+            and order.state in ('draft', 'sent')
+            and order.afa_stock_reserved_until
+            and order.afa_stock_reserved_until > fields.Datetime.now()
+        )
+
+    def _afa_check_active_web_stock_reservations(self):
+        active_orders = self.filtered(lambda order: order._afa_has_active_web_stock_reservation())
+        active_orders.sudo()._afa_check_web_reserved_stock()
+
+    def write(self, vals):
+        active_orders = self.filtered(lambda order: order._afa_has_active_web_stock_reservation())
+        if active_orders and {'company_id', 'website_id'} & vals.keys():
+            raise ValidationError(
+                _('The company and website cannot change while web stock is reserved.')
+            )
+
+        result = super().write(vals)
+        if 'warehouse_id' in vals:
+            self._afa_check_active_web_stock_reservations()
+        return result
+
     def _get_free_qty(self, product):
         free_qty = super()._get_free_qty(product)
         if not product.is_storable or product.allow_out_of_stock_order:

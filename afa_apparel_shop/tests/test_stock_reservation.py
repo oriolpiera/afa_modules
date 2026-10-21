@@ -142,6 +142,22 @@ class TestAfaApparelStockReservation(TransactionCase):
 
         self.assertEqual(backend_order.state, 'draft')
 
+    def test_reserved_order_line_cannot_be_increased_beyond_stock(self):
+        self.env['stock.quant']._update_available_quantity(
+            self.product,
+            self.warehouse.lot_stock_id,
+            1,
+        )
+        first_order = self._order()
+        second_order = self._order()
+        self._wire_transfer_transaction(first_order)._set_pending()
+        self._wire_transfer_transaction(second_order)._set_pending()
+
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            first_order.order_line.product_uom_qty = 2
+
+        self.assertEqual(first_order.order_line.product_uom_qty, 1)
+
 
 class TestAfaApparelDemo(TransactionCase):
     def test_demo_apparel_variants_are_stock_tracked_and_blocked_when_empty(self):
