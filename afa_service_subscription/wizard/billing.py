@@ -366,17 +366,6 @@ class AfaServiceBilling(models.TransientModel):
                 _afa_generate_service_invoices=True
             ).create(charge_values)
 
-    def _charge_snapshot_values(self, snapshot):
-        """Return immutable pricing values for the generated charge history."""
-        return {
-            'member': snapshot['member'],
-            'price': snapshot['price'],
-            'sponsor_id': snapshot['sponsor_id'],
-            'sponsor_price': snapshot['sponsor_price'],
-            'subsidy_percent': snapshot['subsidy_percent'],
-            'tariff_basis': snapshot['tariff_basis'],
-        }
-
     def _invoice_line_name(self, subscription, allocation):
         name = _('%s — %s — %s') % (
             subscription.service_id.name,
