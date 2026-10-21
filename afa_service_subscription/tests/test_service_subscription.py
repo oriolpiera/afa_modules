@@ -427,6 +427,40 @@ class TestServiceSubscription(TransactionCase):
                 }
             )
 
+    def test_new_service_charge_is_blocked_when_existing_family_invoice_has_old_payer(self):
+        self._subscribe()
+        self._preview().action_generate()
+        new_guardian = self.env['res.partner'].create(
+            {
+                'name': 'Replacement Billing Guardian',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'guardian',
+            }
+        )
+        self.family.billing_partner_id = new_guardian
+        second_student = self.env['res.partner'].create(
+            {
+                'name': 'Second Student',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'student',
+            }
+        )
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            second_subscription = self.env['afa.service.subscription'].create(
+                {
+                    'student_id': second_student.id,
+                    'service_id': self.service.id,
+                    'join_window_id': self.join.id,
+                }
+            )
+
+        line = self._preview().line_ids.filtered(
+            lambda candidate: candidate.subscription_id == second_subscription
+        )
+
+        self.assertFalse(line.include)
+        self.assertIn('different payer', line.reason)
+
     def test_manager_only_and_window_validation(self):
         user = self.env['res.users'].create(
             {

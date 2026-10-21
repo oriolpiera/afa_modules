@@ -53,8 +53,12 @@
                     <field name="end_month" readonly="1"/></group>
                     <group string="Invoice History"><field name="charge_ids" readonly="1"
                         context="{'active_test': False}">
-                        <list><field name="month"/><field name="invoice_id"/><field name="payer_id"/>
-                            <field name="member"/><field name="price"/><field name="active"/></list>
+                        <list><field name="month"/><field name="invoice_id"/>
+                            <field name="sponsor_invoice_id"/><field name="payer_id"/>
+                            <field name="sponsor_id"/><field name="member"/>
+                            <field name="tariff_basis"/><field name="price"/>
+                            <field name="family_price"/><field name="sponsor_price"/>
+                            <field name="subsidy_percent"/><field name="active"/></list>
                     </field></group>
                 </sheet></form>
         </field>

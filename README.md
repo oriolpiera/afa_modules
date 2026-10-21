@@ -67,7 +67,8 @@ See [School Courses](afa_school_course/README.md) for the course ladder, the
 quick course setup assistant, and the once-per-year bulk promotion and
 graduation workflow.
 See [Extracurriculars](afa_extracurricular/README.md) for activity groups,
-weekly schedules, and staff student enrollment.
+weekly schedules, staff student enrollment, and family scholarships billed to
+the Consell Comarcal.
 See [Initial Family Load](afa_family_import/README.md) for the CSV/Excel load of
 families, guardians, students, IBANs and SEPA mandates.
 See [Acollida Fixed Fees](afa_acollida/README.md) for importing monthly fixed-user

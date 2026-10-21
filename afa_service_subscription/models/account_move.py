@@ -10,13 +10,21 @@ class AccountMove(models.Model):
         'afa.family', copy=False, readonly=True, groups='afa_family.group_family_manager'
     )
     afa_service_charge_ids = fields.One2many('afa.service.charge', 'invoice_id', readonly=True)
+    afa_service_sponsor_charge_ids = fields.One2many(
+        'afa.service.charge',
+        'sponsor_invoice_id',
+        readonly=True,
+        groups='afa_family.group_family_manager',
+    )
 
     def init(self):
         self.env.cr.execute('DROP INDEX IF EXISTS afa_service_invoice_family_month_uniq')
+        self.env.cr.execute('DROP INDEX IF EXISTS afa_service_invoice_group_uniq')
         self.env.cr.execute(
-            'CREATE UNIQUE INDEX IF NOT EXISTS afa_service_invoice_group_uniq '
+            'CREATE UNIQUE INDEX IF NOT EXISTS afa_service_invoice_payer_group_uniq '
             'ON account_move '
-            '(afa_service_family_id, afa_service_month, journal_id, COALESCE(payment_mode_id, 0)) '
+            '(afa_service_family_id, afa_service_month, partner_id, journal_id, '
+            'COALESCE(payment_mode_id, 0)) '
             "WHERE afa_service_family_id IS NOT NULL AND state != 'cancel'"
         )
 
@@ -63,9 +71,10 @@ class AccountMove(models.Model):
             )
         result = super().write(vals)
         if vals.get('state') == 'cancel':
-            billed.sudo().afa_service_charge_ids.with_context(
-                _afa_cancel_service_invoice=True
-            ).write({'active': False})
+            charges = (
+                billed.sudo().afa_service_charge_ids | billed.sudo().afa_service_sponsor_charge_ids
+            )
+            charges.with_context(_afa_cancel_service_invoice=True).write({'active': False})
         return result
 
 
@@ -73,16 +82,25 @@ class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
     afa_service_charge_ids = fields.One2many('afa.service.charge', 'invoice_line_id')
+    afa_service_sponsor_charge_ids = fields.One2many(
+        'afa.service.charge',
+        'sponsor_invoice_line_id',
+        groups='afa_family.group_family_manager',
+    )
 
     def write(self, vals):
         changed = {'price_unit', 'quantity', 'product_id', 'discount', 'move_id'} & vals.keys()
-        if changed and self.filtered('afa_service_charge_ids'):
+        if changed and self.sudo().filtered(
+            lambda line: line.afa_service_charge_ids or line.afa_service_sponsor_charge_ids
+        ):
             raise ValidationError(
                 _('A billed service charge cannot be changed. Cancel the invoice first.')
             )
         return super().write(vals)
 
     def unlink(self):
-        if self.filtered('afa_service_charge_ids'):
+        if self.sudo().filtered(
+            lambda line: line.afa_service_charge_ids or line.afa_service_sponsor_charge_ids
+        ):
             raise ValidationError(_('A billed service charge cannot be deleted.'))
         return super().unlink()

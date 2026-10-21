@@ -31,6 +31,9 @@ class TestExtracurricular(TransactionCase):
         self.family = self.env['afa.family'].create(
             {'name': 'Billing Family', 'billing_partner_id': guardian.id}
         )
+        self.sponsor = self.env['res.partner'].create(
+            {'name': 'Consell Comarcal', 'is_company': True}
+        )
         self.student = self._student('Student One')
         self.other_student = self._student('Student Two')
         self.period = self.env['afa.membership.period'].create(
@@ -152,6 +155,17 @@ class TestExtracurricular(TransactionCase):
         wizard = self.env['afa.service.billing'].create({'month': month})
         wizard.action_preview()
         return wizard
+
+    def _aid(self, family=None, period=None, percent=40, tariff_basis='member'):
+        return self.env['afa.extracurricular.aid'].create(
+            {
+                'family_id': (family or self.family).id,
+                'period_id': (period or self.period).id,
+                'sponsor_id': self.sponsor.id,
+                'subsidy_percent': percent,
+                'tariff_basis': tariff_basis,
+            }
+        )
 
     def _import_wizard(self, content):
         return self.env['afa.extracurricular.import.wizard'].create(
@@ -299,6 +313,245 @@ class TestExtracurricular(TransactionCase):
         wizard = self._preview()
         self.assertTrue(wizard.line_ids.member)
         self.assertEqual(wizard.line_ids.price, 25)
+
+    def test_scholarships_split_invoices_per_family_and_month(self):
+        self._enroll(group=self.chess_a)
+        self._enroll(
+            student=self.other_student,
+            service=self.robotics,
+            group=self.robotics_a,
+        )
+        other_guardian = self.env['res.partner'].create(
+            {'name': 'Second Billing Guardian', 'afa_family_role': 'guardian'}
+        )
+        other_family = self.env['afa.family'].create(
+            {'name': 'Second Family', 'billing_partner_id': other_guardian.id}
+        )
+        other_student = self._student('Student Three')
+        other_student.write({'afa_family_id': other_family.id})
+        self._enroll(student=other_student, group=self.chess_a)
+        self._aid(percent=40, tariff_basis='member')
+        self._aid(family=other_family, percent=50, tariff_basis='membership')
+
+        wizard = self._preview()
+        first_family_lines = wizard.line_ids.filtered(lambda line: line.family_id == self.family)
+        other_family_line = wizard.line_ids.filtered(lambda line: line.family_id == other_family)
+        self.assertEqual(len(first_family_lines), 2)
+        self.assertTrue(all(not line.member for line in wizard.line_ids))
+        self.assertEqual(set(first_family_lines.mapped('price')), {25, 40})
+        self.assertEqual(set(first_family_lines.mapped('family_price')), {15, 24})
+        self.assertEqual(set(first_family_lines.mapped('sponsor_price')), {10, 16})
+        self.assertEqual(other_family_line.price, 35)
+        self.assertEqual(other_family_line.family_price, 17.5)
+        self.assertEqual(other_family_line.sponsor_price, 17.5)
+
+        result = wizard.action_generate()
+        invoices = self.env['account.move'].browse(result['domain'][0][2])
+        family_invoices = invoices.filtered(
+            lambda invoice: invoice.partner_id in (self.family.billing_partner_id, other_guardian)
+        )
+        sponsor_invoices = invoices.filtered(lambda invoice: invoice.partner_id == self.sponsor)
+        self.assertEqual(len(invoices), 4)
+        self.assertEqual(len(family_invoices), 2)
+        self.assertEqual(len(sponsor_invoices), 2)
+        self.assertEqual(
+            {invoice.afa_service_family_id.id for invoice in sponsor_invoices},
+            {self.family.id, other_family.id},
+        )
+        self.assertTrue(all(not invoice.payment_mode_id for invoice in sponsor_invoices))
+        self.assertEqual(
+            sorted(
+                family_invoices.filtered(
+                    lambda invoice: invoice.afa_service_family_id == self.family
+                ).invoice_line_ids.mapped('price_unit')
+            ),
+            [15, 24],
+        )
+        self.assertEqual(
+            sorted(
+                sponsor_invoices.filtered(
+                    lambda invoice: invoice.afa_service_family_id == self.family
+                ).invoice_line_ids.mapped('price_unit')
+            ),
+            [10, 16],
+        )
+        self.assertEqual(
+            family_invoices.filtered(
+                lambda invoice: invoice.afa_service_family_id == other_family
+            ).invoice_line_ids.price_unit,
+            17.5,
+        )
+        self.assertEqual(
+            sponsor_invoices.filtered(
+                lambda invoice: invoice.afa_service_family_id == other_family
+            ).invoice_line_ids.price_unit,
+            17.5,
+        )
+        charges = self.env['afa.service.charge'].search(
+            [
+                ('month', '=', wizard.month),
+                ('subscription_id', 'in', wizard.line_ids.subscription_id.ids),
+            ]
+        )
+        self.assertEqual(len(charges), 3)
+        self.assertEqual(set(charges.mapped('price')), {25, 35, 40})
+        self.assertEqual(set(charges.mapped('tariff_basis')), {'member', 'membership'})
+        self.assertTrue(
+            all(charge.family_price + charge.sponsor_price == charge.price for charge in charges)
+        )
+        self.assertTrue(all(charge.sponsor_invoice_id for charge in charges))
+
+    def test_scholarship_does_not_change_family_membership_and_is_snapshot(self):
+        self._enroll(group=self.chess_a)
+        aid = self._aid(percent=40, tariff_basis='member')
+        wizard = self._preview()
+        line = wizard.line_ids
+        self.assertFalse(line.member)
+        self.assertEqual(line.tariff_basis, 'member')
+        self.assertEqual(line.family_price, 15)
+        self.assertEqual(line.sponsor_price, 10)
+
+        aid.subsidy_percent = 50
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            wizard.action_generate()
+
+        wizard.action_preview()
+        invoices = self.env['account.move'].browse(wizard.action_generate()['domain'][0][2])
+        charge = self.env['afa.service.charge'].search(
+            [
+                ('subscription_id', '=', wizard.line_ids.subscription_id.id),
+                ('month', '=', wizard.month),
+            ]
+        )
+        self.assertEqual(charge.aid_id, aid)
+        self.assertEqual(charge.price, 25)
+        self.assertEqual(charge.family_price, 12.5)
+        self.assertEqual(charge.sponsor_price, 12.5)
+        self.assertFalse(self.family.is_member_on(wizard.month))
+
+        aid.subsidy_percent = 60
+        self.assertEqual(charge.family_price, 12.5)
+        self.assertEqual(charge.sponsor_price, 12.5)
+        self.assertEqual(
+            sorted(invoices.mapped('invoice_line_ids.price_unit')),
+            [12.5, 12.5],
+        )
+        next_month = self._preview('2026-11-01')
+        self.assertEqual(next_month.line_ids.family_price, 10)
+        self.assertEqual(next_month.line_ids.sponsor_price, 15)
+
+    def test_full_scholarship_generates_only_sponsor_invoice(self):
+        self._enroll(group=self.chess_a)
+        self._aid(percent=100, tariff_basis='member')
+
+        wizard = self._preview()
+        self.assertEqual(wizard.line_ids.family_price, 0)
+        self.assertEqual(wizard.line_ids.sponsor_price, 25)
+        invoice_ids = wizard.action_generate()['domain'][0][2]
+
+        self.assertEqual(len(invoice_ids), 1)
+        invoice = self.env['account.move'].browse(invoice_ids)
+        self.assertEqual(invoice.partner_id, self.sponsor)
+        charge = invoice.afa_service_sponsor_charge_ids
+        self.assertEqual(len(charge), 1)
+        self.assertFalse(charge.invoice_line_id)
+        self.assertEqual(charge.family_price, 0)
+
+    def test_scholarship_does_not_apply_to_non_extracurricular_services(self):
+        self._enroll(service=self.generic)
+        self._aid(percent=40, tariff_basis='member')
+
+        line = self._preview().line_ids
+
+        self.assertFalse(line.service_id.is_extracurricular)
+        self.assertEqual(line.price, 45)
+        self.assertEqual(line.family_price, 45)
+        self.assertFalse(line.sponsor_id)
+        self.assertEqual(line.sponsor_price, 0)
+
+    def test_scholarship_requires_valid_percentage_and_unique_family_period(self):
+        aid = self._aid()
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._aid()
+        next_period = self.env['afa.membership.period'].create(
+            {
+                'name': '2027/28',
+                'date_start': '2027-07-01',
+                'date_end': '2028-06-30',
+            }
+        )
+        self._aid(period=next_period, percent=20)
+        self.assertEqual(len(self.family.extracurricular_aid_ids), 2)
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            aid.write({'subsidy_percent': 100.01})
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            aid.write({'sponsor_id': self.family.billing_partner_id.id})
+
+    def test_pair_invoices_must_both_be_canceled_before_regeneration(self):
+        self._enroll(group=self.chess_a)
+        self._aid(percent=40, tariff_basis='member')
+        wizard = self._preview()
+        invoices = self.env['account.move'].browse(wizard.action_generate()['domain'][0][2])
+        family_invoice = invoices.filtered(
+            lambda invoice: invoice.partner_id == self.family.billing_partner_id
+        )
+        sponsor_invoice = invoices.filtered(lambda invoice: invoice.partner_id == self.sponsor)
+
+        family_invoice.button_cancel()
+        blocked = self._preview()
+        self.assertFalse(blocked.line_ids.include)
+        self.assertIn('Cancel all family and sponsor invoices', blocked.line_ids.reason)
+
+        sponsor_invoice.button_cancel()
+        retry = self._preview()
+        self.assertTrue(retry.line_ids.include)
+        new_invoices = self.env['account.move'].browse(retry.action_generate()['domain'][0][2])
+        self.assertEqual(len(new_invoices), 2)
+        charges = (
+            self.env['afa.service.charge']
+            .with_context(active_test=False)
+            .search(
+                [
+                    ('subscription_id', '=', retry.line_ids.subscription_id.id),
+                    ('month', '=', retry.month),
+                ]
+            )
+        )
+        self.assertEqual(len(charges), 2)
+        self.assertEqual(len(charges.filtered('active')), 1)
+
+    def test_withdrawal_waits_until_both_scholarship_invoices_are_canceled(self):
+        subscription = self._enroll(group=self.chess_a)
+        self._aid(percent=40, tariff_basis='member')
+        leave = self.env['afa.service.window'].create(
+            {
+                'service_id': self.chess.id,
+                'kind': 'leave',
+                'date_start': '2026-09-01',
+                'date_end': '2026-09-30',
+                'effective_month': '2027-01-01',
+            }
+        )
+        invoices = self.env['account.move'].browse(
+            self._preview('2027-01-01').action_generate()['domain'][0][2]
+        )
+        family_invoice = invoices.filtered(
+            lambda invoice: invoice.partner_id == self.family.billing_partner_id
+        )
+        sponsor_invoice = invoices.filtered(lambda invoice: invoice.partner_id == self.sponsor)
+
+        family_invoice.button_cancel()
+        with (
+            patch('odoo.fields.Date.context_today', return_value=self.today),
+            self.assertRaises(ValidationError),
+            self.cr.savepoint(),
+        ):
+            subscription.action_leave(leave)
+
+        sponsor_invoice.button_cancel()
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            subscription.action_leave(leave)
+        self.assertEqual(subscription.end_month, date(2027, 1, 1))
 
     def test_enrollments_are_visible_from_student_family_and_activity(self):
         self._enroll(group=self.chess_a)

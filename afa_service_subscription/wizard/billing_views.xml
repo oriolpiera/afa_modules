@@ -9,7 +9,10 @@
                         <field name="student_id" readonly="1"/><field name="service_id" readonly="1"/>
                         <field name="journal_id" readonly="1"/><field name="payment_mode_id" readonly="1"/>
                         <field name="family_id" readonly="1"/><field name="payer_id" readonly="1"/>
-                        <field name="member" readonly="1"/><field name="price" readonly="1"/>
+                        <field name="member" readonly="1"/><field name="tariff_basis" readonly="1"/>
+                        <field name="price" readonly="1"/><field name="subsidy_percent" readonly="1"/>
+                        <field name="family_price" readonly="1"/><field name="sponsor_id" readonly="1"/>
+                        <field name="sponsor_price" readonly="1"/>
                         <field name="reason" readonly="1"/></list>
                 </field>
             </sheet>
