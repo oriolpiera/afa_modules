@@ -88,7 +88,7 @@ class SaleOrder(models.Model):
         )
         products.invalidate_recordset(['free_qty'])
 
-    def _afa_check_web_reserved_stock(self):
+    def _afa_check_web_reserved_stock(self, *, require_full_stock=True):
         requirements = defaultdict(float)
         products_by_key = {}
         for order in self:
@@ -125,14 +125,23 @@ class SaleOrder(models.Model):
                 exclude_order_ids=self.ids,
             )
             available_qty = free_qty - reserved_qty
-            if (
+            stock_is_short = (
                 float_compare(
                     available_qty,
                     required_qty,
                     precision_rounding=product.uom_id.rounding,
                 )
                 < 0
-            ):
+            )
+            has_other_web_reservations = (
+                float_compare(
+                    reserved_qty,
+                    0,
+                    precision_rounding=product.uom_id.rounding,
+                )
+                > 0
+            )
+            if stock_is_short and (require_full_stock or has_other_web_reservations):
                 raise ValidationError(
                     _(
                         'There is not enough available stock for %(product)s. '
@@ -174,7 +183,7 @@ class SaleOrder(models.Model):
         return super().action_confirm()
 
     def _action_confirm(self):
-        self._afa_check_web_reserved_stock()
+        self._afa_check_web_reserved_stock(require_full_stock=False)
         return super()._action_confirm()
 
     @api.model

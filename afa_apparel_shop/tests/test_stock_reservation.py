@@ -142,6 +142,18 @@ class TestAfaApparelStockReservation(TransactionCase):
 
         self.assertEqual(backend_order.state, 'draft')
 
+    def test_backend_order_without_web_reservations_can_backorder(self):
+        self.env['stock.quant']._update_available_quantity(
+            self.product,
+            self.warehouse.lot_stock_id,
+            -1,
+        )
+        backend_order = self._order(website=False)
+
+        backend_order.action_confirm()
+
+        self.assertEqual(backend_order.state, 'sale')
+
     def test_reserved_order_line_cannot_be_increased_beyond_stock(self):
         self.env['stock.quant']._update_available_quantity(
             self.product,

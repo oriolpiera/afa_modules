@@ -39,9 +39,10 @@ at the school using a zero-cost pickup delivery method.
 - At Wire Transfer checkout, Odoo places the order in **Quotation Sent**. This
   addon reserves the selected variants for seven days and shows the deadline on
   the sales order.
-- The website and other sales-order confirmations subtract active website
-  reservations from available stock. Concurrent orders cannot reserve the same
-  remaining unit.
+- The website and other sales-order confirmations account for active website
+  reservations. This prevents another order from consuming held units while
+  preserving Odoo's normal backorder flow when no web reservation conflicts.
+  Concurrent checkouts cannot reserve the same remaining unit.
 - After matching the bank transfer, staff confirm the sales order. Odoo then
   takes over with its normal stock delivery flow; the family collects the order
   at school.
