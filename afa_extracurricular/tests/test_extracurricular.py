@@ -498,6 +498,12 @@ class TestExtracurricular(TransactionCase):
         sponsor_invoice = invoices.filtered(lambda invoice: invoice.partner_id == self.sponsor)
 
         family_invoice.button_cancel()
+        sponsor_line = sponsor_invoice.invoice_line_ids
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            sponsor_line.write({'price_unit': 0})
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            sponsor_line.unlink()
+
         blocked = self._preview()
         self.assertFalse(blocked.line_ids.include)
         self.assertIn('Cancel all family and sponsor invoices', blocked.line_ids.reason)

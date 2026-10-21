@@ -90,7 +90,7 @@ class AccountMoveLine(models.Model):
 
     def write(self, vals):
         changed = {'price_unit', 'quantity', 'product_id', 'discount', 'move_id'} & vals.keys()
-        if changed and self.sudo().filtered(
+        if changed and self.sudo().with_context(active_test=False).filtered(
             lambda line: line.afa_service_charge_ids or line.afa_service_sponsor_charge_ids
         ):
             raise ValidationError(
@@ -99,8 +99,12 @@ class AccountMoveLine(models.Model):
         return super().write(vals)
 
     def unlink(self):
-        if self.sudo().filtered(
-            lambda line: line.afa_service_charge_ids or line.afa_service_sponsor_charge_ids
+        if (
+            self.sudo()
+            .with_context(active_test=False)
+            .filtered(
+                lambda line: line.afa_service_charge_ids or line.afa_service_sponsor_charge_ids
+            )
         ):
             raise ValidationError(_('A billed service charge cannot be deleted.'))
         return super().unlink()
