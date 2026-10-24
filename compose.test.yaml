@@ -28,6 +28,7 @@ services:
       - ./afa_family:/mnt/extra-addons/afa_family:ro
       - ./afa_membership:/mnt/extra-addons/afa_membership:ro
       - ./afa_member_pricing:/mnt/extra-addons/afa_member_pricing:ro
+      - ./afa_apparel_shop:/mnt/extra-addons/afa_apparel_shop:ro
       - ./afa_sepa:/mnt/extra-addons/afa_sepa:ro
       - ./afa_service_subscription:/mnt/extra-addons/afa_service_subscription:ro
       - ./afa_school_course:/mnt/extra-addons/afa_school_course:ro
