@@ -1,6 +1,6 @@
 {
     'name': 'AFA Extracurriculars',
-    'version': '19.0.2.0.0',
+    'version': '19.0.3.0.0',
     'summary': 'Extracurricular groups, schedules and student enrollments',
     'category': 'Services',
     'license': 'LGPL-3',

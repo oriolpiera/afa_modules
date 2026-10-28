@@ -134,6 +134,15 @@ class TestExtracurricular(TransactionCase):
             )
         return group
 
+    def _absence(self, group=None, session_date='2026-10-05', discount_amount=5):
+        return self.env['afa.service.group.absence'].create(
+            {
+                'group_id': (group or self.chess_a).id,
+                'session_date': session_date,
+                'discount_amount': discount_amount,
+            }
+        )
+
     def _join_window(self, service):
         return self.env['afa.service.window'].search(
             [('service_id', '=', service.id), ('kind', '=', 'join')], limit=1
@@ -288,6 +297,152 @@ class TestExtracurricular(TransactionCase):
     def test_schedule_summary_normalises_rollover_minutes(self):
         group = self._group(self.chess, 'Roll', slots=[('4', 12.999, 14.0)])
         self.assertEqual(group.schedule_summary, 'Thu 13:00-14:00')
+
+    def test_canceled_session_records_default_editable_discount_per_group_date(self):
+        absence = self._absence()
+
+        self.assertEqual(absence.group_id, self.chess_a)
+        self.assertEqual(absence.session_date, date(2026, 10, 5))
+        self.assertEqual(absence.discount_amount, 5)
+        self.assertEqual(absence.currency_id, self.chess.currency_id)
+
+        absence.discount_amount = 7.5
+        self.assertEqual(absence.discount_amount, 7.5)
+
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._absence()
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._absence(session_date='2027-06-01')
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._absence(session_date='2026-10-06', discount_amount=-1)
+
+    def test_canceled_session_records_require_family_manager_access(self):
+        user = self.env['res.users'].create(
+            {
+                'name': 'No family access',
+                'login': 'canceled-session-no-family',
+                'group_ids': [(6, 0, [self.env.ref('base.group_user').id])],
+            }
+        )
+
+        with self.assertRaises(AccessError), self.cr.savepoint():
+            self.env['afa.service.group.absence'].with_user(user).create(
+                {'group_id': self.chess_a.id, 'session_date': '2026-10-05'}
+            )
+
+    def test_group_with_canceled_session_history_cannot_be_deleted(self):
+        group = self._group(self.chess, 'Historical Group', slots=[])
+        self._absence(group=group)
+
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            group.unlink()
+
+    def test_group_with_canceled_session_history_cannot_move_to_another_activity(self):
+        group = self._group(self.chess, 'Historical Group', slots=[])
+        self._absence(group=group)
+
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            group.write({'service_id': self.robotics.id})
+
+        self.assertEqual(group.service_id, self.chess)
+
+    def test_absence_discounts_only_enrolled_students_in_group_and_month(self):
+        first = self._enroll(group=self.chess_a)
+        second = self._enroll(student=self.other_student, group=self.chess_a)
+        other_group_subscription = self._enroll(
+            student=self.student, service=self.robotics, group=self.robotics_a
+        )
+        self._absence(session_date='2026-10-05', discount_amount=5)
+        self._absence(session_date='2026-10-07', discount_amount=2)
+
+        october = self._preview()
+        first_line = october.line_ids.filtered(lambda line: line.subscription_id == first)
+        second_line = october.line_ids.filtered(lambda line: line.subscription_id == second)
+        other_group_line = october.line_ids.filtered(
+            lambda line: line.subscription_id == other_group_subscription
+        )
+        self.assertEqual(first_line.price, 35)
+        self.assertEqual(first_line.discount_amount, 7)
+        self.assertEqual(first_line.family_price, 28)
+        self.assertEqual(second_line.discount_amount, 7)
+        self.assertEqual(other_group_line.discount_amount, 0)
+        self.assertEqual(other_group_line.family_price, 50)
+
+        november = self._preview('2026-11-01')
+        self.assertTrue(all(not line.discount_amount for line in november.line_ids))
+
+        october.action_preview()
+        october.action_generate()
+        charges = self.env['afa.service.charge'].search(
+            [('subscription_id', 'in', [first.id, second.id]), ('month', '=', october.month)]
+        )
+        self.assertEqual(len(charges), 2)
+        self.assertEqual(set(charges.mapped('discount_amount')), {7})
+
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._absence(session_date='2026-10-14')
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.env['afa.service.group.absence'].search(
+                [('group_id', '=', self.chess_a.id), ('session_date', '=', '2026-10-05')]
+            ).write({'discount_amount': 10})
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.env['afa.service.group.absence'].search(
+                [('group_id', '=', self.chess_a.id), ('session_date', '=', '2026-10-05')]
+            ).unlink()
+
+    def test_absence_edit_invalidates_existing_billing_preview(self):
+        self._enroll(group=self.chess_a)
+        absence = self._absence(session_date='2026-10-05')
+        wizard = self._preview()
+        self.assertEqual(wizard.line_ids.discount_amount, 5)
+
+        absence.discount_amount = 8
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            wizard.action_generate()
+
+    def test_absence_discount_preserves_scholarship_split_percentages(self):
+        self._enroll(group=self.chess_a)
+        self._aid(percent=40, tariff_basis='member')
+        self._absence(session_date='2026-10-05', discount_amount=5)
+
+        wizard = self._preview()
+        line = wizard.line_ids
+        self.assertEqual(line.price, 25)
+        self.assertEqual(line.discount_amount, 5)
+        self.assertEqual(line.family_price, 12)
+        self.assertEqual(line.sponsor_price, 8)
+        subscription_id = line.subscription_id.id
+        month = wizard.month
+
+        invoices = self.env['account.move'].browse(wizard.action_generate()['domain'][0][2])
+        self.assertEqual(sorted(invoices.mapped('invoice_line_ids.price_unit')), [8, 12])
+        charge = self.env['afa.service.charge'].search(
+            [('subscription_id', '=', subscription_id), ('month', '=', month)]
+        )
+        self.assertEqual(charge.discount_amount, 5)
+        self.assertEqual(charge.family_price + charge.sponsor_price, 20)
+
+    def test_absence_discounts_cannot_reduce_monthly_charge_below_zero(self):
+        self._enroll(group=self.chess_a)
+        self._aid(percent=40, tariff_basis='member')
+        self._absence(session_date='2026-10-05', discount_amount=50)
+
+        wizard = self._preview()
+        line = wizard.line_ids
+        self.assertEqual(line.price, 25)
+        self.assertEqual(line.discount_amount, 50)
+        self.assertEqual(line.family_price, 0)
+        self.assertEqual(line.sponsor_price, 0)
+        subscription_id = line.subscription_id.id
+        month = wizard.month
+
+        invoices = self.env['account.move'].browse(wizard.action_generate()['domain'][0][2])
+        self.assertEqual(len(invoices), 1)
+        self.assertEqual(invoices.amount_total, 0)
+        charge = self.env['afa.service.charge'].search(
+            [('subscription_id', '=', subscription_id), ('month', '=', month)]
+        )
+        self.assertEqual(charge.family_price + charge.sponsor_price, 0)
 
     def test_billing_covers_only_activity_months_with_tariffs_and_no_duplicates(self):
         self._enroll(group=self.chess_a)
@@ -558,6 +713,28 @@ class TestExtracurricular(TransactionCase):
         with patch('odoo.fields.Date.context_today', return_value=self.today):
             subscription.action_leave(leave)
         self.assertEqual(subscription.end_month, date(2027, 1, 1))
+
+    def test_billed_month_stays_locked_after_subscription_ends_in_that_month(self):
+        subscription = self._enroll(group=self.chess_a)
+        leave = self.env['afa.service.window'].create(
+            {
+                'service_id': self.chess.id,
+                'kind': 'leave',
+                'date_start': '2026-09-01',
+                'date_end': '2026-09-30',
+                'effective_month': '2027-01-01',
+            }
+        )
+        invoices = self.env['account.move'].browse(
+            self._preview('2027-01-01').action_generate()['domain'][0][2]
+        )
+        invoices.button_cancel()
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            subscription.action_leave(leave)
+
+        self.assertEqual(subscription.end_month, date(2027, 1, 1))
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._absence(session_date='2027-01-05')
 
     def test_enrollments_are_visible_from_student_family_and_activity(self):
         self._enroll(group=self.chess_a)

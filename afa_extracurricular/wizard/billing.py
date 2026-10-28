@@ -9,6 +9,7 @@ class AfaServiceBilling(models.TransientModel):
         if not subscription.is_extracurricular:
             snapshot['aid_id'] = False
             return snapshot
+
         aid = self.env['afa.extracurricular.aid'].search(
             [
                 ('family_id', '=', subscription.family_id.id),
@@ -17,17 +18,34 @@ class AfaServiceBilling(models.TransientModel):
             limit=1,
         )
         snapshot['aid_id'] = aid.id or False
-        if not aid:
-            return snapshot
-
         service = subscription.service_id
-        tariff = service.member_price if aid.tariff_basis == 'member' else snapshot['price']
+        tariff = service.member_price if aid and aid.tariff_basis == 'member' else snapshot['price']
         tariff = service.currency_id.round(tariff)
-        sponsor_price = service.currency_id.round(tariff * aid.subsidy_percent / 100)
+        next_month = fields.Date.add(self.month, months=1)
+        absences = self.env['afa.service.group.absence'].search(
+            [
+                ('group_id', '=', subscription.group_id.id),
+                ('session_date', '>=', self.month),
+                ('session_date', '<', next_month),
+            ]
+        )
+        discount_amount = service.currency_id.round(sum(absences.mapped('discount_amount')))
+        discounted_tariff = service.currency_id.round(max(tariff - discount_amount, 0))
         snapshot.update(
             {
                 'price': tariff,
-                'family_price': service.currency_id.round(tariff - sponsor_price),
+                'discount_amount': discount_amount,
+                'family_price': discounted_tariff,
+                'sponsor_price': 0,
+            }
+        )
+        if not aid:
+            return snapshot
+
+        sponsor_price = service.currency_id.round(discounted_tariff * aid.subsidy_percent / 100)
+        snapshot.update(
+            {
+                'family_price': service.currency_id.round(discounted_tariff - sponsor_price),
                 'sponsor_id': aid.sponsor_id.id,
                 'sponsor_price': sponsor_price,
                 'subsidy_percent': aid.subsidy_percent,
@@ -54,6 +72,14 @@ class AfaServiceBilling(models.TransientModel):
         values = super()._charge_snapshot_values(snapshot)
         values['aid_id'] = snapshot.get('aid_id') or False
         return values
+
+    def _lock_additional_billing_resources(self, selected):
+        super()._lock_additional_billing_resources(selected)
+        group_ids = sorted(set(selected.mapped('subscription_id.group_id').ids))
+        for group_id in group_ids:
+            self.env.cr.execute(
+                'SELECT id FROM afa_service_group WHERE id = %s FOR UPDATE', [group_id]
+            )
 
 
 class AfaServiceBillingLine(models.TransientModel):

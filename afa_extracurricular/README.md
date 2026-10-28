@@ -58,12 +58,32 @@ subscription flow remains responsible for family, join-window, and billing rules
 
 ## Bill
 
-Billing is unchanged from `afa_service_subscription`: refresh a month in
+Use the monthly billing review from `afa_service_subscription`: refresh a month in
 **AFA Families → Collections → Monthly Service Billing**. Charge only months
 inside the activity's execution period, using the family's member tariff for
 that month, and generate one draft invoice per family and month. Repeating the
-preview and confirmation never duplicates charges. Scheduled activities need no
-attendance control.
+preview and confirmation never duplicates charges. The addon does not track
+routine attendance; it records only sessions canceled because the instructor is
+unavailable.
+
+## Canceled sessions
+
+Before generating invoices for a month, a family manager can record a canceled
+session in its group's **Canceled Sessions** list. Each record identifies the
+session date and a per-student discount, defaulting to €5 and editable by the
+manager. A group can have only one cancellation record per date. The date must
+fall within the activity's execution period.
+
+Monthly billing applies each recorded discount to every enrolled student in that
+group for the month of the session. It subtracts the combined discounts from the
+full tariff and floors the remaining charge at €0; excess is not carried forward.
+For scholarship families, the Council and family shares are recalculated from
+the discounted tariff using the configured percentage. The preview displays the
+tariff and discount before invoices are generated.
+
+Once a month's invoices have been generated, its cancellation records cannot be
+added, edited, or removed. Late cancellations must be handled manually; they do
+not automatically change existing invoices.
 
 ## Scholarships
 
