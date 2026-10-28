@@ -91,7 +91,7 @@ jobs:
           docker run -d --name afa-preview-cloudflared --network host \
             cloudflare/cloudflared:latest tunnel --no-autoupdate --url http://127.0.0.1:8080
 
-          for attempt in $(seq 1 60); do
+          for _ in $(seq 1 60); do
             preview_url="$(docker logs afa-preview-cloudflared 2>&1 \
               | grep -Eo 'https://[a-z0-9-]+\.trycloudflare\.com' \
               | tail -n 1 || true)"
@@ -107,7 +107,7 @@ jobs:
             exit 1
           fi
 
-          for attempt in $(seq 1 60); do
+          for _ in $(seq 1 60); do
             if curl --fail --silent --show-error --output /dev/null \
               --user "preview:$AFA_PREVIEW_PASSWORD" "$preview_url/web/login"; then
               break
