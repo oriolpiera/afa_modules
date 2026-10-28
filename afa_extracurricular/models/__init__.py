@@ -1,1 +1,1 @@
-from . import service, group, schedule, subscription, partner, aid, charge
+from . import service, group, group_absence, schedule, subscription, partner, aid, charge

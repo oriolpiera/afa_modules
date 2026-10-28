@@ -22,6 +22,7 @@ class AfaServiceCharge(models.Model):
     sponsor_id = fields.Many2one('res.partner', ondelete='restrict')
     member = fields.Boolean(string='Member at Invoicing')
     price = fields.Monetary(required=True, string='Tariff Price', currency_field='currency_id')
+    discount_amount = fields.Monetary(default=0, string='Discount', currency_field='currency_id')
     family_price = fields.Monetary(
         compute='_compute_family_price',
         store=True,
@@ -40,10 +41,10 @@ class AfaServiceCharge(models.Model):
     currency_id = fields.Many2one('res.currency', required=True)
     active = fields.Boolean(default=True, copy=False)
 
-    @api.depends('price', 'sponsor_price', 'currency_id')
+    @api.depends('price', 'discount_amount', 'sponsor_price', 'currency_id')
     def _compute_family_price(self):
         for charge in self:
-            amount = charge.price - charge.sponsor_price
+            amount = max(charge.price - charge.discount_amount - charge.sponsor_price, 0)
             charge.family_price = charge.currency_id.round(amount) if charge.currency_id else amount
 
     def init(self):
@@ -60,6 +61,7 @@ class AfaServiceCharge(models.Model):
 
     @api.constrains(
         'price',
+        'discount_amount',
         'family_price',
         'sponsor_id',
         'sponsor_price',
@@ -72,15 +74,20 @@ class AfaServiceCharge(models.Model):
         for charge in self:
             if (
                 charge.price < 0
+                or charge.discount_amount < 0
                 or charge.sponsor_price < 0
-                or charge.sponsor_price > charge.price
                 or not 0 <= charge.subsidy_percent <= 100
             ):
                 raise ValidationError(_('Service charge amounts and subsidy must be valid.'))
+            net_price = max(charge.price - charge.discount_amount, 0)
+            if charge.sponsor_price > net_price:
+                raise ValidationError(_('The sponsor amount cannot exceed the discounted tariff.'))
             if charge.currency_id.compare_amounts(
-                charge.family_price + charge.sponsor_price, charge.price
+                charge.family_price + charge.sponsor_price, net_price
             ):
-                raise ValidationError(_('Family and sponsor amounts must equal the tariff.'))
+                raise ValidationError(
+                    _('Family and sponsor amounts must equal the tariff after discounts.')
+                )
             if not charge.invoice_line_id and not charge.sponsor_invoice_line_id:
                 raise ValidationError(_('A service charge must have at least one invoice line.'))
             if charge.family_price and not charge.invoice_line_id:
