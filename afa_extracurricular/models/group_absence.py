@@ -35,18 +35,13 @@ class AfaServiceGroupAbsence(models.Model):
     @api.model
     def _check_not_billed(self, group, session_date):
         month = session_date.replace(day=1)
-        subscriptions = self.env['afa.service.subscription'].search(
+        charges = self.env['afa.service.charge'].sudo().with_context(active_test=False)
+        if charges.search_count(
             [
-                ('group_id', '=', group.id),
-                ('start_month', '<=', month),
-                '|',
-                ('end_month', '=', False),
-                ('end_month', '>', month),
+                ('subscription_id.group_id', '=', group.id),
+                ('month', '=', month),
             ]
-        )
-        if subscriptions and self.env['afa.service.charge'].sudo().with_context(
-            active_test=False
-        ).search_count([('subscription_id', 'in', subscriptions.ids), ('month', '=', month)]):
+        ):
             raise ValidationError(
                 _('Record canceled sessions before generating invoices for that month.')
             )

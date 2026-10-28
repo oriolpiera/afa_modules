@@ -705,6 +705,28 @@ class TestExtracurricular(TransactionCase):
             subscription.action_leave(leave)
         self.assertEqual(subscription.end_month, date(2027, 1, 1))
 
+    def test_billed_month_stays_locked_after_subscription_ends_in_that_month(self):
+        subscription = self._enroll(group=self.chess_a)
+        leave = self.env['afa.service.window'].create(
+            {
+                'service_id': self.chess.id,
+                'kind': 'leave',
+                'date_start': '2026-09-01',
+                'date_end': '2026-09-30',
+                'effective_month': '2027-01-01',
+            }
+        )
+        invoices = self.env['account.move'].browse(
+            self._preview('2027-01-01').action_generate()['domain'][0][2]
+        )
+        invoices.button_cancel()
+        with patch('odoo.fields.Date.context_today', return_value=self.today):
+            subscription.action_leave(leave)
+
+        self.assertEqual(subscription.end_month, date(2027, 1, 1))
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._absence(session_date='2027-01-05')
+
     def test_enrollments_are_visible_from_student_family_and_activity(self):
         self._enroll(group=self.chess_a)
         self._enroll(student=self.other_student, service=self.robotics, group=self.robotics_a)
