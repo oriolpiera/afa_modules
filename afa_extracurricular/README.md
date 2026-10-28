@@ -20,6 +20,13 @@ portal or web self-registration.
    activity, an informational seat count and its weekly schedule (weekdays and a
    time range, for example Monday and Wednesday 12:30–13:30).
 
+## Demo data
+
+With demo data enabled, this addon creates a fictional chess activity for the
+current school year, a group and student enrollment, and a canceled session dated
+today with the default €5 discount. These records are loaded from `demo/` through
+the addon manifest and are not included in normal installations.
+
 ## Enroll
 
 1. Open the activity and click **Enrollments**, then create a subscription. The
