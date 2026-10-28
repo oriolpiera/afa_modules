@@ -31,6 +31,7 @@ class AfaServiceBilling(models.TransientModel):
             'payer_id': family.billing_partner_id.id,
             'member': member,
             'price': price,
+            'discount_amount': 0,
             'family_price': price,
             'sponsor_id': False,
             'sponsor_price': 0,
@@ -46,6 +47,7 @@ class AfaServiceBilling(models.TransientModel):
             'payer_id',
             'member',
             'price',
+            'discount_amount',
             'family_price',
             'sponsor_id',
             'sponsor_price',
@@ -62,6 +64,7 @@ class AfaServiceBilling(models.TransientModel):
             and line.payer_id.id == snapshot['payer_id']
             and line.member == snapshot['member']
             and line.price == snapshot['price']
+            and line.discount_amount == snapshot['discount_amount']
             and line.family_price == snapshot['family_price']
             and (line.sponsor_id.id or False) == snapshot['sponsor_id']
             and line.sponsor_price == snapshot['sponsor_price']
@@ -75,6 +78,7 @@ class AfaServiceBilling(models.TransientModel):
         return {
             'member': snapshot['member'],
             'price': snapshot['price'],
+            'discount_amount': snapshot['discount_amount'],
             'sponsor_id': snapshot['sponsor_id'],
             'sponsor_price': snapshot['sponsor_price'],
             'subsidy_percent': snapshot['subsidy_percent'],
@@ -246,6 +250,7 @@ class AfaServiceBilling(models.TransientModel):
             self.env['afa.service.subscription']._lock_student(
                 self.env['res.partner'].browse(student_id)
             )
+        self._lock_additional_billing_resources(selected)
         self.env.invalidate_all()
         if set(self.line_ids.mapped('subscription_id').ids) != set(self._candidates().ids):
             raise ValidationError(_('Subscriptions changed; refresh the preview.'))
@@ -280,6 +285,9 @@ class AfaServiceBilling(models.TransientModel):
                 raise ValidationError(_('Billing details changed; refresh the preview.'))
             prepared.append((line, subscription, snapshot))
         return prepared
+
+    def _lock_additional_billing_resources(self, selected):
+        """Allow service-specific modules to lock records used by their snapshots."""
 
     def _group_invoice_allocations(self, prepared):
         grouped_lines = {}
@@ -409,6 +417,7 @@ class AfaServiceBillingLine(models.TransientModel):
     payer_id = fields.Many2one('res.partner', readonly=True)
     member = fields.Boolean(readonly=True)
     price = fields.Monetary(string='Tariff Price', readonly=True, currency_field='currency_id')
+    discount_amount = fields.Monetary(readonly=True, currency_field='currency_id')
     family_price = fields.Monetary(readonly=True, currency_field='currency_id')
     sponsor_id = fields.Many2one('res.partner', readonly=True)
     sponsor_price = fields.Monetary(readonly=True, currency_field='currency_id')

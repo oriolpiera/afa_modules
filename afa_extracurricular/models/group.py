@@ -46,6 +46,9 @@ class AfaServiceGroup(models.Model):
     schedule_ids = fields.One2many(
         'afa.service.group.schedule', 'group_id', string='Weekly Schedule'
     )
+    absence_ids = fields.One2many(
+        'afa.service.group.absence', 'group_id', string='Canceled Sessions'
+    )
     subscription_ids = fields.One2many('afa.service.subscription', 'group_id', string='Enrollments')
     schedule_summary = fields.Char(compute='_compute_schedule_summary')
 
@@ -66,10 +69,18 @@ class AfaServiceGroup(models.Model):
             raise ValidationError(_('Group names must be unique within an activity.')) from error
 
     def write(self, vals):
-        if 'service_id' in vals and self.env['afa.service.subscription'].search_count(
-            [('group_id', 'in', self.ids)]
-        ):
-            raise ValidationError(_('A group with enrollments cannot move to another activity.'))
+        if 'service_id' in vals:
+            absence_model = self.env['afa.service.group.absence']
+            absence_model._lock_groups(self.ids)
+            self.env.invalidate_all()
+            if self.env['afa.service.subscription'].search_count([('group_id', 'in', self.ids)]):
+                raise ValidationError(
+                    _('A group with enrollments cannot move to another activity.')
+                )
+            if absence_model.search_count([('group_id', 'in', self.ids)]):
+                raise ValidationError(
+                    _('A group with canceled-session history cannot move to another activity.')
+                )
         try:
             with self.env.cr.savepoint():
                 result = super().write(vals)
@@ -82,8 +93,12 @@ class AfaServiceGroup(models.Model):
             raise ValidationError(_('Group names must be unique within an activity.')) from error
 
     def unlink(self):
+        self.env['afa.service.group.absence']._lock_groups(self.ids)
+        self.env.invalidate_all()
         if self.env['afa.service.subscription'].search_count([('group_id', 'in', self.ids)]):
             raise ValidationError(_('A group with enrollment history cannot be deleted.'))
+        if self.env['afa.service.group.absence'].search_count([('group_id', 'in', self.ids)]):
+            raise ValidationError(_('A group with canceled-session history cannot be deleted.'))
         return super().unlink()
 
     @api.constrains('name', 'service_id', 'capacity')

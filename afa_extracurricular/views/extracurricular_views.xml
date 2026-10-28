@@ -59,6 +59,15 @@
                                         </list>
                                     </field>
                                 </group>
+                                <group string="Canceled Sessions">
+                                    <field name="absence_ids">
+                                        <list editable="bottom">
+                                            <field name="session_date"/>
+                                            <field name="discount_amount"/>
+                                            <field name="currency_id" column_invisible="1"/>
+                                        </list>
+                                    </field>
+                                </group>
                             </form>
                         </field>
                     </page>
