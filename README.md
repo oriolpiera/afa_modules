@@ -3,7 +3,7 @@
 ## Odoo 19 local test stack
 
 The development-only stack in `compose.test.yaml` runs PostgreSQL 18 and Odoo 19
-with `afa_family`, `afa_membership`, `afa_member_pricing`, `afa_sepa`,
+with `afa_family`, `afa_account_reconcile`, `afa_membership`, `afa_member_pricing`, `afa_sepa`,
 `afa_apparel_shop`, `afa_service_subscription`, `afa_school_course`, `afa_extracurricular`,
 `afa_family_import`, and `afa_acollida` mounted from this checkout. It does not
 change the separate Odoo 16
@@ -44,7 +44,7 @@ not regular installation data. Use a **new database name** for an isolated insta
 with demo records and the focused addon tests; do not reuse the live UI database:
 
 ```sh
-docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_fresh_example -i afa_family,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida --with-demo --test-enable --test-tags /afa_family,/afa_membership,/afa_member_pricing,/afa_apparel_shop,/afa_sepa,/afa_service_subscription,/afa_school_course,/afa_extracurricular,/afa_family_import,/afa_acollida --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo
+docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_fresh_example -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida --with-demo --test-enable --test-tags /afa_family,/afa_account_reconcile,/afa_membership,/afa_member_pricing,/afa_apparel_shop,/afa_sepa,/afa_service_subscription,/afa_school_course,/afa_extracurricular,/afa_family_import,/afa_acollida --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo
 ```
 
 Use another unused database name for each fresh local install. When demo data
@@ -52,13 +52,15 @@ is absent, the demo-specific test skips unless `AFA_EXPECT_DEMO=1` is set; CI
 sets it so a missing demo fixture fails instead of silently passing. The
 `.github/workflows/odoo-tests.yml` workflow runs the combined install and tests
 on PRs targeting `main` and pushes to `main` with read-only repository
-permission. It runs all ten AFA addons' tests, not the full upstream Odoo
+permission. It runs all eleven AFA addons' tests, not the full upstream Odoo
 suite. CI also checks Odoo's result summary and confirms the family and pricing
 demo fixtures and all ten addons' test classes ran.
 Odoo can log test failures while returning a successful process exit status.
 Local tests do not constitute remote CI evidence; check the PR's Actions status.
 See [AFA Membership](afa_membership/README.md) for family membership intention,
 period, dues invoice, return, and access rules. `afa_family` can still be installed alone.
+See [AFA Accounting Reconciliation](afa_account_reconcile/README.md) for the
+billing-guardian partner filter in bank reconciliation.
 See [AFA Member Pricing](afa_member_pricing/README.md) for sales and web pricing setup.
 See [AFA Apparel Shop](afa_apparel_shop/README.md) for apparel variants, inventory,
 school pickup, bank transfers, and seven-day stock reservations.
