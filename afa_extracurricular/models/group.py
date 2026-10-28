@@ -69,10 +69,18 @@ class AfaServiceGroup(models.Model):
             raise ValidationError(_('Group names must be unique within an activity.')) from error
 
     def write(self, vals):
-        if 'service_id' in vals and self.env['afa.service.subscription'].search_count(
-            [('group_id', 'in', self.ids)]
-        ):
-            raise ValidationError(_('A group with enrollments cannot move to another activity.'))
+        if 'service_id' in vals:
+            absence_model = self.env['afa.service.group.absence']
+            absence_model._lock_groups(self.ids)
+            self.env.invalidate_all()
+            if self.env['afa.service.subscription'].search_count([('group_id', 'in', self.ids)]):
+                raise ValidationError(
+                    _('A group with enrollments cannot move to another activity.')
+                )
+            if absence_model.search_count([('group_id', 'in', self.ids)]):
+                raise ValidationError(
+                    _('A group with canceled-session history cannot move to another activity.')
+                )
         try:
             with self.env.cr.savepoint():
                 result = super().write(vals)

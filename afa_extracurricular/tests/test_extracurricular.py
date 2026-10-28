@@ -337,6 +337,15 @@ class TestExtracurricular(TransactionCase):
         with self.assertRaises(ValidationError), self.cr.savepoint():
             group.unlink()
 
+    def test_group_with_canceled_session_history_cannot_move_to_another_activity(self):
+        group = self._group(self.chess, 'Historical Group', slots=[])
+        self._absence(group=group)
+
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            group.write({'service_id': self.robotics.id})
+
+        self.assertEqual(group.service_id, self.chess)
+
     def test_absence_discounts_only_enrolled_students_in_group_and_month(self):
         first = self._enroll(group=self.chess_a)
         second = self._enroll(student=self.other_student, group=self.chess_a)
