@@ -1,0 +1,154 @@
+name: Odoo PR preview
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: odoo-preview-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    if: >-
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PREVIEW_DB: afa_preview_${{ github.event.pull_request.number }}
+      PREVIEW_AUTH_FILE: ${{ runner.temp }}/afa-preview-${{ github.event.pull_request.number }}.htpasswd
+      COMPOSE_PROJECT_NAME: afa-preview-${{ github.event.pull_request.number }}
+      AFA_PREVIEW_PASSWORD: ${{ secrets.AFA_PREVIEW_PASSWORD }}
+
+    steps:
+      - name: Require preview password
+        run: |
+          if [[ -z "$AFA_PREVIEW_PASSWORD" ]]; then
+            echo "Configure the AFA_PREVIEW_PASSWORD repository secret before enabling previews." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Fetch pinned OCA bank-payment addons
+        uses: actions/checkout@v4
+        with:
+          repository: OCA/bank-payment
+          ref: fdd5d4040b235a4c688b2aec30611d57dd246b64
+          path: .oca-bank-payment
+
+      - name: Fetch pinned OCA account-reconcile addons
+        uses: actions/checkout@v4
+        with:
+          repository: OCA/account-reconcile
+          ref: 8fc48a4beff3203241c0f61c4d3bc15631f75a4d
+          path: .oca-account-reconcile
+
+      - name: Validate Compose configuration and create temporary gateway credentials
+        run: |
+          set -euo pipefail
+          printf '%s' "$AFA_PREVIEW_PASSWORD" | openssl passwd -apr1 -stdin \
+            | sed "s|^|preview:|" > "$PREVIEW_AUTH_FILE"
+          chmod 600 "$PREVIEW_AUTH_FILE"
+          docker compose -f compose.test.yaml -f compose.preview.yaml config -q
+
+      - name: Start PostgreSQL
+        run: docker compose -f compose.test.yaml -f compose.preview.yaml up -d db
+
+      - name: Install addons with demo data
+        run: |
+          set -euo pipefail
+          docker compose -f compose.test.yaml -f compose.preview.yaml run --rm odoo \
+            -d "$PREVIEW_DB" \
+            -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida \
+            --with-demo \
+            --stop-after-init \
+            --log-level=warn \
+            --db_host=db --db_user=odoo --db_password=odoo
+
+      - name: Add preview enrollment, configure accounting and verify billing
+        run: |
+          set -euo pipefail
+          {
+            cat deploy/preview/prepare_preview.py
+            printf '\nprepare_preview(env)\n'
+          } | docker compose -f compose.test.yaml -f compose.preview.yaml run --rm -T odoo \
+            odoo shell -d "$PREVIEW_DB" \
+            --db_host=db --db_user=odoo --db_password=odoo
+
+      - name: Start Odoo and the authenticated preview gateway
+        run: docker compose -f compose.test.yaml -f compose.preview.yaml up -d odoo preview-gateway
+
+      - name: Start Cloudflare Quick Tunnel
+        id: tunnel
+        run: |
+          set -euo pipefail
+          docker run -d --name afa-preview-cloudflared --network host \
+            cloudflare/cloudflared:latest tunnel --no-autoupdate --url http://127.0.0.1:8080
+
+          for _ in $(seq 1 60); do
+            preview_url="$(docker logs afa-preview-cloudflared 2>&1 \
+              | grep -Eo 'https://[a-z0-9-]+\.trycloudflare\.com' \
+              | tail -n 1 || true)"
+            if [[ -n "$preview_url" ]]; then
+              break
+            fi
+            sleep 2
+          done
+
+          if [[ -z "${preview_url:-}" ]]; then
+            docker logs afa-preview-cloudflared
+            echo "Cloudflare Quick Tunnel did not provide a URL." >&2
+            exit 1
+          fi
+
+          for _ in $(seq 1 60); do
+            if curl --fail --silent --show-error --output /dev/null \
+              --user "preview:$AFA_PREVIEW_PASSWORD" "$preview_url/web/login"; then
+              break
+            fi
+            sleep 5
+          done
+
+          if ! curl --fail --silent --show-error --output /dev/null \
+            --user "preview:$AFA_PREVIEW_PASSWORD" "$preview_url/web/login"; then
+            echo "Odoo preview did not become ready behind the authenticated gateway." >&2
+            exit 1
+          fi
+
+          echo "preview_url=$preview_url" >> "$GITHUB_OUTPUT"
+
+      - name: Publish preview details
+        env:
+          PREVIEW_URL: ${{ steps.tunnel.outputs.preview_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## Odoo preview ready
+
+          - Pull request: #${PR_NUMBER}
+          - URL: ${PREVIEW_URL}
+          - HTTP authentication: user \`preview\`; password is the repository secret \`AFA_PREVIEW_PASSWORD\`.
+          - Odoo login: \`admin\` / \`admin\`.
+          - The preview expires one hour after it becomes ready. A new commit or closing the PR cancels it sooner.
+          - This environment contains synthetic demo data only. Do not enter personal or production data.
+          EOF
+
+      - name: Keep preview available for one hour
+        run: |
+          deadline="$(( $(date +%s) + 3600 ))"
+          while (( $(date +%s) < deadline )); do
+            sleep 30
+          done
+
+      - name: Stop preview services and remove temporary credentials
+        if: always()
+        run: |
+          docker rm --force afa-preview-cloudflared >/dev/null 2>&1 || true
+          docker compose -f compose.test.yaml -f compose.preview.yaml down --volumes --remove-orphans || true
+          rm -f "$PREVIEW_AUTH_FILE"

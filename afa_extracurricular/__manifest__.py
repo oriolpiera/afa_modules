@@ -12,6 +12,7 @@
         'views/partner_views.xml',
         'wizard/extracurricular_import_views.xml',
     ],
+    'demo': ['demo/extracurricular_demo.xml'],
     'installable': True,
     'application': False,
 }

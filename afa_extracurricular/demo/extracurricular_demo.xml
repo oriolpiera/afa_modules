@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="demo_period_current_school_year" model="afa.membership.period">
+        <field name="name" eval="'%s/%s' % (DateTime.today().year - (DateTime.today().month &lt; 7), DateTime.today().year + (DateTime.today().month &gt;= 7))"/>
+        <field name="date_start" eval="DateTime(DateTime.today().year - (DateTime.today().month &lt; 7), 7, 1).strftime('%Y-%m-%d')"/>
+        <field name="date_end" eval="DateTime(DateTime.today().year + (DateTime.today().month &gt;= 7), 6, 30).strftime('%Y-%m-%d')"/>
+    </record>
+
+    <record id="demo_chess_product" model="product.product">
+        <field name="name">Demo Extracurricular Fee</field>
+        <field name="list_price">35</field>
+    </record>
+
+    <record id="demo_chess_club" model="afa.service">
+        <field name="name">Demo Chess Club</field>
+        <field name="period_id" ref="demo_period_current_school_year"/>
+        <field name="date_start" eval="DateTime.today().replace(day=1).strftime('%Y-%m-%d')"/>
+        <field name="date_end" eval="DateTime(DateTime.today().year + (DateTime.today().month &gt;= 7), 6, 30).strftime('%Y-%m-%d')"/>
+        <field name="product_id" ref="demo_chess_product"/>
+        <field name="member_price">25</field>
+        <field name="nonmember_price">35</field>
+        <field name="is_extracurricular" eval="True"/>
+        <field name="enrollment_date_start" eval="DateTime(DateTime.today().year - (DateTime.today().month &lt; 7), 7, 1).strftime('%Y-%m-%d')"/>
+        <field name="enrollment_date_end" eval="DateTime(DateTime.today().year + (DateTime.today().month &gt;= 7), 6, 30).strftime('%Y-%m-%d')"/>
+    </record>
+
+    <record id="demo_chess_join_window" model="afa.service.window">
+        <field name="service_id" ref="demo_chess_club"/>
+        <field name="kind">join</field>
+        <field name="date_start" eval="DateTime(DateTime.today().year - (DateTime.today().month &lt; 7), 7, 1).strftime('%Y-%m-%d')"/>
+        <field name="date_end" eval="DateTime(DateTime.today().year + (DateTime.today().month &gt;= 7), 6, 30).strftime('%Y-%m-%d')"/>
+        <field name="effective_month" eval="DateTime.today().replace(day=1).strftime('%Y-%m-%d')"/>
+    </record>
+
+    <record id="demo_chess_group" model="afa.service.group">
+        <field name="service_id" ref="demo_chess_club"/>
+        <field name="name">Demo Chess A</field>
+        <field name="capacity">12</field>
+    </record>
+
+    <record id="demo_chess_schedule" model="afa.service.group.schedule">
+        <field name="group_id" ref="demo_chess_group"/>
+        <field name="weekday">1</field>
+        <field name="hour_from">12.5</field>
+        <field name="hour_to">13.5</field>
+    </record>
+
+    <record id="demo_chess_enrollment" model="afa.service.subscription">
+        <field name="student_id" ref="afa_family.demo_cedar_student_1"/>
+        <field name="service_id" ref="demo_chess_club"/>
+        <field name="join_window_id" ref="demo_chess_join_window"/>
+        <field name="group_id" ref="demo_chess_group"/>
+    </record>
+
+    <record id="demo_chess_canceled_session" model="afa.service.group.absence">
+        <field name="group_id" ref="demo_chess_group"/>
+        <field name="session_date" eval="DateTime.today().strftime('%Y-%m-%d')"/>
+        <field name="discount_amount">5</field>
+    </record>
+</odoo>
