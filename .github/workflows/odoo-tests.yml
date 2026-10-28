@@ -15,6 +15,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch pinned OCA account-reconcile addons
+        uses: actions/checkout@v4
+        with:
+          repository: OCA/account-reconcile
+          ref: 8fc48a4beff3203241c0f61c4d3bc15631f75a4d
+          path: .oca-account-reconcile
       - name: Fetch pinned OCA bank-payment addons
         uses: actions/checkout@v4
         with:

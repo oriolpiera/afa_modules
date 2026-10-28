@@ -9,14 +9,16 @@ with `afa_family`, `afa_account_reconcile`, `afa_membership`, `afa_member_pricin
 change the separate Odoo 16
 stack. Docker Engine and Compose are required.
 
-For SEPA tests, fetch the pinned OCA 19.0 bank-payment revision first:
+Fetch the pinned OCA 19.0 revisions used by the local test stack:
 
 ```sh
+git clone --branch 19.0 https://github.com/OCA/account-reconcile.git .oca-account-reconcile
+git -C .oca-account-reconcile checkout 8fc48a4beff3203241c0f61c4d3bc15631f75a4d
 git clone --branch 19.0 https://github.com/OCA/bank-payment.git .oca-bank-payment
 git -C .oca-bank-payment checkout fdd5d4040b235a4c688b2aec30611d57dd246b64
 ```
 
-The checkout is ignored by Git; the CI workflow fetches the same revision.
+The checkouts are ignored by Git; CI fetches the same revisions.
 
 ```sh
 docker compose -f compose.test.yaml up -d db
