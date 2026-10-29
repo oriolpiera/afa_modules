@@ -5,9 +5,9 @@
 The development-only stack in `compose.test.yaml` runs PostgreSQL 18 and Odoo 19
 with `afa_family`, `afa_membership`, `afa_member_pricing`, `afa_sepa`,
 `afa_apparel_shop`, `afa_service_subscription`, `afa_school_course`, `afa_extracurricular`,
-`afa_family_import`, and `afa_acollida` mounted from this checkout. It does not
-change the separate Odoo 16
-stack. Docker Engine and Compose are required.
+`afa_family_import`, `afa_acollida`, and `afa_attendance_kiosk_pwa` mounted from
+this checkout. It does not change the separate Odoo 16 stack. Docker Engine and
+Compose are required.
 
 For SEPA tests, fetch the pinned OCA 19.0 bank-payment revision first:
 
@@ -75,3 +75,5 @@ See [Initial Family Load](afa_family_import/README.md) for the CSV/Excel load of
 families, guardians, students, IBANs and SEPA mandates.
 See [Acollida Fixed Fees](afa_acollida/README.md) for importing monthly fixed-user
 fees and generating family invoices.
+See [Attendance Kiosk PWA](afa_attendance_kiosk_pwa/README.rst) for installing the
+Odoo 19 attendance kiosk as a standalone Android web app.
