@@ -5,9 +5,9 @@
 The development-only stack in `compose.test.yaml` runs PostgreSQL 18 and Odoo 19
 with `afa_family`, `afa_account_reconcile`, `afa_membership`, `afa_member_pricing`, `afa_sepa`,
 `afa_apparel_shop`, `afa_service_subscription`, `afa_school_course`, `afa_extracurricular`,
-`afa_family_import`, and `afa_acollida` mounted from this checkout. It does not
-change the separate Odoo 16
-stack. Docker Engine and Compose are required.
+`afa_family_import`, `afa_acollida`, and `afa_attendance_kiosk_pwa` mounted from
+this checkout. It does not change the separate Odoo 16 stack. Docker Engine and
+Compose are required.
 
 Fetch the pinned OCA 19.0 revisions used by the local test stack:
 
@@ -46,7 +46,7 @@ not regular installation data. Use a **new database name** for an isolated insta
 with demo records and the focused addon tests; do not reuse the live UI database:
 
 ```sh
-docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_fresh_example -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida --with-demo --test-enable --test-tags /afa_family,/afa_account_reconcile,/afa_membership,/afa_member_pricing,/afa_apparel_shop,/afa_sepa,/afa_service_subscription,/afa_school_course,/afa_extracurricular,/afa_family_import,/afa_acollida --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo
+docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_fresh_example -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida,afa_attendance_kiosk_pwa --with-demo --test-enable --test-tags /afa_family,/afa_account_reconcile,/afa_membership,/afa_member_pricing,/afa_apparel_shop,/afa_sepa,/afa_service_subscription,/afa_school_course,/afa_extracurricular,/afa_family_import,/afa_acollida,/afa_attendance_kiosk_pwa --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo
 ```
 
 Use another unused database name for each fresh local install. When demo data
@@ -54,9 +54,9 @@ is absent, the demo-specific test skips unless `AFA_EXPECT_DEMO=1` is set; CI
 sets it so a missing demo fixture fails instead of silently passing. The
 `.github/workflows/odoo-tests.yml` workflow runs the combined install and tests
 on PRs targeting `main` and pushes to `main` with read-only repository
-permission. It runs all eleven AFA addons' tests, not the full upstream Odoo
-suite. CI also checks Odoo's result summary and confirms the family and pricing
-demo fixtures and all ten addons' test classes ran.
+permission. It runs all twelve AFA addons' tests, not the full upstream Odoo
+suite. CI also checks Odoo's result summary and confirms the expected family and
+pricing demo fixtures and all twelve addon test classes ran.
 Odoo can log test failures while returning a successful process exit status.
 Local tests do not constitute remote CI evidence; check the PR's Actions status.
 See [AFA Membership](afa_membership/README.md) for family membership intention,
@@ -79,3 +79,5 @@ See [Initial Family Load](afa_family_import/README.md) for the CSV/Excel load of
 families, guardians, students, IBANs and SEPA mandates.
 See [Acollida Fixed Fees](afa_acollida/README.md) for importing monthly fixed-user
 fees and generating family invoices.
+See [Attendance Kiosk PWA](afa_attendance_kiosk_pwa/README.rst) for installing the
+Odoo 19 attendance kiosk as a standalone Android web app.
