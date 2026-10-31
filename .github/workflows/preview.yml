@@ -52,9 +52,12 @@ jobs:
       - name: Validate Compose configuration and create temporary gateway credentials
         run: |
           set -euo pipefail
+          umask 077
           printf '%s' "$AFA_PREVIEW_PASSWORD" | openssl passwd -apr1 -stdin \
             | sed "s|^|preview:|" > "$PREVIEW_AUTH_FILE"
-          chmod 600 "$PREVIEW_AUTH_FILE"
+          # nginx:alpine workers run as gid 101; grant only that group read access.
+          sudo chgrp 101 "$PREVIEW_AUTH_FILE"
+          chmod 640 "$PREVIEW_AUTH_FILE"
           docker compose -f compose.test.yaml -f compose.preview.yaml config -q
 
       - name: Start PostgreSQL
