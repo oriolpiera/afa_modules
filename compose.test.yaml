@@ -25,6 +25,7 @@ services:
     ports:
       - "127.0.0.1:8079:8069"
     volumes:
+      - ./afa_account_reconcile:/mnt/extra-addons/afa_account_reconcile:ro
       - ./afa_family:/mnt/extra-addons/afa_family:ro
       - ./afa_membership:/mnt/extra-addons/afa_membership:ro
       - ./afa_member_pricing:/mnt/extra-addons/afa_member_pricing:ro

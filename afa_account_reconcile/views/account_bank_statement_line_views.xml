@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="account_bank_statement_line_form_partner_domain" model="ir.ui.view">
+        <field name="name">account.bank.statement.line.form.partner.domain</field>
+        <field name="model">account.bank.statement.line</field>
+        <field name="inherit_id" ref="account_statement_base.account_bank_statement_line_form" />
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="domain">[('afa_is_accounting_partner_eligible', '=', True)]</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="account_bank_statement_line_tree_partner_domain" model="ir.ui.view">
+        <field name="name">account.bank.statement.line.tree.partner.domain</field>
+        <field name="model">account.bank.statement.line</field>
+        <field name="inherit_id" ref="account_statement_base.account_bank_statement_line_tree" />
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="domain">[('afa_is_accounting_partner_eligible', '=', True)]</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="bank_statement_line_form_add_partner_domain" model="ir.ui.view">
+        <field name="name">account.bank.statement.line.form.add.partner.domain</field>
+        <field name="model">account.bank.statement.line</field>
+        <field name="inherit_id" ref="account_reconcile_oca.bank_statement_line_form_add_view" />
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="domain">[('afa_is_accounting_partner_eligible', '=', True)]</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="bank_statement_line_form_reconcile_partner_domain" model="ir.ui.view">
+        <field name="name">account.bank.statement.line.reconcile.partner.domain</field>
+        <field name="model">account.bank.statement.line</field>
+        <field name="inherit_id" ref="account_reconcile_oca.bank_statement_line_form_reconcile_view" />
+        <field name="arch" type="xml">
+            <field name="manual_partner_id" position="attributes">
+                <attribute name="domain">[('parent_id', '=', False), ('afa_is_accounting_partner_eligible', '=', True)]</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>
