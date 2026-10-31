@@ -1,6 +1,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, ValidationError
 
+_DELETE_SERVICE_INVOICE_TOKEN = object()
+
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -86,7 +88,10 @@ class AccountMove(models.Model):
             | service_invoices.sudo().afa_service_sponsor_charge_ids
         )
         charges.with_context(_afa_cancel_service_invoice=True).write({'active': False})
-        return super().unlink()
+        return super(
+            AccountMove,
+            self.with_context(_afa_delete_service_invoice=_DELETE_SERVICE_INVOICE_TOKEN),
+        ).unlink()
 
 
 class AccountMoveLine(models.Model):
@@ -117,16 +122,11 @@ class AccountMoveLine(models.Model):
                 lambda line: line.afa_service_charge_ids or line.afa_service_sponsor_charge_ids
             )
         )
-        unsafe_lines = protected_lines.filtered(
-            lambda line: (
-                not line.move_id.afa_service_month
-                or line.move_id.state != 'draft'
-                or (line.afa_service_charge_ids | line.afa_service_sponsor_charge_ids).filtered(
-                    'active'
-                )
-            )
-        )
-        if unsafe_lines:
+        if (
+            protected_lines
+            and self.env.context.get('_afa_delete_service_invoice')
+            is not _DELETE_SERVICE_INVOICE_TOKEN
+        ):
             raise ValidationError(
                 _(
                     'A billed service charge cannot be deleted directly. Delete the draft '

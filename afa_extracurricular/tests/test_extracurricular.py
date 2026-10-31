@@ -437,7 +437,7 @@ class TestExtracurricular(TransactionCase):
         )
         new_charge = replacement_invoice.afa_service_charge_ids
         self.assertTrue(replacement_invoice)
-        self.assertEqual(replacement_invoice.amount_total, 30)
+        self.assertEqual(replacement_invoice.amount_untaxed, 30)
         self.assertEqual(new_charge.discount_amount, 5)
         self.assertTrue(new_charge.active)
         self.assertFalse(old_charge.active)
