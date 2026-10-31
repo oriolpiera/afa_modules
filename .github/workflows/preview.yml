@@ -21,7 +21,6 @@ jobs:
     timeout-minutes: 90
     env:
       PREVIEW_DB: afa_preview_${{ github.event.pull_request.number }}
-      PREVIEW_AUTH_FILE: ${{ runner.temp }}/afa-preview-${{ github.event.pull_request.number }}.htpasswd
       COMPOSE_PROJECT_NAME: afa-preview-${{ github.event.pull_request.number }}
       AFA_PREVIEW_PASSWORD: ${{ secrets.AFA_PREVIEW_PASSWORD }}
 
@@ -50,6 +49,8 @@ jobs:
           path: .oca-account-reconcile
 
       - name: Validate Compose configuration and create temporary gateway credentials
+        env:
+          PREVIEW_AUTH_FILE: ${{ runner.temp }}/afa-preview-${{ github.event.pull_request.number }}.htpasswd
         run: |
           set -euo pipefail
           umask 077
@@ -151,6 +152,8 @@ jobs:
 
       - name: Stop preview services and remove temporary credentials
         if: always()
+        env:
+          PREVIEW_AUTH_FILE: ${{ runner.temp }}/afa-preview-${{ github.event.pull_request.number }}.htpasswd
         run: |
           docker rm --force afa-preview-cloudflared >/dev/null 2>&1 || true
           docker compose -f compose.test.yaml -f compose.preview.yaml down --volumes --remove-orphans || true
