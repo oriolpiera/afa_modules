@@ -1,0 +1,20 @@
+services:
+  odoo:
+    command:
+      - odoo
+      - -d
+      - ${PREVIEW_DB:?Set PREVIEW_DB}
+      - --db-filter=^${PREVIEW_DB:?Set PREVIEW_DB}$$
+      - --no-database-list
+      - --proxy-mode
+
+  preview-gateway:
+    image: nginx:alpine
+    depends_on:
+      odoo:
+        condition: service_started
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./deploy/preview/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${PREVIEW_AUTH_FILE:?Set PREVIEW_AUTH_FILE}:/etc/nginx/.htpasswd:ro

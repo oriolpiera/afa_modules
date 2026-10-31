@@ -44,7 +44,7 @@ publicly.
    docker compose --profile initialize run --rm initialize
    ```
 
-   The initializer installs all ten AFA addons without demo data into the new
+   The initializer installs all twelve AFA addons without demo data into the new
    `afa_prod` database. Set the initial Odoo `admin` password from the protected
    `.env` before making the web service public:
 

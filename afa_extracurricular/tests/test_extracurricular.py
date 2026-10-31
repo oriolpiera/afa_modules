@@ -1,7 +1,9 @@
 import base64
+import os
 from datetime import date
 from unittest.mock import patch
 
+from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -36,13 +38,17 @@ class TestExtracurricular(TransactionCase):
         )
         self.student = self._student('Student One')
         self.other_student = self._student('Student Two')
-        self.period = self.env['afa.membership.period'].create(
-            {
-                'name': '2026/27',
-                'date_start': '2026-07-01',
-                'date_end': '2027-06-30',
-            }
+        self.period = self.env['afa.membership.period'].search(
+            [('date_start', '=', '2026-07-01')], limit=1
         )
+        if not self.period:
+            self.period = self.env['afa.membership.period'].create(
+                {
+                    'name': '2026/27',
+                    'date_start': '2026-07-01',
+                    'date_end': '2027-06-30',
+                }
+            )
         self.product = self.env['product.product'].create(
             {'name': 'Activity Fee', 'list_price': 25.0}
         )
@@ -934,3 +940,27 @@ class TestExtracurricular(TransactionCase):
             ambiguous_import.action_load()
         self.assertEqual(ambiguous_import.line_ids.action, 'error')
         self.assertIn('More than one student', ambiguous_import.line_ids.error)
+
+
+class TestExtracurricularDemo(TransactionCase):
+    def test_demo_activity_has_a_current_canceled_session_and_enrollment(self):
+        service = self.env.ref('afa_extracurricular.demo_chess_club', raise_if_not_found=False)
+        if not service:
+            if os.environ.get('AFA_EXPECT_DEMO') == '1':
+                self.fail('Extracurricular demo records are required for this test run')
+            self.skipTest('Extracurricular demo records were not loaded')
+
+        group = self.env.ref('afa_extracurricular.demo_chess_group')
+        absence = self.env.ref('afa_extracurricular.demo_chess_canceled_session')
+        enrollment = self.env.ref('afa_extracurricular.demo_chess_enrollment')
+
+        self.assertEqual(group.service_id, service)
+        self.assertEqual(absence.group_id, group)
+        self.assertEqual(absence.discount_amount, 5)
+        self.assertEqual(enrollment.service_id, service)
+        self.assertEqual(enrollment.group_id, group)
+        self.assertLessEqual(service.date_start, absence.session_date)
+        self.assertGreaterEqual(service.date_end, absence.session_date)
+        self.assertEqual(
+            fields.Date.context_today(self.env.user).replace(day=1), service.date_start
+        )
