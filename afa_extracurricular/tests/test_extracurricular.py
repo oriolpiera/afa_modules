@@ -416,6 +416,10 @@ class TestExtracurricular(TransactionCase):
         )
         old_charge = first_invoice.afa_service_charge_ids
         self.assertEqual(old_charge.discount_amount, 5)
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            first_invoice.invoice_line_ids.with_context(_afa_delete_service_invoice=True).unlink()
+        self.assertTrue(old_charge.active)
+
         first_invoice.unlink()
         self.assertFalse(old_charge.active)
         old_charge.invalidate_recordset(['invoice_line_id'])
