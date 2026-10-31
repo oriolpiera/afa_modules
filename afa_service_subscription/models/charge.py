@@ -11,9 +11,9 @@ class AfaServiceCharge(models.Model):
         'afa.service.subscription', required=True, ondelete='restrict', index=True
     )
     month = fields.Date(required=True, index=True)
-    invoice_line_id = fields.Many2one('account.move.line', ondelete='restrict')
+    invoice_line_id = fields.Many2one('account.move.line', ondelete='set null')
     invoice_id = fields.Many2one('account.move', related='invoice_line_id.move_id', store=True)
-    sponsor_invoice_line_id = fields.Many2one('account.move.line', ondelete='restrict')
+    sponsor_invoice_line_id = fields.Many2one('account.move.line', ondelete='set null')
     sponsor_invoice_id = fields.Many2one(
         'account.move', related='sponsor_invoice_line_id.move_id', store=True
     )
@@ -88,12 +88,14 @@ class AfaServiceCharge(models.Model):
                 raise ValidationError(
                     _('Family and sponsor amounts must equal the tariff after discounts.')
                 )
-            if not charge.invoice_line_id and not charge.sponsor_invoice_line_id:
+            if charge.active and not charge.invoice_line_id and not charge.sponsor_invoice_line_id:
                 raise ValidationError(_('A service charge must have at least one invoice line.'))
-            if charge.family_price and not charge.invoice_line_id:
+            if charge.active and charge.family_price and not charge.invoice_line_id:
                 raise ValidationError(_('The family amount must have an invoice line.'))
-            if charge.sponsor_price and (
-                not charge.sponsor_id or not charge.sponsor_invoice_line_id
+            if (
+                charge.active
+                and charge.sponsor_price
+                and (not charge.sponsor_id or not charge.sponsor_invoice_line_id)
             ):
                 raise ValidationError(_('The sponsor amount must have a sponsor and invoice line.'))
 

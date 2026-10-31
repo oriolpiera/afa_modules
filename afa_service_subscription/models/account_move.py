@@ -77,6 +77,17 @@ class AccountMove(models.Model):
             charges.with_context(_afa_cancel_service_invoice=True).write({'active': False})
         return result
 
+    def unlink(self):
+        service_invoices = self.filtered('afa_service_month')
+        if service_invoices.filtered(lambda invoice: invoice.state != 'draft'):
+            raise ValidationError(_('Only draft service invoices can be deleted.'))
+        charges = (
+            service_invoices.sudo().afa_service_charge_ids
+            | service_invoices.sudo().afa_service_sponsor_charge_ids
+        )
+        charges.with_context(_afa_cancel_service_invoice=True).write({'active': False})
+        return super(AccountMove, self.with_context(_afa_delete_service_invoice=True)).unlink()
+
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
@@ -99,12 +110,13 @@ class AccountMoveLine(models.Model):
         return super().write(vals)
 
     def unlink(self):
-        if (
-            self.sudo()
-            .with_context(active_test=False)
-            .filtered(
-                lambda line: line.afa_service_charge_ids or line.afa_service_sponsor_charge_ids
+        if not self.env.context.get('_afa_delete_service_invoice') and self.sudo().with_context(
+            active_test=False
+        ).filtered(lambda line: line.afa_service_charge_ids or line.afa_service_sponsor_charge_ids):
+            raise ValidationError(
+                _(
+                    'A billed service charge cannot be deleted. Cancel the invoice first, '
+                    'then regenerate it from the monthly billing review.'
+                )
             )
-        ):
-            raise ValidationError(_('A billed service charge cannot be deleted.'))
         return super().unlink()
