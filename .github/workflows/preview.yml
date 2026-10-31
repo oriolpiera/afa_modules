@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 90
     env:
       PREVIEW_DB: afa_preview_${{ github.event.pull_request.number }}
-      PREVIEW_AUTH_FILE: ${{ runner.temp }}/afa-preview-${{ github.event.pull_request.number }}.htpasswd
+      PREVIEW_AUTH_FILE: ${{ github.workspace }}/.preview-${{ github.event.pull_request.number }}.htpasswd
       COMPOSE_PROJECT_NAME: afa-preview-${{ github.event.pull_request.number }}
       AFA_PREVIEW_PASSWORD: ${{ secrets.AFA_PREVIEW_PASSWORD }}
 

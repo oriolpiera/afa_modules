@@ -406,6 +406,42 @@ class TestExtracurricular(TransactionCase):
         with self.assertRaises(ValidationError), self.cr.savepoint():
             wizard.action_generate()
 
+    def test_deleted_draft_invoice_can_be_regenerated_with_absence_discount(self):
+        subscription = self._enroll(group=self.chess_a)
+        self._absence(session_date='2026-10-05', discount_amount=5)
+
+        first_wizard = self._preview()
+        first_invoice = self.env['account.move'].browse(
+            first_wizard.action_generate()['domain'][0][2]
+        )
+        old_charge = first_invoice.afa_service_charge_ids
+        self.assertEqual(old_charge.discount_amount, 5)
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            first_invoice.invoice_line_ids.with_context(_afa_delete_service_invoice=True).unlink()
+        self.assertTrue(old_charge.active)
+
+        first_invoice.unlink()
+        self.assertFalse(old_charge.active)
+        old_charge.invalidate_recordset(['invoice_line_id'])
+        self.assertFalse(old_charge.invoice_line_id)
+
+        retry_wizard = self._preview()
+        retry_line = retry_wizard.line_ids.filtered(
+            lambda line: line.subscription_id == subscription
+        )
+        self.assertTrue(retry_line.include)
+        self.assertEqual(retry_line.discount_amount, 5)
+
+        replacement_invoice = self.env['account.move'].browse(
+            retry_wizard.action_generate()['domain'][0][2]
+        )
+        new_charge = replacement_invoice.afa_service_charge_ids
+        self.assertTrue(replacement_invoice)
+        self.assertEqual(replacement_invoice.amount_untaxed, 30)
+        self.assertEqual(new_charge.discount_amount, 5)
+        self.assertTrue(new_charge.active)
+        self.assertFalse(old_charge.active)
+
     def test_absence_discount_preserves_scholarship_split_percentages(self):
         self._enroll(group=self.chess_a)
         self._aid(percent=40, tariff_basis='member')
