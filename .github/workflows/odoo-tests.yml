@@ -113,3 +113,8 @@ jobs:
             printf '\nprepare_preview(env)\n'
           } | docker compose -f compose.test.yaml run --rm -T odoo odoo shell \
             -d afa_addons_demo_ci --db_host=db --db_user=odoo --db_password=odoo
+          printf '%s\n' \
+            "service = env.ref('afa_extracurricular.demo_chess_club')" \
+            'assert service.invoice_journal_id and service.payment_mode_id' \
+            | docker compose -f compose.test.yaml run --rm -T odoo odoo shell \
+              -d afa_addons_demo_ci --db_host=db --db_user=odoo --db_password=odoo

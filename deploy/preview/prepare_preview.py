@@ -37,4 +37,5 @@ def prepare_preview(env):
     assert len(preview_line) == 1 and preview_line.discount_amount == 5.0
     assert preview_line.include and not preview_line.reason
 
+    env.cr.commit()
     print(f'Prepared a current-month billing preview for {service.display_name}.')
