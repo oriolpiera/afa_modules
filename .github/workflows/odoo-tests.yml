@@ -15,24 +15,24 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch pinned OCA bank-payment addons
-        uses: actions/checkout@v4
-        with:
-          repository: OCA/bank-payment
-          ref: fdd5d4040b235a4c688b2aec30611d57dd246b64
-          path: .oca-bank-payment
       - name: Fetch pinned OCA account-reconcile addons
         uses: actions/checkout@v4
         with:
           repository: OCA/account-reconcile
           ref: 8fc48a4beff3203241c0f61c4d3bc15631f75a4d
           path: .oca-account-reconcile
+      - name: Fetch pinned OCA bank-payment addons
+        uses: actions/checkout@v4
+        with:
+          repository: OCA/bank-payment
+          ref: fdd5d4040b235a4c688b2aec30611d57dd246b64
+          path: .oca-bank-payment
       - name: Check Compose configuration
         run: docker compose -f compose.test.yaml config -q
       - name: Run demo-compatible addon tests
         run: |
           set -o pipefail
-          docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_demo_ci -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida --with-demo --test-enable --test-tags /afa_family,/afa_account_reconcile,/afa_member_pricing,/afa_apparel_shop,/afa_service_subscription,/afa_school_course,/afa_extracurricular:TestExtracurricularDemo,/afa_family_import --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
+          docker compose -f compose.test.yaml run --rm -e AFA_EXPECT_DEMO=1 odoo -d afa_addons_demo_ci -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida,afa_attendance_kiosk_pwa --with-demo --test-enable --test-tags /afa_family,/afa_account_reconcile,/afa_member_pricing,/afa_apparel_shop,/afa_service_subscription,/afa_school_course,/afa_extracurricular:TestExtracurricularDemo,/afa_family_import,/afa_attendance_kiosk_pwa --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
           import re
           import sys
 
@@ -65,6 +65,8 @@ jobs:
                   "Starting TestSchoolPromotion.test_withdraws_services_before_archiving",
                   "Starting TestExtracurricularDemo.test_demo_activity_has_a_current_canceled_session_and_enrollment",
                   "Starting TestFamilyImport.test_import_creates_family_guardians_students_bank_and_mandate",
+                  "Starting TestAttendanceKioskPwa.test_manifest_is_scoped_to_the_company_kiosk_url",
+                  "Starting TestAttendanceKioskPwa.test_unknown_kiosk_token_has_no_manifest",
               )
           )
           sys.exit(0 if passed and demo_loaded and test_markers_ran else 1)
@@ -77,7 +79,7 @@ jobs:
       - name: Run period and billing tests without demo fixtures
         run: |
           set -o pipefail
-          docker compose -f compose.test.yaml run --rm odoo -d afa_addons_isolated_tests_ci -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida --test-enable --test-tags /afa_membership,/afa_sepa,/afa_extracurricular,/afa_acollida --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
+          docker compose -f compose.test.yaml run --rm odoo -d afa_addons_isolated_tests_ci -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida,afa_attendance_kiosk_pwa --test-enable --test-tags /afa_membership,/afa_sepa,/afa_extracurricular,/afa_acollida --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
           import re
           import sys
 

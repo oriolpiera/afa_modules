@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template
+        id="public_kiosk_mode_pwa"
+        inherit_id="hr_attendance.public_kiosk_mode"
+        name="Attendance Kiosk PWA manifest"
+    >
+        <xpath expr="//t[@t-set='head']" position="inside">
+            <link
+                rel="manifest"
+                t-att-href="'pwa_manifest/' + kiosk_backend_info['token']"
+            />
+            <meta name="theme-color" content="#16864d" />
+        </xpath>
+    </template>
+</odoo>
