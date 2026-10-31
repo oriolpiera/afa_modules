@@ -40,6 +40,11 @@ class AfaServiceGroupAbsence(models.Model):
             [
                 ('subscription_id.group_id', '=', group.id),
                 ('month', '=', month),
+                '|',
+                ('active', '=', True),
+                '|',
+                ('invoice_line_id', '!=', False),
+                ('sponsor_invoice_line_id', '!=', False),
             ]
         ):
             raise ValidationError(

@@ -408,14 +408,13 @@ class TestExtracurricular(TransactionCase):
 
     def test_deleted_draft_invoice_can_be_regenerated_with_absence_discount(self):
         subscription = self._enroll(group=self.chess_a)
-        self._absence(session_date='2026-10-05', discount_amount=5)
 
         first_wizard = self._preview()
         first_invoice = self.env['account.move'].browse(
             first_wizard.action_generate()['domain'][0][2]
         )
         old_charge = first_invoice.afa_service_charge_ids
-        self.assertEqual(old_charge.discount_amount, 5)
+        self.assertEqual(old_charge.discount_amount, 0)
         with self.assertRaises(ValidationError), self.cr.savepoint():
             first_invoice.invoice_line_ids.with_context(_afa_delete_service_invoice=True).unlink()
         self.assertTrue(old_charge.active)
@@ -425,6 +424,7 @@ class TestExtracurricular(TransactionCase):
         old_charge.invalidate_recordset(['invoice_line_id'])
         self.assertFalse(old_charge.invoice_line_id)
 
+        self._absence(session_date='2026-10-05', discount_amount=5)
         retry_wizard = self._preview()
         retry_line = retry_wizard.line_ids.filtered(
             lambda line: line.subscription_id == subscription
@@ -696,6 +696,8 @@ class TestExtracurricular(TransactionCase):
 
         family_invoice.button_cancel()
         sponsor_line = sponsor_invoice.invoice_line_ids
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._absence(session_date='2026-10-05')
         with self.assertRaises(ValidationError), self.cr.savepoint():
             sponsor_line.write({'price_unit': 0})
         with self.assertRaises(ValidationError), self.cr.savepoint():
