@@ -10,6 +10,15 @@
         <xpath expr="//t[@name='cancelled_invoice_title']" position="replace">
             <t name="cancelled_invoice_title">Rebut anul·lat</t>
         </xpath>
+        <xpath expr="//t[@name='proforma_invoice_title']" position="replace">
+            <t name="proforma_invoice_title">Rebut proforma</t>
+        </xpath>
+        <xpath expr="//t[@name='draft_proforma_invoice_title']" position="replace">
+            <t name="draft_proforma_invoice_title">Esborrany de rebut proforma</t>
+        </xpath>
+        <xpath expr="//t[@name='cancelled_proforma_invoice_title']" position="replace">
+            <t name="cancelled_proforma_invoice_title">Rebut proforma anul·lat</t>
+        </xpath>
         <xpath expr="//div[@id='partner_vat_address_not_same_as_shipping']" position="replace">
             <div t-if="o.move_type != 'out_invoice' and o.partner_id.vat" id="partner_vat_address_not_same_as_shipping">
                 <t t-if="o.company_id.account_fiscal_country_id.vat_label" t-out="o.company_id.account_fiscal_country_id.vat_label" id="inv_tax_id_label"/>
@@ -52,6 +61,53 @@
         </xpath>
         <xpath expr="//p[@name='taxes_legal_notes']" position="attributes">
             <attribute name="t-if">o.move_type != 'out_invoice' and not is_html_empty(o.taxes_legal_notes)</attribute>
+        </xpath>
+        <xpath expr="//div[@name='invoice_date']" position="replace">
+            <t t-if="o.move_type == 'out_invoice'">
+                <div class="col" name="receipt_date">
+                    <strong>Data del rebut</strong>
+                    <div t-out="o.invoice_date or o.date" t-options="{'widget': 'date'}"/>
+                </div>
+            </t>
+            <t t-else="">
+                <div class="col" t-if="o.invoice_date" name="invoice_date">
+                    <t t-if="o.move_type == 'out_invoice'"><strong>Invoice Date</strong></t>
+                    <t t-elif="o.move_type == 'out_refund'"><strong>Credit Note Date</strong></t>
+                    <t t-elif="o.move_type == 'out_receipt'"><strong>Receipt Date</strong></t>
+                    <t t-else=""><strong>Date</strong></t>
+                    <div t-field="o.invoice_date"/>
+                </div>
+            </t>
+        </xpath>
+        <xpath expr="//div[@name='due_date']" position="replace"/>
+        <xpath expr="//div[@name='taxable_supply_date']" position="attributes">
+            <attribute name="t-if">o.move_type != 'out_invoice' and o.taxable_supply_date and o.show_taxable_supply_date</attribute>
+        </xpath>
+        <xpath expr="//div[@name='delivery_date']" position="attributes">
+            <attribute name="t-if">o.move_type != 'out_invoice' and o.delivery_date</attribute>
+        </xpath>
+        <xpath expr="//div[@id='total_payment_term_details_table']" position="attributes">
+            <attribute name="t-if">o.move_type != 'out_invoice' and o.show_payment_term_details</attribute>
+        </xpath>
+        <xpath expr="//div[@id='informations']" position="attributes">
+            <attribute name="t-if">o.invoice_date or o.date or o.invoice_origin or o.partner_id.ref or o.ref or o.invoice_incoterm_id or afa_receipt_payment_vals</attribute>
+        </xpath>
+        <xpath expr="//div[@id='informations']" position="before">
+            <t t-set="afa_receipt_payment_vals" t-value="o.sudo().invoice_payments_widget and o.sudo().invoice_payments_widget.get('content', []) or []"/>
+        </xpath>
+        <xpath expr="//div[@id='informations']" position="inside">
+            <div class="col" name="receipt_payment_dates" t-if="o.move_type == 'out_invoice' and afa_receipt_payment_vals">
+                <strong>Data de pagament</strong>
+                <t t-foreach="afa_receipt_payment_vals" t-as="receipt_payment">
+                    <div t-out="receipt_payment['date']" t-options="{'widget': 'date'}"/>
+                </t>
+            </div>
+        </xpath>
+        <xpath expr="//i[hasclass('oe_form_field', 'text-end', 'oe_payment_label')]" position="replace">
+            <i class="oe_form_field text-end oe_payment_label">Pagament</i>
+        </xpath>
+        <xpath expr="//td[normalize-space()='Amount Due']" position="replace">
+            <td>Pendent de cobrament</td>
         </xpath>
         <xpath expr="//p[@name='payment_communication']" position="replace">
             <t t-if="o.move_type == 'out_invoice'">

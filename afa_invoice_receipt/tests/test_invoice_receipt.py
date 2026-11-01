@@ -1,5 +1,10 @@
+import html
+import re
+from unittest.mock import patch
+
 from odoo import fields
 from odoo.tests.common import TransactionCase
+from odoo.tools import format_date
 
 
 class TestInvoiceReceipt(TransactionCase):
@@ -88,3 +93,54 @@ class TestInvoiceReceipt(TransactionCase):
         self.assertNotIn('Untaxed Amount', rendered)
         self.assertNotIn('Taxes', rendered)
         self.assertNotIn('ES87654321', rendered)
+
+    def test_receipt_report_shows_only_receipt_date_and_has_no_invoice_wording(self):
+        self.invoice.invoice_date = fields.Date.from_string('2026-10-03')
+        self.invoice.invoice_date_due = fields.Date.from_string('2026-10-31')
+        self.invoice.delivery_date = fields.Date.from_string('2026-09-30')
+        self.invoice.taxable_supply_date = fields.Date.from_string('2026-09-29')
+
+        report = self.env.ref('account.account_invoices')
+        rendered, _content_type = report._render_qweb_html(
+            'account.account_invoices', self.invoice.ids
+        )
+        text = html.unescape(re.sub(r'<[^>]+>', ' ', rendered.decode()))
+
+        self.assertIn('Data del rebut', text)
+        self.assertIn(format_date(self.env, self.invoice.invoice_date), text)
+        self.assertNotIn(format_date(self.env, self.invoice.invoice_date_due), text)
+        self.assertNotIn(format_date(self.env, self.invoice.delivery_date), text)
+        self.assertNotIn(format_date(self.env, self.invoice.taxable_supply_date), text)
+        self.assertNotRegex(text, r'\b(invoice|factura)\b')
+
+    def test_receipt_report_shows_payment_date(self):
+        payment_date = fields.Date.from_string('2026-11-01')
+
+        def compute_payment_widget(moves):
+            for move in moves:
+                move.invoice_payments_widget = {
+                    'content': [
+                        {
+                            'date': payment_date,
+                            'is_refund': False,
+                            'is_exchange': False,
+                            'amount': 120,
+                            'currency_id': move.currency_id.id,
+                        }
+                    ]
+                }
+
+        with patch.object(
+            type(self.invoice),
+            '_compute_payments_widget_reconciled_info',
+            compute_payment_widget,
+        ):
+            self.invoice.invalidate_recordset(['invoice_payments_widget'])
+            report = self.env.ref('account.account_invoices')
+            rendered, _content_type = report._render_qweb_html(
+                'account.account_invoices', self.invoice.ids
+            )
+
+        text = html.unescape(re.sub(r'<[^>]+>', ' ', rendered.decode()))
+        self.assertIn('Data de pagament', text)
+        self.assertIn(format_date(self.env, payment_date), text)
