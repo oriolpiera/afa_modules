@@ -136,7 +136,7 @@
                 <t t-if="o.afa_receipt_payer_bank"><span t-out="o.afa_receipt_payer_bank"/> — </t>
                 <span t-out="o.afa_receipt_payer_iban"/>
             </div>
-            <div class="mb-3" t-elif="o.move_type == 'out_invoice'">
+            <div class="mb-3" t-elif="o.move_type == 'out_invoice' and o.amount_residual > 0">
                 <strong>No tenim un compte bancari on girar-vos el rebut.</strong>
                 <t t-if="o.afa_receipt_transfer_iban">
                     <br/>Si us plau, envieu-nos les dades d'un compte bancari o feu una transferència a

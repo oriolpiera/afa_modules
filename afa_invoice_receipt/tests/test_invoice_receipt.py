@@ -15,6 +15,17 @@ class TestInvoiceReceipt(TransactionCase):
         cls.sales_journal = cls.env['account.journal'].search(
             [('type', '=', 'sale'), ('company_id', '=', cls.env.company.id)], limit=1
         )
+        cash_account = cls.env['account.account'].search(
+            [('account_type', '=', 'asset_cash')], limit=1
+        )
+        cls.cash_journal = cls.env['account.journal'].create(
+            {
+                'name': 'Receipt Test Cash',
+                'code': 'RCPX',
+                'type': 'cash',
+                'default_account_id': cash_account.id,
+            }
+        )
         cls.bank = cls.env['res.bank'].create({'name': 'Receipt Test Bank'})
         cls.partner = cls.env['res.partner'].create({'name': 'Receipt Payer'})
         cls.company_bank = cls.env['res.partner.bank'].create(
@@ -144,3 +155,28 @@ class TestInvoiceReceipt(TransactionCase):
         text = html.unescape(re.sub(r'<[^>]+>', ' ', rendered.decode()))
         self.assertIn('Data de pagament', text)
         self.assertIn(format_date(self.env, payment_date), text)
+
+    def test_paid_receipt_does_not_show_transfer_instructions(self):
+        self.invoice.action_post()
+        payment_register = (
+            self.env['account.payment.register']
+            .with_context(active_model='account.move', active_ids=self.invoice.ids)
+            .create(
+                {
+                    'journal_id': self.cash_journal.id,
+                    'payment_date': fields.Date.today(),
+                }
+            )
+        )
+        payment_register.action_create_payments()
+
+        self.assertEqual(self.invoice.payment_state, 'paid')
+        self.assertEqual(self.invoice.amount_residual, 0)
+        report = self.env.ref('account.account_invoices')
+        rendered, _content_type = report._render_qweb_html(
+            'account.account_invoices', self.invoice.ids
+        )
+        text = html.unescape(re.sub(r'<[^>]+>', ' ', rendered.decode()))
+
+        self.assertNotIn('No tenim un compte bancari on girar-vos el rebut.', text)
+        self.assertNotIn(self.company_bank.acc_number, text)
