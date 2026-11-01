@@ -68,6 +68,8 @@ See [AFA Member Pricing](afa_member_pricing/README.md) for sales and web pricing
 See [AFA Apparel Shop](afa_apparel_shop/README.md) for apparel variants, inventory,
 school pickup, bank transfers, and seven-day stock reservations.
 See [AFA SEPA Collections](afa_sepa/README.md) for setup, bank validation, and returns.
+See [AFA Invoice Receipts](afa_invoice_receipt/README.md) for customer receipt PDFs,
+SEPA account display, and transfer instructions.
 See [Monthly Service Subscriptions](afa_service_subscription/README.md) for service
 windows, staff enrollment, monthly review, and family invoicing.
 See [School Courses](afa_school_course/README.md) for the course ladder, the
