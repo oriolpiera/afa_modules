@@ -25,6 +25,10 @@ MONTHS = (
 )
 
 _ALIASES = {
+    'family': 'family',
+    'familia': 'family',
+    'family_name': 'family',
+    'nom_familia': 'family',
     'student': 'student',
     'alumne': 'student',
     'name': 'student',
@@ -43,7 +47,7 @@ _ALIASES = {
     'monthly_amount': 'base_amount',
 }
 _ALIASES.update({name: f'month_{number}' for name, number in MONTHS})
-_REQUIRED = {'student', 'course', 'tranche', 'weekly_hours', 'base_amount'}
+_REQUIRED = {'family', 'tranche', 'weekly_hours', 'base_amount'}
 _DECIMAL_QUANTUM = Decimal('0.01')
 
 
@@ -143,7 +147,7 @@ def parse_hours(value):
     return hours
 
 
-def parse_rows(raw, filename):
+def parse_rows(raw, filename, month_number):
     filename = (filename or '').strip().lower()
     content = base64.b64decode(raw)
     if filename.endswith('.xlsx'):
@@ -152,7 +156,7 @@ def parse_rows(raw, filename):
         rows = _read_csv(content)
     else:
         raise UserError(_('Upload a CSV or .xlsx file, not "%s".') % (filename or ''))
-    return _records(rows)
+    return _records(rows, month_number)
 
 
 def _read_xlsx(content):
@@ -184,7 +188,7 @@ def _read_csv(content):
     return list(csv.reader(io.StringIO(text), dialect))
 
 
-def _records(rows):
+def _records(rows, month_number):
     header = None
     canonical = []
     records = []
@@ -199,16 +203,16 @@ def _records(rows):
             if repeated:
                 raise UserError(_('The file has repeated columns: %s.') % ', '.join(repeated))
             missing = sorted(_REQUIRED - set(recognized))
-            missing_months = [
-                f'month_{number}' for _name, number in MONTHS if f'month_{number}' not in recognized
-            ]
-            if missing or missing_months:
-                missing_columns = missing + missing_months
+            selected_month = f'month_{month_number}'
+            if missing or selected_month not in recognized:
+                missing_columns = missing + (
+                    [selected_month] if selected_month not in recognized else []
+                )
                 raise UserError(
                     _('The file is missing required columns: %s.') % ', '.join(missing_columns)
                 )
             continue
-        record = dict.fromkeys(_REQUIRED | {'parent'}, '')
+        record = dict.fromkeys(_REQUIRED | {'parent', 'student', 'course'}, '')
         record.update({f'month_{number}': '' for _name, number in MONTHS})
         for column, value in zip(canonical, row, strict=False):
             if column:

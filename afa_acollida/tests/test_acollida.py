@@ -78,6 +78,7 @@ class TestAcollida(TransactionCase):
 
     def _csv(self, rows):
         headers = [
+            'FAMÍLIA',
             'Alumne',
             'PARE',
             'Curs',
@@ -101,6 +102,7 @@ class TestAcollida(TransactionCase):
         for row in rows:
             writer.writerow(
                 [
+                    row.get('family', self.family.name),
                     row.get('student', self.student.name),
                     row.get('parent', self.other_guardian.name),
                     row.get('course', '3er'),
@@ -121,10 +123,11 @@ class TestAcollida(TransactionCase):
             )
         return output.getvalue()
 
-    def _import(self, content):
+    def _import(self, content, month='9'):
         wizard = self.env['afa.acollida.import.wizard'].create(
             {
                 'config_id': self.config.id,
+                'import_month': month,
                 'filename': 'acollida.csv',
                 'file': base64.b64encode(content.encode()),
             }
@@ -149,26 +152,33 @@ class TestAcollida(TransactionCase):
         with self.assertRaises(ValueError):
             file_format.parse_hours('NaN')
 
-    def test_import_preserves_month_amounts_and_empty_months_create_no_charge(self):
+    def test_import_only_imports_selected_month(self):
         wizard = self._import(self._csv([{}]))
-        self.assertEqual(wizard.line_ids.mapped('action'), ['create', 'create'])
+        self.assertEqual(wizard.line_ids.mapped('action'), ['create'])
         self.assertFalse(any(wizard.line_ids.mapped('warnings')))
         wizard.action_confirm()
 
         charges = self.env['afa.acollida.charge'].search(
-            [('student_id', '=', self.student.id), ('active', '=', True)]
+            [('family_id', '=', self.family.id), ('active', '=', True)]
         )
-        self.assertEqual(sorted(charges.mapped('month')), [date(2026, 9, 1), date(2026, 10, 1)])
+        self.assertEqual(charges.mapped('month'), [date(2026, 9, 1)])
         self.assertEqual(
             {charge.month: charge.amount for charge in charges},
-            {date(2026, 9, 1): 18, date(2026, 10, 1): 24},
+            {date(2026, 9, 1): 18},
         )
         self.assertTrue(all(charge.base_amount == 24 for charge in charges))
         self.assertTrue(all(charge.parent_name == self.other_guardian.name for charge in charges))
 
+    def test_unselected_month_values_are_ignored(self):
+        wizard = self._import(self._csv([{'september': 'not an amount'}]), month='10')
+
+        self.assertEqual(wizard.line_ids.mapped('month'), [date(2026, 10, 1)])
+        self.assertEqual(wizard.line_ids.mapped('amount'), [24])
+        self.assertFalse(wizard.line_ids.error)
+
     def test_inconsistency_warnings_do_not_block_confirmation(self):
         wizard = self._import(self._csv([{'hours': '7:00', 'tranche': '1r', 'base': '24,00 €'}]))
-        self.assertEqual(wizard.line_ids.mapped('action'), ['create', 'create'])
+        self.assertEqual(wizard.line_ids.mapped('action'), ['create'])
         self.assertTrue(
             all(
                 'tranche does not match' in warning
@@ -180,15 +190,15 @@ class TestAcollida(TransactionCase):
 
         self.assertEqual(
             self.env['afa.acollida.charge'].search_count(
-                [('student_id', '=', self.student.id), ('active', '=', True)]
+                [('family_id', '=', self.family.id), ('active', '=', True)]
             ),
-            2,
+            1,
         )
 
-    def test_import_matches_students_by_name_and_normalized_course(self):
-        wizard = self._import(self._csv([{}]))
-        self.assertEqual(set(wizard.line_ids.mapped('student_id').ids), {self.student.id})
+    def test_import_matches_family_without_student_or_course(self):
+        wizard = self._import(self._csv([{'student': '', 'course': ''}]))
         self.assertEqual(set(wizard.line_ids.mapped('family_id').ids), {self.family.id})
+        self.assertFalse(wizard.line_ids.student_id)
 
     def test_reimport_skips_identical_charges_and_rejects_changed_amount(self):
         content = self._csv([{}])
@@ -198,43 +208,40 @@ class TestAcollida(TransactionCase):
         repeated.action_confirm()
         self.assertEqual(
             self.env['afa.acollida.charge'].search_count(
-                [('student_id', '=', self.student.id), ('active', '=', True)]
+                [('family_id', '=', self.family.id), ('active', '=', True)]
             ),
-            2,
+            1,
         )
 
         changed = self._import(self._csv([{'september': '19,00 €'}]))
         september = changed.line_ids.filtered(lambda line: line.month == date(2026, 9, 1))
-        october = changed.line_ids.filtered(lambda line: line.month == date(2026, 10, 1))
         self.assertEqual(september.action, 'error')
-        self.assertEqual(october.action, 'skip')
         changed.action_confirm()
         self.assertEqual(
             self.env['afa.acollida.charge'].search_count(
-                [('student_id', '=', self.student.id), ('active', '=', True)]
+                [('family_id', '=', self.family.id), ('active', '=', True)]
             ),
-            2,
+            1,
         )
 
-    def test_ambiguous_student_blocks_confirmation(self):
-        self._student(self.student.name)
-        wizard = self._import(self._csv([{}]))
+    def test_duplicate_family_in_file_blocks_confirmation(self):
+        wizard = self._import(self._csv([{}, {}]))
 
         self.assertEqual(set(wizard.line_ids.mapped('action')), {'error'})
         self.assertTrue(
-            all('More than one student' in error for error in wizard.line_ids.mapped('error'))
+            all(
+                'family appears more than once' in error
+                for error in wizard.line_ids.mapped('error')
+            )
         )
         wizard.action_confirm()
         self.assertFalse(self.env['afa.acollida.charge'].search([]))
 
-    def test_blank_student_and_course_are_reported_and_blank_hours_warn(self):
-        invalid = self._import(self._csv([{'student': '', 'course': '', 'hours': ''}]))
+    def test_blank_family_is_reported_and_blank_hours_warn(self):
+        invalid = self._import(self._csv([{'family': '', 'hours': ''}]))
         self.assertEqual(set(invalid.line_ids.mapped('action')), {'error'})
         self.assertTrue(
-            all(
-                'Student name and course are required' in error
-                for error in invalid.line_ids.mapped('error')
-            )
+            all('Family is required' in error for error in invalid.line_ids.mapped('error'))
         )
 
         missing_hours = self._import(self._csv([{'hours': ''}]))
@@ -276,36 +283,21 @@ class TestAcollida(TransactionCase):
         with self.assertRaises(AccessError):
             billing.action_generate()
 
-    def test_imported_charge_keeps_the_family_at_import_time(self):
+    def test_imported_charge_is_owned_by_family_not_student(self):
         self._import(self._csv([{}])).action_confirm()
-        other_guardian = self.env['res.partner'].create(
-            {'name': 'New Billing Guardian', 'afa_family_role': 'guardian'}
-        )
-        other_family = self.env['afa.family'].create(
-            {'name': 'New Acollida Family', 'billing_partner_id': other_guardian.id}
-        )
-        self.student.write({'afa_family_id': other_family.id})
-
         charges = self.env['afa.acollida.charge'].search(
-            [('student_id', '=', self.student.id), ('active', '=', True)]
+            [('family_id', '=', self.family.id), ('active', '=', True)]
         )
         self.assertEqual(set(charges.mapped('family_id').ids), {self.family.id})
+        self.assertFalse(charges.student_id)
         billing = self._bill()
         self.assertEqual(set(billing.line_ids.mapped('family_id').ids), {self.family.id})
 
     def test_imported_charges_generate_one_family_invoice_with_month_amounts(self):
-        second_student = self._student('Student Two')
-        wizard = self._import(
-            self._csv(
-                [
-                    {},
-                    {'student': second_student.name, 'september': '32,25 €', 'october': ''},
-                ]
-            )
-        )
+        wizard = self._import(self._csv([{}]))
         wizard.action_confirm()
         billing = self._bill()
-        self.assertEqual(len(billing.line_ids), 2)
+        self.assertEqual(len(billing.line_ids), 1)
 
         result = billing.action_generate()
         invoice = self.env['account.move'].browse(result['domain'][0][2][0])
@@ -315,12 +307,9 @@ class TestAcollida(TransactionCase):
         self.assertEqual(invoice.payment_mode_id, self.payment_mode)
         self.assertEqual(invoice.afa_service_family_id, self.family)
         self.assertEqual(invoice.afa_service_month, date(2026, 9, 1))
-        self.assertEqual(sorted(invoice.invoice_line_ids.mapped('price_unit')), [18, 32.25])
-        self.assertEqual(len(invoice.afa_acollida_charge_ids), 2)
-        self.assertEqual(
-            set(invoice.afa_acollida_charge_ids.mapped('student_id').ids),
-            {self.student.id, second_student.id},
-        )
+        self.assertEqual(invoice.invoice_line_ids.mapped('price_unit'), [18])
+        self.assertEqual(len(invoice.afa_acollida_charge_ids), 1)
+        self.assertFalse(invoice.afa_acollida_charge_ids.student_id)
 
     def test_canceled_invoice_deactivates_history_and_allows_reimport(self):
         content = self._csv([{}])
@@ -339,19 +328,21 @@ class TestAcollida(TransactionCase):
         self.assertEqual(
             self.env['afa.acollida.charge']
             .with_context(active_test=False)
-            .search_count([('student_id', '=', self.student.id)]),
-            3,
+            .search_count([('family_id', '=', self.family.id)]),
+            2,
         )
         self.assertEqual(
             self.env['afa.acollida.charge'].search_count(
-                [('student_id', '=', self.student.id), ('active', '=', True)]
+                [('family_id', '=', self.family.id), ('active', '=', True)]
             ),
-            2,
+            1,
         )
 
     def test_configuration_company_is_immutable_after_charge_history(self):
-        self._import(self._csv([{'october': ''}])).action_confirm()
-        invoice = self.env['account.move'].browse(self._bill().action_generate()['domain'][0][2][0])
+        self._import(self._csv([{}]), month='10').action_confirm()
+        invoice = self.env['account.move'].browse(
+            self._bill(month='2026-10-01').action_generate()['domain'][0][2][0]
+        )
         invoice.button_cancel()
         self.assertFalse(self.env['afa.acollida.charge'].search([('active', '=', True)]))
 
@@ -414,6 +405,7 @@ class TestAcollida(TransactionCase):
         sheet = workbook.active
         sheet.append(
             [
+                'FAMÍLIA',
                 'Alumne',
                 'PARE',
                 'Curs',
@@ -434,6 +426,7 @@ class TestAcollida(TransactionCase):
         )
         sheet.append(
             [
+                self.family.name,
                 self.student.name,
                 self.other_guardian.name,
                 '3er',
@@ -457,6 +450,7 @@ class TestAcollida(TransactionCase):
         wizard = self.env['afa.acollida.import.wizard'].create(
             {
                 'config_id': self.config.id,
+                'import_month': '9',
                 'filename': 'fees.xlsx',
                 'file': base64.b64encode(content.getvalue()),
             }
@@ -464,5 +458,5 @@ class TestAcollida(TransactionCase):
 
         wizard.action_preview()
 
-        self.assertEqual(wizard.line_ids.mapped('amount'), [18, 24])
+        self.assertEqual(wizard.line_ids.mapped('amount'), [18])
         self.assertFalse(any(wizard.line_ids.mapped('error')))
