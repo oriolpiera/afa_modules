@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_receipt" inherit_id="account.report_invoice_document">
+        <xpath expr="//t[@name='invoice_title']" position="replace">
+            <t name="invoice_title">Rebut</t>
+        </xpath>
+        <xpath expr="//t[@name='draft_invoice_title']" position="replace">
+            <t name="draft_invoice_title">Esborrany de rebut</t>
+        </xpath>
+        <xpath expr="//t[@name='cancelled_invoice_title']" position="replace">
+            <t name="cancelled_invoice_title">Rebut anul·lat</t>
+        </xpath>
+        <xpath expr="//div[@id='partner_vat_address_not_same_as_shipping']" position="replace">
+            <div t-if="o.move_type != 'out_invoice' and o.partner_id.vat" id="partner_vat_address_not_same_as_shipping">
+                <t t-if="o.company_id.account_fiscal_country_id.vat_label" t-out="o.company_id.account_fiscal_country_id.vat_label" id="inv_tax_id_label"/>
+                <t t-else="">Tax ID</t>: <span t-field="o.partner_id.vat"/>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='partner_vat_address_same_as_shipping']" position="replace">
+            <div t-if="o.move_type != 'out_invoice' and o.partner_id.vat" id="partner_vat_address_same_as_shipping">
+                <t t-if="o.company_id.account_fiscal_country_id.vat_label" t-out="o.company_id.account_fiscal_country_id.vat_label" id="inv_tax_id_label"/>
+                <t t-else="">Tax ID</t>: <span t-field="o.partner_id.vat"/>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='partner_vat_no_shipping']" position="replace">
+            <div t-if="o.move_type != 'out_invoice' and o.partner_id.vat" id="partner_vat_no_shipping">
+                <t t-if="o.company_id.account_fiscal_country_id.vat_label" t-out="o.company_id.account_fiscal_country_id.vat_label" id="inv_tax_id_label"/>
+                <t t-else="">Tax ID</t>: <span t-field="o.partner_id.vat"/>
+            </div>
+        </xpath>
+        <xpath expr="//t[@t-set='display_taxes']" position="attributes">
+            <attribute name="t-value">o.move_type != 'out_invoice' and any(l.tax_ids for l in o.invoice_line_ids)</attribute>
+        </xpath>
+        <xpath expr="//t[@t-call='account.document_tax_totals']" position="replace">
+            <t t-if="o.move_type == 'out_invoice'">
+                <tr class="o_total">
+                    <td><strong>Total del rebut</strong></td>
+                    <td class="text-end"><strong t-field="o.amount_total"/></td>
+                </tr>
+            </t>
+            <t t-else="">
+                <t t-call="account.document_tax_totals">
+                    <t t-set="tax_totals" t-value="o.tax_totals"/>
+                    <t t-set="currency" t-value="o.currency_id"/>
+                </t>
+            </t>
+        </xpath>
+        <xpath expr="//t[@t-call='account.document_tax_totals_company_currency_template']" position="replace">
+            <t t-if="o.move_type != 'out_invoice'">
+                <t t-call="account.document_tax_totals_company_currency_template"/>
+            </t>
+        </xpath>
+        <xpath expr="//p[@name='taxes_legal_notes']" position="attributes">
+            <attribute name="t-if">o.move_type != 'out_invoice' and not is_html_empty(o.taxes_legal_notes)</attribute>
+        </xpath>
+        <xpath expr="//p[@name='payment_communication']" position="replace">
+            <t t-if="o.move_type == 'out_invoice'">
+                <p name="payment_communication">
+                    Concepte: <span class="fw-bold" t-out="o.name or o.payment_reference or ''"/>
+                </p>
+            </t>
+            <t t-else="">
+                <p name="payment_communication">
+                    Payment Communication: <span class="fw-bold" t-field="o.payment_reference"/>
+                    <t t-if="o.partner_bank_id">
+                        <br/> on this account: <span t-field="o.partner_bank_id" class="fw-bold"/>
+                    </t>
+                </p>
+            </t>
+        </xpath>
+        <xpath expr="//t[@t-set='show_qr']" position="attributes">
+            <attribute name="t-value">o.move_type != 'out_invoice' and o.display_qr_code and o.amount_residual</attribute>
+        </xpath>
+        <xpath expr="//t[@t-set='show_link_qr']" position="attributes">
+            <attribute name="t-value">o.move_type != 'out_invoice' and o.display_link_qr_code and o.amount_residual</attribute>
+        </xpath>
+        <xpath expr="//div[@id='payment_term']" position="inside">
+            <div class="mb-3" t-if="o.afa_receipt_payer_iban">
+                <strong>Dades del compte de càrrec</strong><br/>
+                <t t-if="o.afa_receipt_payer_bank"><span t-out="o.afa_receipt_payer_bank"/> — </t>
+                <span t-out="o.afa_receipt_payer_iban"/>
+            </div>
+            <div class="mb-3" t-elif="o.move_type == 'out_invoice'">
+                <strong>No tenim un compte bancari on girar-vos el rebut.</strong>
+                <t t-if="o.afa_receipt_transfer_iban">
+                    <br/>Si us plau, envieu-nos les dades d'un compte bancari o feu una transferència a
+                    <strong t-out="o.afa_receipt_transfer_iban"/> amb el concepte
+                    <strong t-out="o.name or o.payment_reference or ''"/>.
+                </t>
+            </div>
+        </xpath>
+    </template>
+</odoo>

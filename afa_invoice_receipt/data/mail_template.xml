@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="email_template_edi_receipt" model="mail.template">
+        <field name="name">Rebut: Enviament</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="email_from">{{ (object.invoice_user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="use_default_to" eval="True"/>
+        <field name="subject">{{ object.company_id.name }} — Rebut ({{ object.name or 'n/d' }})</field>
+        <field name="description">Correu d'enviament dels rebuts de clients</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0; padding: 0;">
+                <p style="margin: 0; padding: 0; font-size: 13px;">
+                    Bon dia <t t-out="object.partner_id.name or ''"/>,
+                    <br/><br/>
+                    Us adjuntem el rebut <strong t-out="object.name or ''"/>
+                    per un import de <strong t-out="format_amount(object.amount_total, object.currency_id)"/>
+                    de <t t-out="object.company_id.name or ''"/>.
+                    <t t-if="object.payment_state in ('paid', 'in_payment')">
+                        Consta com a pagat.
+                    </t>
+                    <t t-elif="object.afa_receipt_payer_iban">
+                        <br/><br/>
+                        Girarem l'import al compte bancari
+                        <t t-if="object.afa_receipt_payer_bank">de <t t-out="object.afa_receipt_payer_bank"/> </t>
+                        <strong t-out="object.afa_receipt_payer_iban"/>.
+                    </t>
+                    <t t-else="">
+                        <br/><br/>
+                        No tenim un compte bancari on girar-vos el rebut. Si us plau, envieu-nos les dades
+                        d'un compte bancari.
+                        <t t-if="object.afa_receipt_transfer_iban">
+                            També podeu fer una transferència a
+                            <strong t-out="object.afa_receipt_transfer_iban"/> amb el concepte
+                            <strong t-out="object.name or object.payment_reference or ''"/>.
+                        </t>
+                    </t>
+                    <br/><br/>
+                    Si teniu cap dubte, poseu-vos en contacte amb nosaltres.
+                    <t t-if="not is_html_empty(object.invoice_user_id.signature)">
+                        <br/><br/><div>—<br/><t t-out="object.invoice_user_id.signature or ''"/></div>
+                    </t>
+                </p>
+            </div>
+        </field>
+        <field name="report_template_ids" eval="[]"/>
+        <field name="auto_delete" eval="True"/>
+    </record>
+</odoo>
