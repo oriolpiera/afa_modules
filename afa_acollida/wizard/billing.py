@@ -137,8 +137,6 @@ class AfaAcollidaBilling(models.TransientModel):
         for (family_id, journal_id, payment_mode_id), lines in sorted(grouped_lines.items()):
             family = self.env['afa.family'].browse(family_id)
             self.env.cr.execute('SELECT id FROM afa_family WHERE id = %s FOR UPDATE', [family.id])
-            for student in lines.mapped('student_id').sorted('id'):
-                self.env['afa.service.subscription']._lock_student(student)
             self.env.invalidate_all()
             if set(self.line_ids.mapped('charge_id').ids) != set(self._charges().ids):
                 raise ValidationError(_('Imported charges changed; refresh the preview.'))
@@ -200,7 +198,11 @@ class AfaAcollidaBilling(models.TransientModel):
                         'move_id': invoice.id,
                         'product_id': snapshot['product_id'],
                         'name': _('%s — %s — %s')
-                        % (charge.config_id.name, charge.student_id.name, self.month),
+                        % (
+                            charge.config_id.name,
+                            charge.student_id.name or charge.family_id.name,
+                            self.month,
+                        ),
                         'quantity': 1,
                         'price_unit': snapshot['amount'],
                     }

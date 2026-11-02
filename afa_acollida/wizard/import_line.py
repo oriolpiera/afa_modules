@@ -11,6 +11,7 @@ class AfaAcollidaImportLine(models.TransientModel):
     )
     sequence = fields.Integer(default=10)
     source_row = fields.Integer(readonly=True)
+    family_name = fields.Char(readonly=True)
     student_name = fields.Char(readonly=True)
     parent_name = fields.Char(readonly=True)
     course_name = fields.Char(readonly=True)

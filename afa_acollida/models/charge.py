@@ -7,14 +7,13 @@ from odoo.exceptions import ValidationError
 class AfaAcollidaCharge(models.Model):
     _name = 'afa.acollida.charge'
     _description = 'AFA Acollida Imported Monthly Charge'
-    _order = 'month desc, student_id, id'
+    _order = 'month desc, family_id, id'
 
     config_id = fields.Many2one(
         'afa.acollida.config', required=True, ondelete='restrict', index=True
     )
     student_id = fields.Many2one(
         'res.partner',
-        required=True,
         ondelete='restrict',
         index=True,
         domain=[('afa_family_role', '=', 'student')],
@@ -44,6 +43,11 @@ class AfaAcollidaCharge(models.Model):
             'CREATE UNIQUE INDEX IF NOT EXISTS afa_acollida_charge_invoice_line_uniq '
             'ON afa_acollida_charge (invoice_line_id) WHERE invoice_line_id IS NOT NULL'
         )
+        self.env.cr.execute(
+            'CREATE UNIQUE INDEX IF NOT EXISTS afa_acollida_charge_family_active_uniq '
+            'ON afa_acollida_charge (config_id, family_id, month) '
+            'WHERE active AND student_id IS NULL'
+        )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -53,10 +57,13 @@ class AfaAcollidaCharge(models.Model):
             with self.env.cr.savepoint():
                 return super().create(vals_list)
         except IntegrityError as error:
-            if error.diag.constraint_name != 'afa_acollida_charge_active_uniq':
+            if error.diag.constraint_name not in {
+                'afa_acollida_charge_active_uniq',
+                'afa_acollida_charge_family_active_uniq',
+            }:
                 raise
             raise ValidationError(
-                _('This student already has an active Acollida charge for that month.')
+                _('An active Acollida charge already exists for that family and month.')
             ) from error
 
     def write(self, vals):
@@ -105,27 +112,29 @@ class AfaAcollidaCharge(models.Model):
                 raise ValidationError(
                     _('The charge month must be inside the selected school year.')
                 )
-            if (
-                charge.student_id.afa_family_role != 'student'
-                or not charge.family_id
-                or charge.family_id != charge.student_id.afa_family_id
-            ):
-                raise ValidationError(
-                    _('An Acollida charge requires a student assigned to a family.')
+            if not charge.family_id or (
+                charge.student_id
+                and (
+                    charge.student_id.afa_family_role != 'student'
+                    or charge.family_id != charge.student_id.afa_family_id
                 )
+            ):
+                raise ValidationError(_('An Acollida charge requires a valid family.'))
             if charge.amount <= 0:
                 raise ValidationError(_('An imported Acollida charge must be greater than zero.'))
             if charge.base_amount < 0:
                 raise ValidationError(_('The base monthly amount cannot be negative.'))
-            if self.search_count(
-                [
-                    ('id', '!=', charge.id),
-                    ('config_id', '=', charge.config_id.id),
-                    ('student_id', '=', charge.student_id.id),
-                    ('month', '=', charge.month),
-                    ('active', '=', True),
-                ]
-            ):
+            uniqueness_domain = [
+                ('id', '!=', charge.id),
+                ('config_id', '=', charge.config_id.id),
+                ('month', '=', charge.month),
+                ('active', '=', True),
+            ]
+            if charge.student_id:
+                uniqueness_domain.append(('student_id', '=', charge.student_id.id))
+            else:
+                uniqueness_domain.append(('family_id', '=', charge.family_id.id))
+            if self.search_count(uniqueness_domain):
                 raise ValidationError(
-                    _('This student already has an active Acollida charge for that month.')
+                    _('An active Acollida charge already exists for that family and month.')
                 )

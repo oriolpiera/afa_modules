@@ -8,6 +8,7 @@
                 <sheet>
                     <group>
                         <field name="config_id"/>
+                        <field name="import_month"/>
                         <field name="file" filename="filename"/>
                         <field name="filename" invisible="1"/>
                         <field name="preview_checksum" invisible="1"/>
@@ -18,9 +19,9 @@
                         <field name="preview_message" nolabel="1"/>
                     </div>
                     <p class="text-muted">
-                        Upload one row per student with Alumne, Curs, TRAM,
-                        HORES/SETMANA, IMPORT/MES and month columns from SETEMBRE to JUNY.
-                        Monthly amounts are billed as provided. Review warnings before confirming.
+                        Upload one row per family with FAMÍLIA, TRAM, HORES/SETMANA,
+                        IMPORT/MES and the selected month column. Other month amounts are ignored.
+                        Review warnings before confirming.
                     </p>
                     <field name="line_ids" readonly="1">
                         <list create="0" edit="0" delete="0"
@@ -29,9 +30,10 @@
                               decoration-muted="action == 'skip'">
                             <field name="sequence" column_invisible="1"/>
                             <field name="source_row" optional="hide"/>
-                            <field name="student_name" string="Student"/>
+                            <field name="family_name" string="Family"/>
+                            <field name="student_name" string="Student" optional="hide"/>
                             <field name="parent_name" string="Parent" optional="hide"/>
-                            <field name="course_name" string="Course"/>
+                            <field name="course_name" string="Course" optional="hide"/>
                             <field name="tranche"/>
                             <field name="weekly_hours"/>
                             <field name="base_amount"/>
