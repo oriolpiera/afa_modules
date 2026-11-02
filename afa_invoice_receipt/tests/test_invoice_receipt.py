@@ -86,6 +86,43 @@ class TestInvoiceReceipt(TransactionCase):
 
         self.assertEqual(template, self.env.ref('afa_invoice_receipt.email_template_edi_receipt'))
 
+    def test_receipt_hides_payment_mode_full_iban_and_labels_masked_iban(self):
+        mandate = self.env['account.banking.mandate'].create(
+            {
+                'format': 'sepa',
+                'type': 'recurrent',
+                'scheme': 'CORE',
+                'signature_date': fields.Date.today(),
+                'partner_bank_id': self.payer_bank.id,
+                'state': 'valid',
+                'unique_mandate_reference': 'RECEIPT-FULL-IBAN-01',
+            }
+        )
+        payment_mode = self.env['account.payment.mode'].create(
+            {
+                'name': 'Receipt full-bank test',
+                'bank_account_link': 'variable',
+                'payment_method_id': self.env.ref('account.account_payment_method_manual_in').id,
+                'show_bank_account': 'full',
+            }
+        )
+        self.invoice.write(
+            {
+                'payment_mode_id': payment_mode.id,
+                'partner_bank_id': self.payer_bank.id,
+                'mandate_id': mandate.id,
+            }
+        )
+
+        report = self.env.ref('account.account_invoices')
+        rendered, _content_type = report._render_qweb_html(
+            'account.account_invoices', self.invoice.ids
+        )
+
+        self.assertNotIn(self.payer_bank.acc_number, rendered.decode())
+        self.assertIn('****1868', rendered.decode())
+        self.assertIn('IBAN:', rendered.decode())
+
     def test_residual_label_xpath_survives_translation(self):
         base_view = self.env.ref('account.report_invoice_document')
         original_arch = base_view.arch_db
