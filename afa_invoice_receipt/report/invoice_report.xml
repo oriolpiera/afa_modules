@@ -106,7 +106,7 @@
         <xpath expr="//i[hasclass('oe_form_field', 'text-end', 'oe_payment_label')]" position="replace">
             <i class="oe_form_field text-end oe_payment_label">Pagament</i>
         </xpath>
-        <xpath expr="//td[normalize-space()='Amount Due']" position="replace">
+        <xpath expr="//tr[.//span[@t-field='o.amount_residual']]/td[1]" position="replace">
             <td>Pendent de cobrament</td>
         </xpath>
         <xpath expr="//p[@name='payment_communication']" position="replace">

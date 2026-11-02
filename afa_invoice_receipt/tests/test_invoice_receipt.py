@@ -86,6 +86,26 @@ class TestInvoiceReceipt(TransactionCase):
 
         self.assertEqual(template, self.env.ref('afa_invoice_receipt.email_template_edi_receipt'))
 
+    def test_residual_label_xpath_survives_translation(self):
+        base_view = self.env.ref('account.report_invoice_document')
+        original_arch = base_view.arch_db
+        self.assertIn('<td>Amount Due</td>', original_arch)
+        translated_arch = original_arch.replace('<td>Amount Due</td>', '<td>Import pendent</td>', 1)
+
+        with self.cr.savepoint():
+            base_view.write({'arch_db': translated_arch})
+            try:
+                report = self.env.ref('account.account_invoices')
+                rendered, _content_type = report._render_qweb_html(
+                    'account.account_invoices', self.invoice.ids
+                )
+            finally:
+                base_view.write({'arch_db': original_arch})
+
+        text = html.unescape(re.sub(r'<[^>]+>', ' ', rendered.decode()))
+        self.assertIn('Data del rebut', text)
+        self.assertIn('Total del rebut', text)
+
     def test_customer_report_hides_tax_breakdown_and_shows_transfer_guidance(self):
         self.env.company.vat = 'ES12345678'
         self.partner.vat = 'ES87654321'
