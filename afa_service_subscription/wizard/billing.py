@@ -1,5 +1,6 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, ValidationError
+from odoo.tools.misc import format_date
 
 
 class AfaServiceBilling(models.TransientModel):
@@ -334,7 +335,8 @@ class AfaServiceBilling(models.TransientModel):
                         'company_id': company.id,
                         'journal_id': journal.id,
                         'payment_mode_id': payment_mode.id or False,
-                        'invoice_date': self.month,
+                        'date': fields.Date.end_of(self.month, 'month'),
+                        'invoice_date': fields.Date.context_today(self),
                         'afa_service_month': self.month,
                         'afa_service_family_id': family.id,
                     }
@@ -378,7 +380,7 @@ class AfaServiceBilling(models.TransientModel):
         name = _('%s — %s — %s') % (
             subscription.service_id.name,
             subscription.student_id.name,
-            self.month,
+            format_date(self.env, self.month, date_format='MMMM').capitalize(),
         )
         if allocation['role'] == 'sponsor':
             return _('%s — Scholarship Share') % name

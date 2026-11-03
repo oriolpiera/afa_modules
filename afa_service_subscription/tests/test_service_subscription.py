@@ -296,6 +296,19 @@ class TestServiceSubscription(TransactionCase):
         with self.assertRaises(ValidationError), self.cr.savepoint():
             first.charge_ids.invoice_line_id.write({'price_unit': 9})
 
+    def test_generated_invoice_uses_generation_and_month_end_dates(self):
+        self._subscribe()
+        wizard = self._preview('2026-10-01')
+        generation_date = date(2026, 11, 3)
+
+        with patch('odoo.fields.Date.context_today', return_value=generation_date):
+            invoice_id = wizard.with_context(lang='en_US').action_generate()['domain'][0][2][0]
+
+        invoice = self.env['account.move'].browse(invoice_id)
+        self.assertEqual(invoice.invoice_date, generation_date)
+        self.assertEqual(invoice.date, date(2026, 10, 31))
+        self.assertIn('October', invoice.invoice_line_ids.name)
+
     def test_family_invoices_split_by_journal(self):
         first = self._subscribe()
         other_journal = self.invoice_journal.copy(
