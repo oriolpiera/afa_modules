@@ -391,7 +391,7 @@ msgstr "Dimarts"
 #. module: afa_extracurricular
 #: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_extracurricular_aid__tariff_basis__membership
 msgid "Use the family membership tariff"
-msgstr "Fes servir la tarifa de soci/a de la família"
+msgstr "Fes servir la tarifa segons la condició de soci/a de la família"
 
 #. module: afa_extracurricular
 #: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_service_group_schedule__weekday__3
