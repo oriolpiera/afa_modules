@@ -51,6 +51,9 @@ journal, and payment mode. This module is independent of annual membership dues.
   manual-member flag. A later change does not change an existing invoice.
 - The invoice keeps the billing guardian, price, membership decision, and each
   service charge. Odoo computes taxes from the configured product/fiscal position.
+- Generated invoices use the generation date as the invoice date and the last day
+  of the billed month as the accounting date. Invoice lines identify the service
+  month by its localized name.
 - Repeated billing skips charged subscriptions. New charges for the same family,
   month, journal, and payment mode can be added to its **draft** invoice; after
   posting, cancel that invoice before regenerating the group. Canceled invoices
