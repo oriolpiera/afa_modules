@@ -1,3 +1,5 @@
+from lxml import etree
+
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
@@ -115,6 +117,21 @@ class TestMembershipApplication(TransactionCase):
         mandate = self.env['account.banking.mandate'].search([('partner_bank_id', '=', bank.id)])
         self.assertEqual(len(mandate), 1)
         self.assertEqual(mandate.state, 'draft')
+
+    def test_application_view_shows_bank_data_when_a_mandate_is_accepted(self):
+        view = self.env.ref('afa_membership_webform.view_membership_application_form')
+        arch = etree.fromstring(view.arch_db.encode())
+
+        for field_name in (
+            'bank_account_holder_name',
+            'iban',
+            'mandate_accepted',
+            'mandate_accepted_at',
+            'mandate_terms_version',
+        ):
+            field = arch.xpath('.//field[@name=$field_name]', field_name=field_name)
+            self.assertEqual(len(field), 1)
+            self.assertEqual(field[0].get('invisible'), 'not mandate_accepted')
 
     def test_rejection_does_not_create_family_or_contacts(self):
         application = self._application()

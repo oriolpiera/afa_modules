@@ -52,11 +52,11 @@
                         </group>
                         <group string="Membership and payment">
                             <field name="wants_membership" readonly="state != 'pending'"/>
-                            <field name="bank_account_holder_name" readonly="1" invisible="not wants_membership"/>
-                            <field name="iban" readonly="1" invisible="not wants_membership"/>
-                            <field name="mandate_accepted" readonly="1" invisible="not wants_membership"/>
-                            <field name="mandate_accepted_at" readonly="1" invisible="not wants_membership"/>
-                            <field name="mandate_terms_version" readonly="1" invisible="not wants_membership"/>
+                            <field name="bank_account_holder_name" readonly="1" invisible="not mandate_accepted"/>
+                            <field name="iban" readonly="1" invisible="not mandate_accepted"/>
+                            <field name="mandate_accepted" readonly="1" invisible="not mandate_accepted"/>
+                            <field name="mandate_accepted_at" readonly="1" invisible="not mandate_accepted"/>
+                            <field name="mandate_terms_version" readonly="1" invisible="not mandate_accepted"/>
                             <field name="rejection_reason" readonly="state != 'pending'"/>
                         </group>
                     </group>
