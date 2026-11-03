@@ -130,16 +130,6 @@
     .afa-join .afa-text-link { color: var(--afa-ink); }
     .afa-join__spark { position: absolute; top: -85px; right: 11%; color: rgba(255,255,255,.25); font-size: 10rem; }
 
-.afa-site-footer { padding: 30px 0; background: #263b32; color: rgba(255,253,245,.78); }
-.afa-site-footer__inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.afa-site-footer .afa-header-brand { color: #fffdf5 !important; }
-.afa-site-footer .afa-header-brand__mark { background: #fffdf5; color: #315d49; }
-.afa-site-footer__location { margin: 8px 0 0 50px; color: inherit; font-size: .9rem; }
-.afa-site-footer nav { display: flex; flex-wrap: wrap; gap: 22px; }
-.afa-site-footer a { color: inherit; text-decoration: none; }
-.afa-site-footer a:hover { color: #f2c28f; }
-.afa-site-footer__email { font-weight: 700; }
-
     @media (max-width: 767.98px) {
         .afa-hero { min-height: 540px; padding: 72px 0 56px; }
         .afa-hero__shape--one { right: -340px; }
@@ -160,10 +150,18 @@
         .afa-commission-body__grid { grid-template-columns: 1fr; gap: 12px; }
         .afa-join { padding: 66px 0; }
         .afa-join__spark { top: -45px; right: -20px; font-size: 6rem; }
-        .afa-site-footer__inner { align-items: flex-start; flex-direction: column; }
-        .afa-site-footer nav { gap: 12px 20px; }
     }
 }
+
+.afa-site-footer { padding: 30px 0; background: #263b32; color: rgba(255,253,245,.78); }
+.afa-site-footer__inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.afa-site-footer .afa-header-brand { color: #fffdf5 !important; }
+.afa-site-footer .afa-header-brand__mark { background: #fffdf5; color: #315d49; }
+.afa-site-footer__location { margin: 8px 0 0 50px; color: inherit; font-size: .9rem; }
+.afa-site-footer nav { display: flex; flex-wrap: wrap; gap: 22px; }
+.afa-site-footer a { color: inherit; text-decoration: none; }
+.afa-site-footer a:hover { color: #f2c28f; }
+.afa-site-footer__email { font-weight: 700; }
 
 .afa-contact-page { background: #faf8f0; }
 .afa-contact-hero { padding: 68px 0; background: #315d49; color: #fffdf5; }
@@ -184,6 +182,8 @@
 .afa-contact-details a { color: #315d49; font-weight: 700; }
 
 @media (max-width: 767.98px) {
+    .afa-site-footer__inner { align-items: flex-start; flex-direction: column; }
+    .afa-site-footer nav { gap: 12px 20px; }
     .afa-header-brand__mark { width: 36px; height: 36px; }
     .afa-header-brand__name { font-size: .95rem; }
     .o_header_mobile .afa-login-button { justify-content: flex-start; }
