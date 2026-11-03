@@ -186,7 +186,8 @@ class AfaAcollidaBilling(models.TransientModel):
                             'company_id': company.id,
                             'journal_id': journal.id,
                             'payment_mode_id': payment_mode.id,
-                            'invoice_date': self.month,
+                            'date': fields.Date.end_of(self.month, 'month'),
+                            'invoice_date': fields.Date.context_today(self),
                             'afa_service_month': self.month,
                             'afa_service_family_id': family.id,
                         }

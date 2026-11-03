@@ -299,7 +299,9 @@ class TestAcollida(TransactionCase):
         billing = self._bill()
         self.assertEqual(len(billing.line_ids), 1)
 
-        result = billing.action_generate()
+        generation_date = date(2026, 11, 3)
+        with patch('odoo.fields.Date.context_today', return_value=generation_date):
+            result = billing.action_generate()
         invoice = self.env['account.move'].browse(result['domain'][0][2][0])
 
         self.assertEqual(invoice.partner_id, self.family.billing_partner_id)
@@ -307,6 +309,8 @@ class TestAcollida(TransactionCase):
         self.assertEqual(invoice.payment_mode_id, self.payment_mode)
         self.assertEqual(invoice.afa_service_family_id, self.family)
         self.assertEqual(invoice.afa_service_month, date(2026, 9, 1))
+        self.assertEqual(invoice.date, date(2026, 9, 30))
+        self.assertEqual(invoice.invoice_date, generation_date)
         self.assertEqual(invoice.invoice_line_ids.mapped('price_unit'), [18])
         self.assertEqual(len(invoice.afa_acollida_charge_ids), 1)
         self.assertFalse(invoice.afa_acollida_charge_ids.student_id)
