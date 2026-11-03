@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="website.default_website" model="website">
-        <field name="name">AFA Escola La Bòbila</field>
-    </record>
-
+<odoo noupdate="1">
     <template id="header_brand_desktop" inherit_id="website.layout" name="AFA Header Brand" priority="60">
         <xpath expr="//t[@t-call='website.placeholder_header_brand']" position="replace">
             <a class="navbar-brand afa-header-brand me-4" href="/" aria-label="AFA Escola La Bòbila, inici">

@@ -3,6 +3,15 @@
 This addon provides the public AFA Escola La Bòbila website in Catalan, including
 the homepage, commission pages, contact form, and responsive navigation.
 
+## Editing website content
+
+The XML pages, menus, branding, and contact-page customization are initial data
+only. After installation, use Odoo's Website editor to update the copy, images,
+and menu. The records are marked `noupdate` so upgrading the addon does not
+overwrite those database edits. Existing installations are protected by the
+`19.0.1.1.0` pre-migration. Future code changes to these records must be applied
+manually or through a deliberate migration.
+
 ## Production deployment
 
 1. Add `afa_website` to the production Odoo addons path and deploy its files,
