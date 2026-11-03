@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="website.homepage" model="ir.ui.view">
+        <field name="active" eval="False" />
+    </record>
+    <record id="page_home" model="website.page">
+        <field name="name">Inici</field>
+        <field name="is_published" eval="True" />
+        <field name="is_homepage" eval="True" />
+        <field name="key">afa_website.page_home</field>
+        <field name="url">/</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_website.page_home">
+                <t t-call="website.layout">
+                    <t t-set="additional_title">AFA Escola La Bòbila · Les Preses</t>
+                    <div id="wrap" class="oe_structure afa-homepage">
+                        <section class="afa-hero" aria-labelledby="afa-hero-title">
+                            <img class="afa-hero__image" src="/afa_website/static/src/img/school-front.jpg" alt="Entrada de l’Escola La Bòbila amb famílies i infants" />
+                            <div class="container afa-hero__inner">
+                                <p class="afa-eyebrow">Famílies que fan escola</p>
+                                <h1 id="afa-hero-title">Fem comunitat,<br/><span>fem escola.</span></h1>
+                                <p class="afa-hero__lead">Som l’AFA de l’Escola La Bòbila de les Preses. Treballem perquè infants, famílies i escola creixin plegats.</p>
+                                <div class="afa-hero__actions">
+                                    <a class="btn afa-button afa-button--light" href="#qui-som">Coneix l’AFA</a>
+                                    <a class="afa-text-link" href="https://docs.google.com/forms/d/e/1FAIpQLSeZgDKoprOUT2a007GsZJEpcfo_XtMCHfU0uhp86EvVCfhLvA/viewform" target="_blank" rel="noopener">Fes-te’n sòcia <span aria-hidden="true">↗</span></a>
+                                </div>
+                                <div class="afa-hero__note"><span aria-hidden="true">✳</span> Una escola més viva la fem entre totes</div>
+                            </div>
+                            <div class="afa-hero__shape afa-hero__shape--one" aria-hidden="true"></div>
+                            <div class="afa-hero__shape afa-hero__shape--two" aria-hidden="true"></div>
+                        </section>
+
+                        <section id="qui-som" class="afa-intro" aria-labelledby="afa-intro-title">
+                            <div class="container afa-intro__grid">
+                                <p class="afa-eyebrow afa-eyebrow--green">Hola, famílies!</p>
+                                <div>
+                                    <h2 id="afa-intro-title">Una comunitat que acompanya i participa.</h2>
+                                    <p>Som el conjunt de famílies que formem l’Escola La Bòbila. Volem enfortir la comunicació entre famílies i escola, i crear oportunitats per participar, col·laborar i compartir.</p>
+                                    <a class="afa-inline-link" href="#comissions">Descobreix com col·laborar <span aria-hidden="true">→</span></a>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="afa-school-gallery" aria-label="L’Escola La Bòbila">
+                            <div class="container afa-school-gallery__grid">
+                                <figure>
+                                    <img src="/afa_website/static/src/img/school-courtyard.jpg" alt="Pati i pista esportiva de l’escola" loading="lazy" />
+                                </figure>
+                                <figure>
+                                    <img src="/afa_website/static/src/img/school-landscape.jpg" alt="Vista de l’escola i l’entorn de les Preses" loading="lazy" />
+                                </figure>
+                                <figure>
+                                    <img src="/afa_website/static/src/img/school-garden.jpg" alt="L’escola envoltada d’arbres i espais verds" loading="lazy" />
+                                </figure>
+                            </div>
+                        </section>
+
+                        <section id="serveis" class="afa-services" aria-labelledby="afa-services-title">
+                            <div class="container">
+                                <div class="afa-section-heading">
+                                    <div>
+                                        <p class="afa-eyebrow afa-eyebrow--green">Què fem</p>
+                                        <h2 id="afa-services-title">Projectes que fan créixer la comunitat</h2>
+                                    </div>
+                                    <p>Ens organitzem en comissions per fer possibles serveis i moments que formen part del dia a dia de l’escola.</p>
+                                </div>
+                                <div class="afa-service-grid">
+                                    <article class="afa-service-card afa-service-card--peach">
+                                        <span class="afa-service-card__number">01</span>
+                                        <h3>Acollida</h3>
+                                        <p>Gestionem el servei d’acollida de matins, tardes i jornades intensives.</p>
+                                        <a class="afa-card-link" href="/acollida">Descobreix el servei <span aria-hidden="true">→</span></a>
+                                    </article>
+                                    <article class="afa-service-card afa-service-card--sage">
+                                        <span class="afa-service-card__number">02</span>
+                                        <h3>Menjador</h3>
+                                        <p>Vetllem per la qualitat del servei en coordinació amb l’escola, el Consell Comarcal i Serunion.</p>
+                                        <a class="afa-card-link" href="/menjador">Descobreix el servei <span aria-hidden="true">→</span></a>
+                                    </article>
+                                    <article class="afa-service-card afa-service-card--butter">
+                                        <span class="afa-service-card__number">03</span>
+                                        <h3>Extraescolars</h3>
+                                        <p>Pensem, gestionem i fem seguiment de les propostes d’activitats extraescolars.</p>
+                                        <a class="afa-card-link" href="/extraescolars">Descobreix la comissió <span aria-hidden="true">→</span></a>
+                                    </article>
+                                    <article class="afa-service-card afa-service-card--lavender">
+                                        <span class="afa-service-card__number">04</span>
+                                        <h3>Xandalls</h3>
+                                        <p>Gestionem les comandes i els estocs de l’equipament escolar.</p>
+                                        <a class="afa-card-link" href="/xandalls">Descobreix la comissió <span aria-hidden="true">→</span></a>
+                                    </article>
+                                    <article class="afa-service-card afa-service-card--blue">
+                                        <span class="afa-service-card__number">05</span>
+                                        <h3>Economia</h3>
+                                        <p>Donem suport a la gestió econòmica de l’AFA i a les necessitats dels seus projectes.</p>
+                                        <a class="afa-card-link" href="/economia">Descobreix la comissió <span aria-hidden="true">→</span></a>
+                                    </article>
+                                    <article class="afa-service-card afa-service-card--rose">
+                                        <span class="afa-service-card__number">06</span>
+                                        <h3>Festes</h3>
+                                        <p>Organitzem activitats lúdiques per compartir, celebrar i fer pinya.</p>
+                                        <a class="afa-card-link" href="/festes">Descobreix la comissió <span aria-hidden="true">→</span></a>
+                                    </article>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="comissions" class="afa-join" aria-labelledby="afa-join-title">
+                            <div class="container afa-join__inner">
+                                <div>
+                                    <p class="afa-eyebrow">T’hi sumes?</p>
+                                    <h2 id="afa-join-title">Cada família hi pot aportar.</h2>
+                                    <p>Ens reunim un cop al mes al menjador de l’escola i habilitem un servei de canguratge. També pots participar en una comissió i compartir les tasques entre més famílies.</p>
+                                </div>
+                                <div class="afa-join__actions">
+                                    <a class="btn afa-button afa-button--dark" href="https://docs.google.com/forms/d/e/1FAIpQLSeZgDKoprOUT2a007GsZJEpcfo_XtMCHfU0uhp86EvVCfhLvA/viewform" target="_blank" rel="noopener">Vull col·laborar <span aria-hidden="true">↗</span></a>
+                                    <a class="afa-text-link" href="/contactus">Contacta amb nosaltres <span aria-hidden="true">→</span></a>
+                                </div>
+                                <span class="afa-join__spark" aria-hidden="true">✳</span>
+                            </div>
+                        </section>
+
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+</odoo>

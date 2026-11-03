@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="website.default_website" model="website">
+        <field name="name">AFA Escola La Bòbila</field>
+    </record>
+
+    <template id="header_brand_desktop" inherit_id="website.layout" name="AFA Header Brand" priority="60">
+        <xpath expr="//t[@t-call='website.placeholder_header_brand']" position="replace">
+            <a class="navbar-brand afa-header-brand me-4" href="/" aria-label="AFA Escola La Bòbila, inici">
+                <span class="afa-header-brand__mark">AFA</span>
+                <span class="afa-header-brand__name">Escola La Bòbila</span>
+            </a>
+        </xpath>
+        <xpath expr="//div[@id='o_main_nav']/ul[hasclass('flex-shrink-0')]" position="replace">
+            <ul class="navbar-nav align-items-center flex-shrink-0 justify-content-end ps-3">
+                <li class="nav-item">
+                    <a class="btn afa-login-button" href="/web/login">Inicia sessió</a>
+                </li>
+            </ul>
+        </xpath>
+    </template>
+
+    <template id="header_brand_mobile" inherit_id="website.template_header_mobile" name="AFA Mobile Header Brand" priority="60">
+        <xpath expr="//t[@t-call='website.placeholder_header_brand']" position="replace">
+            <a class="navbar-brand afa-header-brand" href="/" aria-label="AFA Escola La Bòbila, inici">
+                <span class="afa-header-brand__mark">AFA</span>
+                <span class="afa-header-brand__name">Escola La Bòbila</span>
+            </a>
+        </xpath>
+        <xpath expr="//div[hasclass('offcanvas-body')]//ul[hasclass('gap-2', 'mt-3')]" position="replace">
+            <ul class="navbar-nav gap-2 mt-3 w-100">
+                <li class="nav-item">
+                    <a class="nav-link afa-login-button w-100" href="/web/login">Inicia sessió</a>
+                </li>
+            </ul>
+        </xpath>
+        <xpath expr="//t[@t-call='website.placeholder_header_text_element']" position="replace" />
+        <xpath expr="//t[@t-call='website.placeholder_header_social_links']" position="replace" />
+    </template>
+
+    <template id="localize_default_menu_labels" inherit_id="website.submenu" name="AFA Navigation Labels" priority="60">
+        <xpath expr="//span[@t-field='submenu.name']" position="replace">
+            <span t-if="submenu.url == '/'">Inici</span>
+            <span t-elif="submenu.url == '/contactus'">Contacte</span>
+            <span t-else="" t-field="submenu.name" />
+        </xpath>
+    </template>
+
+    <template id="footer" inherit_id="website.footer_custom" name="AFA Footer" priority="60">
+        <xpath expr="//div[@id='footer']" position="replace">
+            <div id="footer" class="oe_structure afa-site-footer" t-if="not no_footer">
+                <div class="container afa-site-footer__inner">
+                    <div>
+                        <a class="afa-header-brand" href="/" aria-label="AFA Escola La Bòbila, inici">
+                            <span class="afa-header-brand__mark">AFA</span>
+                            <span class="afa-header-brand__name">Escola La Bòbila</span>
+                        </a>
+                        <p class="afa-site-footer__location">Les Preses</p>
+                    </div>
+                    <nav aria-label="Navegació del peu de pàgina">
+                        <a href="/">Inici</a>
+                        <a href="/#qui-som">Qui som</a>
+                        <a href="/#serveis">Comissions</a>
+                        <a href="/contactus">Contacte</a>
+                    </nav>
+                    <a class="afa-site-footer__email" href="mailto:hola@afabobila.cat">hola@afabobila.cat</a>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="footer_copyright" inherit_id="website.layout" name="AFA Copyright" priority="60">
+        <xpath expr="//footer//span[hasclass('o_footer_copyright_name')]" position="replace">
+            <span class="o_footer_copyright_name me-2 small">© AFA Escola La Bòbila</span>
+        </xpath>
+    </template>
+
+    <template id="contactus_page" inherit_id="website.contactus" name="AFA Contact Page" priority="60">
+        <xpath expr="//div[@id='wrap']" position="attributes">
+            <attribute name="class" add="afa-contact-page" separator=" " />
+        </xpath>
+        <xpath expr="//t[@t-set='contactus_form_values']" position="replace">
+            <t t-set="contactus_form_values" t-value="{
+                'email_to': 'hola@afabobila.cat',
+                'name': request.params.get('name', ''),
+                'email_from': request.params.get('email_from', ''),
+                'subject': request.params.get('subject', ''),
+            }" />
+        </xpath>
+        <xpath expr="//section[hasclass('s_title')]" position="replace">
+            <section class="afa-contact-hero">
+                <div class="container">
+                    <p class="afa-eyebrow">Som aquí per ajudar</p>
+                    <h1>Contacta amb l’AFA</h1>
+                </div>
+            </section>
+        </xpath>
+        <xpath expr="//p[hasclass('lead')]" position="replace">
+            <p class="lead">Tens una consulta, una proposta o vols col·laborar? Escriu-nos i et respondrem tan aviat com puguem.</p>
+        </xpath>
+        <xpath expr="//div[hasclass('s_website_form_field') and .//input[@id='contact2']]" position="replace" />
+        <xpath expr="//div[hasclass('s_website_form_field') and .//input[@id='contact4']]" position="replace" />
+        <xpath expr="//label[@for='contact1']/span[hasclass('s_website_form_label_content')]" position="replace">
+            <span class="s_website_form_label_content">Nom</span>
+        </xpath>
+        <xpath expr="//label[@for='contact3']/span[hasclass('s_website_form_label_content')]" position="replace">
+            <span class="s_website_form_label_content">Correu electrònic</span>
+        </xpath>
+        <xpath expr="//label[@for='contact5']/span[hasclass('s_website_form_label_content')]" position="replace">
+            <span class="s_website_form_label_content">Assumpte</span>
+        </xpath>
+        <xpath expr="//label[@for='contact6']/span[hasclass('s_website_form_label_content')]" position="replace">
+            <span class="s_website_form_label_content">Missatge</span>
+        </xpath>
+        <xpath expr="//a[hasclass('s_website_form_send')]" position="replace">
+            <a href="#" role="button" class="btn btn-primary s_website_form_send">Enviar missatge</a>
+        </xpath>
+        <xpath expr="//div[hasclass('col-lg-4', 'offset-lg-1')]" position="replace">
+            <div class="col-lg-4 offset-lg-1 mt-4 mt-lg-0 afa-contact-details">
+                <h2>Contacte directe</h2>
+                <p>Escriu-nos a <a href="mailto:hola@afabobila.cat">hola@afabobila.cat</a> o contacta directament amb la comissió corresponent:</p>
+                <ul class="list-unstyled">
+                    <li><a href="mailto:acollida@afabobila.cat">Acollida</a></li>
+                    <li><a href="mailto:menjador@afabobila.cat">Menjador</a></li>
+                    <li><a href="mailto:extraescolars@afabobila.cat">Extraescolars</a></li>
+                    <li><a href="mailto:xandalls@afabobila.cat">Xandalls</a></li>
+                </ul>
+            </div>
+        </xpath>
+    </template>
+</odoo>
