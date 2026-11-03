@@ -3,6 +3,9 @@ from odoo import fields
 
 def prepare_preview(env):
     env['account.chart.template'].try_loading('generic_coa', env.company)
+    env['afa.school.course.setup.wizard'].create(
+        {'infantil': True, 'primaria': True}
+    ).action_confirm()
     sales_journal = env['account.journal'].search(
         [('company_id', '=', env.company.id), ('type', '=', 'sale')], limit=1
     )
