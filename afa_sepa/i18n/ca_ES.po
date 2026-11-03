@@ -116,7 +116,7 @@ msgstr "Obre l'ordre de domiciliació"
 #. module: afa_sepa
 #: model:ir.model.fields,field_description:afa_sepa.field_afa_sepa_wizard__order_id
 msgid "Order"
-msgstr "Comanda"
+msgstr "Ordre de domiciliació"
 
 #. module: afa_sepa
 #: model:ir.model.fields,field_description:afa_sepa.field_afa_sepa_wizard__payment_mode_id
