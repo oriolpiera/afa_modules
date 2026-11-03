@@ -56,7 +56,7 @@ extracurricular, and Acollida billing tests in another without demo fixtures.
 The demo-enabled group explicitly runs `TestExtracurricularDemo` while avoiding
 the full extracurricular transactional test class against shared demo records.
 The workflow targets PRs to `main` and pushes to `main`, with read-only
-repository permission; it runs the twelve AFA addons' tests, not the full
+repository permission; it runs the AFA addon tests, not the full
 upstream Odoo suite. Odoo can log test failures while returning a successful
 process exit status, so CI also checks its result summary and expected test
 markers. Local tests do not constitute remote CI evidence; check the PR's
@@ -69,6 +69,8 @@ See [AFA Member Pricing](afa_member_pricing/README.md) for sales and web pricing
 See [AFA Apparel Shop](afa_apparel_shop/README.md) for apparel variants, inventory,
 school pickup, bank transfers, and seven-day stock reservations.
 See [AFA SEPA Collections](afa_sepa/README.md) for setup, bank validation, and returns.
+See [AFA Membership Web Form](afa_membership_webform/README.md) for public member
+registration requests, review, and SEPA authorization.
 See [AFA Invoice Receipts](afa_invoice_receipt/README.md) for customer receipt PDFs,
 SEPA account display, and transfer instructions.
 See [Monthly Service Subscriptions](afa_service_subscription/README.md) for service
