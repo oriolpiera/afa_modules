@@ -136,7 +136,7 @@ msgstr "Nom mostrat"
 #. module: afa_extracurricular
 #: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__enrolled_count
 msgid "Enrolled"
-msgstr "Inscrit/a"
+msgstr "Alumnes inscrits"
 
 #. module: afa_extracurricular
 #: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service__enrollment_count
