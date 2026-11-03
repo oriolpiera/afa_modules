@@ -1,0 +1,279 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__address
+msgid "Address"
+msgstr "Adreça"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application_student__application_id
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "Application"
+msgstr "Sol·licitud"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "Approve"
+msgstr "Aprova"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields.selection,name:afa_membership_webform.selection__afa_membership_application__state__approved
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_search
+msgid "Approved"
+msgstr "Aprovada"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "Approving this request creates the family, contacts and SEPA mandate when selected."
+msgstr "En aprovar aquesta sol·licitud es crearà la família i els contactes, així com el mandat SEPA si s'ha seleccionat."
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__bank_account_holder_name
+msgid "Bank Account Holder Name"
+msgstr "Nom del titular del compte bancari"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application_student__birthday
+msgid "Birthday"
+msgstr "Data de naixement"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__company_id
+msgid "Company"
+msgstr "Empresa"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_list
+msgid "Contact Email"
+msgstr "Correu electrònic de contacte"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_list
+msgid "Contact Phone"
+msgstr "Telèfon de contacte"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application_student__course_id
+msgid "Course"
+msgstr "Curs"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__create_uid
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application_student__create_uid
+msgid "Created by"
+msgstr "Creat per"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__create_date
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application_student__create_date
+msgid "Created on"
+msgstr "Creat el"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__display_name
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application_student__display_name
+#: model:ir.model.fields,field_description:afa_membership_webform.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nom mostrat"
+
+#. module: afa_membership_webform
+#. odoo-python
+#: code:addons/afa_membership_webform/models/membership_application.py:0
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__family_id
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "Family"
+msgstr "Família"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__family_name
+msgid "Family Name"
+msgstr "Nom de la família"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "First guardian"
+msgstr "Primer/a tutor/a"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__guardian1_email
+msgid "Guardian1 Email"
+msgstr "Correu electrònic del primer tutor/a"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__guardian1_name
+msgid "Guardian1 Name"
+msgstr "Nom del primer tutor/a"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__guardian1_phone
+msgid "Guardian1 Phone"
+msgstr "Telèfon del primer tutor/a"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__guardian1_vat
+msgid "Guardian1 Vat"
+msgstr "NIF del primer tutor/a"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__guardian2_email
+msgid "Guardian2 Email"
+msgstr "Correu electrònic del segon tutor/a"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__guardian2_name
+msgid "Guardian2 Name"
+msgstr "Nom del segon tutor/a"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__guardian2_phone
+msgid "Guardian2 Phone"
+msgstr "Telèfon del segon tutor/a"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__guardian2_vat
+msgid "Guardian2 Vat"
+msgstr "NIF del segon tutor/a"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "Guardians"
+msgstr "Tutors/es"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__iban
+msgid "Iban"
+msgstr "IBAN"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__write_uid
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application_student__write_uid
+msgid "Last Updated by"
+msgstr "Darrera actualització per"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__write_date
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application_student__write_date
+msgid "Last Updated on"
+msgstr "Darrera actualització el"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_list
+msgid "Main Guardian"
+msgstr "Tutor/a principal"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__mandate_accepted
+msgid "Mandate Accepted"
+msgstr "Mandat acceptat"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__mandate_accepted_at
+msgid "Mandate Accepted At"
+msgstr "Data d'acceptació del mandat"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__mandate_terms_version
+msgid "Mandate Terms Version"
+msgstr "Versió de les condicions del mandat"
+
+#. module: afa_membership_webform
+#: model:ir.actions.act_window,name:afa_membership_webform.action_membership_applications
+#: model:ir.ui.menu,name:afa_membership_webform.menu_membership_applications
+msgid "Membership Applications"
+msgstr "Sol·licituds d'alta com a soci/a"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "Membership and payment"
+msgstr "Alta de soci/a i pagament"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__name
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application_student__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields.selection,name:afa_membership_webform.selection__afa_membership_application__state__pending
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_search
+msgid "Pending Review"
+msgstr "Pendent de revisió"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "Reject"
+msgstr "Rebutja"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "Reject this membership application?"
+msgstr "Vols rebutjar aquesta sol·licitud d'alta de soci/a?"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields.selection,name:afa_membership_webform.selection__afa_membership_application__state__rejected
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_search
+msgid "Rejected"
+msgstr "Rebutjada"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__rejection_reason
+msgid "Rejection Reason"
+msgstr "Motiu del rebuig"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "Review"
+msgstr "Revisa"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__reviewed_at
+msgid "Reviewed At"
+msgstr "Data de revisió"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__reviewed_by_id
+msgid "Reviewed By"
+msgstr "Revisat per"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "Second guardian"
+msgstr "Segon/a tutor/a"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__state
+msgid "State"
+msgstr "Estat"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_res_partner__afa_birthdate
+#: model:ir.model.fields,field_description:afa_membership_webform.field_res_users__afa_birthdate
+msgid "Student Date of Birth"
+msgstr "Data de naixement de l'alumne/a"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__student_ids
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_form
+msgid "Students"
+msgstr "Alumnes"
+
+#. module: afa_membership_webform
+#: model_terms:ir.ui.view,arch_db:afa_membership_webform.view_membership_application_list
+msgid "Submitted"
+msgstr "Enviada"
+
+#. module: afa_membership_webform
+#: model:ir.model.fields,field_description:afa_membership_webform.field_afa_membership_application__wants_membership
+msgid "Wants Membership"
+msgstr "Vol fer-se soci/a"

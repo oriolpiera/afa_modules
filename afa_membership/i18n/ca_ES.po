@@ -1,0 +1,213 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_account_bank_statement_line__afa_membership_id
+#: model:ir.model.fields,field_description:afa_membership.field_account_move__afa_membership_id
+msgid "AFA Dues Link"
+msgstr "Enllaç a la quota de soci/a"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_res_partner__afa_is_member
+#: model:ir.model.fields,field_description:afa_membership.field_res_users__afa_is_member
+msgid "AFA Member"
+msgstr "Soci/a de l'AFA"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__active
+#: model:ir.model.fields.selection,name:afa_membership.selection__afa_membership__state__active
+msgid "Active"
+msgstr "Actiu"
+
+#. module: afa_membership
+#: model:ir.model.fields.selection,name:afa_membership.selection__afa_membership__state__canceled
+msgid "Canceled"
+msgstr "Cancel·lat"
+
+#. module: afa_membership
+#: model_terms:ir.ui.view,arch_db:afa_membership.view_afa_membership_form
+msgid "Create Dues Invoice"
+msgstr "Crea la factura de la quota"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__create_uid
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership_period__create_uid
+msgid "Created by"
+msgstr "Creat per"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__create_date
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership_period__create_date
+msgid "Created on"
+msgstr "Creat el"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_family__current_dues_invoice_id
+msgid "Current Dues Invoice"
+msgstr "Factura actual de la quota"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_family__current_dues_invoice_reference
+msgid "Current Dues Invoice Reference"
+msgstr "Referència de la factura actual de la quota"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_family__current_period_id
+msgid "Current School Year"
+msgstr "Curs escolar actual"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership_period__date_end
+msgid "Date End"
+msgstr "Data de finalització"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership_period__date_start
+msgid "Date Start"
+msgstr "Data d'inici"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_account_move__display_name
+#: model:ir.model.fields,field_description:afa_membership.field_afa_family__display_name
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__display_name
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership_period__display_name
+#: model:ir.model.fields,field_description:afa_membership.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nom mostrat"
+
+#. module: afa_membership
+#. odoo-python
+#: code:addons/afa_membership/models/membership.py:0
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__invoice_id
+msgid "Dues Invoice"
+msgstr "Factura de la quota"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__invoice_state
+msgid "Dues Invoice Status"
+msgstr "Estat de la factura de la quota"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__dues_product_id
+msgid "Dues Product"
+msgstr "Producte de la quota"
+
+#. module: afa_membership
+#: model:ir.model.fields.selection,name:afa_membership.selection__afa_membership__state__expired
+msgid "Expired"
+msgstr "Vençut"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__family_id
+msgid "Family"
+msgstr "Família"
+
+#. module: afa_membership
+#: model:ir.actions.act_window,name:afa_membership.action_afa_membership
+#: model:ir.ui.menu,name:afa_membership.menu_afa_membership
+msgid "Family Period Links"
+msgstr "Vinculacions de la família als períodes"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_family__manual_member
+#: model_terms:ir.ui.view,arch_db:afa_membership.view_afa_family_membership_search
+msgid "Intends to Be a Member"
+msgstr "Té la intenció de fer-se soci/a"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__state
+msgid "Invoice Link Status"
+msgstr "Estat de l'enllaç amb la factura"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_family__is_member
+msgid "Is Member"
+msgstr "És soci/a"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__write_uid
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership_period__write_uid
+msgid "Last Updated by"
+msgstr "Darrera actualització per"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__write_date
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership_period__write_date
+msgid "Last Updated on"
+msgstr "Darrera actualització el"
+
+#. module: afa_membership
+#: model:ir.model.fields.selection,name:afa_membership.selection__afa_family__membership_state__member
+msgid "Member"
+msgstr "Soci/a"
+
+#. module: afa_membership
+#: model_terms:ir.ui.view,arch_db:afa_membership.view_afa_family_membership_form
+msgid "Membership"
+msgstr "Soci/a"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_family__membership_state
+msgid "Membership Status"
+msgstr "Estat de soci/a"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership_period__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: afa_membership
+#: model:ir.model.fields.selection,name:afa_membership.selection__afa_family__membership_state__inactive
+msgid "Not a Member"
+msgstr "No és soci/a"
+
+#. module: afa_membership
+#: model_terms:ir.ui.view,arch_db:afa_membership.view_afa_membership_form
+msgid "Open Dues Invoice"
+msgstr "Obre la factura de la quota"
+
+#. module: afa_membership
+#: model:ir.model.fields.selection,name:afa_membership.selection__afa_membership__state__pending
+msgid "Pending"
+msgstr "Pendent"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__period_id
+msgid "Period"
+msgstr "Període"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_family__membership_ids
+msgid "Period Links"
+msgstr "Vinculacions als períodes"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__returned_dues_invoice_id
+msgid "Returned Dues Invoice"
+msgstr "Factura de quota retornada"
+
+#. module: afa_membership
+#: model:ir.actions.act_window,name:afa_membership.action_afa_membership_period
+#: model:ir.ui.menu,name:afa_membership.menu_afa_membership_period
+msgid "School Years"
+msgstr "Cursos escolars"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__date_start
+msgid "Valid From"
+msgstr "Vàlid des de"
+
+#. module: afa_membership
+#: model:ir.model.fields,field_description:afa_membership.field_afa_membership__date_end
+msgid "Valid Through"
+msgstr "Vàlid fins al"

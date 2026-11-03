@@ -1,0 +1,30 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_apparel_shop
+#: model:ir.actions.server,name:afa_apparel_shop.ir_cron_cancel_expired_web_stock_reservations_ir_actions_server
+msgid "Cancel expired AFA web orders"
+msgstr "Cancel·la les comandes web caducades de l'AFA"
+
+#. module: afa_apparel_shop
+#: model:ir.model.fields,field_description:afa_apparel_shop.field_payment_transaction__display_name
+#: model:ir.model.fields,field_description:afa_apparel_shop.field_sale_order__display_name
+#: model:ir.model.fields,field_description:afa_apparel_shop.field_sale_order_line__display_name
+#: model:ir.model.fields,field_description:afa_apparel_shop.field_website__display_name
+msgid "Display Name"
+msgstr "Nom mostrat"
+
+#. module: afa_apparel_shop
+#: model:ir.model.fields,field_description:afa_apparel_shop.field_sale_order__afa_stock_reserved_until
+msgid "Web Stock Reserved Until"
+msgstr "Estoc web reservat fins al"

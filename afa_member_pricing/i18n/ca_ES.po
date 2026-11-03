@@ -1,0 +1,63 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_member_pricing
+#: model:ir.model.fields,field_description:afa_member_pricing.field_sale_order__afa_family_id
+msgid "AFA Family"
+msgstr "Família de l'AFA"
+
+#. module: afa_member_pricing
+#: model:ir.model.fields,field_description:afa_member_pricing.field_res_company__afa_member_pricelist_id
+#: model:ir.model.fields,field_description:afa_member_pricing.field_res_config_settings__afa_member_pricelist_id
+msgid "AFA Member Pricelist"
+msgstr "Tarifa per a socis de l'AFA"
+
+#. module: afa_member_pricing
+#: model:ir.model.fields,field_description:afa_member_pricing.field_res_company__afa_nonmember_pricelist_id
+#: model:ir.model.fields,field_description:afa_member_pricing.field_res_config_settings__afa_nonmember_pricelist_id
+msgid "AFA Non-member Pricelist"
+msgstr "Tarifa per a no socis de l'AFA"
+
+#. module: afa_member_pricing
+#: model_terms:ir.ui.view,arch_db:afa_member_pricing.view_res_config_settings_afa_pricing
+msgid "AFA Pricing"
+msgstr "Tarifes de l'AFA"
+
+#. module: afa_member_pricing
+#: model:ir.model.fields,field_description:afa_member_pricing.field_sale_order_line__afa_manual_discount
+msgid "Afa Manual Discount"
+msgstr "Descompte manual de l'AFA"
+
+#. module: afa_member_pricing
+#: model:ir.model.fields,field_description:afa_member_pricing.field_res_company__display_name
+#: model:ir.model.fields,field_description:afa_member_pricing.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:afa_member_pricing.field_sale_order__display_name
+#: model:ir.model.fields,field_description:afa_member_pricing.field_sale_order_line__display_name
+#: model:ir.model.fields,field_description:afa_member_pricing.field_website__display_name
+msgid "Display Name"
+msgstr "Nom mostrat"
+
+#. module: afa_member_pricing
+#: model_terms:ir.ui.view,arch_db:afa_member_pricing.view_res_config_settings_afa_pricing
+msgid "Family Pricelists"
+msgstr "Llistes de preus de les famílies"
+
+#. module: afa_member_pricing
+#: model_terms:ir.ui.view,arch_db:afa_member_pricing.view_res_config_settings_afa_pricing
+msgid "Member pricelist"
+msgstr "Llista de preus per a socis"
+
+#. module: afa_member_pricing
+#: model_terms:ir.ui.view,arch_db:afa_member_pricing.view_res_config_settings_afa_pricing
+msgid "Non-member pricelist"
+msgstr "Llista de preus per a no socis"

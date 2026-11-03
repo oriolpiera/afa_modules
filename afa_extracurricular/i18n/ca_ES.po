@@ -1,0 +1,410 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__action
+msgid "Action"
+msgstr "Acció"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__service_id
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_extracurricular_import_wizard_form
+msgid "Activity"
+msgstr "Activitat"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__activity_name
+msgid "Activity Name"
+msgstr "Nom de l'activitat"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_family__afa_extracurricular_count
+#: model:ir.model.fields,field_description:afa_extracurricular.field_res_partner__afa_extracurricular_count
+#: model:ir.model.fields,field_description:afa_extracurricular.field_res_users__afa_extracurricular_count
+msgid "Afa Extracurricular Count"
+msgstr "Nombre d'activitats extraescolars de l'AFA"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_billing_line__aid_id
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_charge__aid_id
+msgid "Aid"
+msgstr "Ajut"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_extracurricular_aid__tariff_basis__member
+msgid "Always use the member tariff"
+msgstr "Fes servir sempre la tarifa de soci/a"
+
+#. module: afa_extracurricular
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_extracurricular_import_wizard_form
+msgid "Cancel"
+msgstr "Cancel·la"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__absence_ids
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_service_form_extracurricular
+msgid "Canceled Sessions"
+msgstr "Sessions cancel·lades"
+
+#. module: afa_extracurricular
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_extracurricular_import_wizard_form
+msgid "Confirm Import"
+msgstr "Confirma la importació"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_aid__subsidy_percent
+msgid "Council Share (%)"
+msgstr "Percentatge a càrrec del Consell (%)"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__course
+msgid "Course"
+msgstr "Curs"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_extracurricular_import_line__action__create
+msgid "Create"
+msgstr "Crear"
+
+#. module: afa_extracurricular
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_extracurricular_import_wizard_form
+msgid "Create the extracurricular enrollments shown below?"
+msgstr "Vols crear les inscripcions a les activitats extraescolars que es mostren a continuació?"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_aid__create_uid
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__create_uid
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_wizard__create_uid
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__create_uid
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_absence__create_uid
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_schedule__create_uid
+msgid "Created by"
+msgstr "Creat per"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_aid__create_date
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__create_date
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_wizard__create_date
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__create_date
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_absence__create_date
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_schedule__create_date
+msgid "Created on"
+msgstr "Creat el"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_absence__currency_id
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_schedule__weekday
+msgid "Day"
+msgstr "Dia"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_absence__discount_amount
+msgid "Discount Amount"
+msgstr "Import del descompte"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_aid__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_wizard__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_family__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_billing__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_billing_line__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_charge__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_absence__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_schedule__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_subscription__display_name
+#: model:ir.model.fields,field_description:afa_extracurricular.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nom mostrat"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__enrolled_count
+msgid "Enrolled"
+msgstr "Alumnes inscrits"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service__enrollment_count
+msgid "Enrollment Count"
+msgstr "Nombre d'inscripcions"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service__enrollment_date_start
+msgid "Enrollment Information From"
+msgstr "Informació d'inscripció des de"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service__enrollment_date_end
+msgid "Enrollment Information Through"
+msgstr "Informació d'inscripció fins al"
+
+#. module: afa_extracurricular
+#. odoo-python
+#: code:addons/afa_extracurricular/models/service.py:0
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__subscription_ids
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_service_form_extracurricular
+msgid "Enrollments"
+msgstr "Inscripcions"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service__is_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_subscription__is_extracurricular
+msgid "Extracurricular Activity"
+msgstr "Activitat extraescolar"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_family__extracurricular_aid_ids
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_family_form_extracurricular
+msgid "Extracurricular Scholarships"
+msgstr "Ajuts per a activitats extraescolars"
+
+#. module: afa_extracurricular
+#: model:ir.actions.act_window,name:afa_extracurricular.action_afa_extracurricular
+#: model:ir.ui.menu,name:afa_extracurricular.menu_afa_extracurricular
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_family_form_extracurricular
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_partner_form_afa_extracurricular
+msgid "Extracurriculars"
+msgstr "Activitats extraescolars"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_aid__family_id
+msgid "Family"
+msgstr "Família"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_wizard__file
+msgid "File"
+msgstr "Fitxer"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_wizard__filename
+msgid "Filename"
+msgstr "Nom del fitxer"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_service_group_schedule__weekday__5
+msgid "Friday"
+msgstr "Divendres"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_schedule__hour_from
+msgid "From"
+msgstr "Des de"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__group_id
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_absence__group_id
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_schedule__group_id
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_subscription__group_id
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_extracurricular_import_wizard_form
+msgid "Group"
+msgstr "Grup"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__group_name
+msgid "Group Name"
+msgstr "Nom del grup"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service__group_ids
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_service_form_extracurricular
+msgid "Groups"
+msgstr "Grups"
+
+#. module: afa_extracurricular
+#: model:ir.ui.menu,name:afa_extracurricular.menu_afa_extracurricular_import
+msgid "Import Enrollments"
+msgstr "Importa les inscripcions"
+
+#. module: afa_extracurricular
+#: model:ir.actions.act_window,name:afa_extracurricular.action_afa_extracurricular_import
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_extracurricular_import_wizard_form
+msgid "Import Extracurricular Enrollments"
+msgstr "Importa les inscripcions a activitats extraescolars"
+
+#. module: afa_extracurricular
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_service_form_extracurricular
+msgid "Informative enrollment period"
+msgstr "Període informatiu d'inscripció"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__join_window_id
+msgid "Join Window"
+msgstr "Període d'alta"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_aid__write_uid
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__write_uid
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_wizard__write_uid
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__write_uid
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_absence__write_uid
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_schedule__write_uid
+msgid "Last Updated by"
+msgstr "Darrera actualització per"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_aid__write_date
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__write_date
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_wizard__write_date
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__write_date
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_absence__write_date
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_schedule__write_date
+msgid "Last Updated on"
+msgstr "Darrera actualització el"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_wizard__line_ids
+msgid "Line"
+msgstr "Línia"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__course_id
+msgid "Matched Course"
+msgstr "Curs coincident"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_service_group_schedule__weekday__1
+msgid "Monday"
+msgstr "Dilluns"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_aid__period_id
+msgid "Period"
+msgstr "Període"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__phone
+msgid "Phone"
+msgstr "Telèfon"
+
+#. module: afa_extracurricular
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_extracurricular_import_wizard_form
+msgid "Preview CSV"
+msgstr "Previsualitza el CSV"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_wizard__preview_checksum
+msgid "Preview Checksum"
+msgstr "Suma de verificació de la previsualització"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_wizard__preview_message
+msgid "Preview Message"
+msgstr "Missatge de previsualització"
+
+#. module: afa_extracurricular
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_extracurricular_import_wizard_form
+msgid "Required CSV columns: curs, nen, extraescolar, grup. The optional\n                        telefon column is shown for review. Match group by its configured name."
+msgstr "Columnes obligatòries del CSV: curs, nen, extraescolar i grup. La columna telefon és opcional i es mostra per revisar-la. El grup es determina a partir del nom configurat."
+
+#. module: afa_extracurricular
+#: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_service_group_schedule__weekday__6
+msgid "Saturday"
+msgstr "Dissabte"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__schedule_summary
+msgid "Schedule Summary"
+msgstr "Resum de l'horari"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__sequence
+msgid "Sequence"
+msgstr "Seqüència"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__service_id
+msgid "Service"
+msgstr "Servei"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_absence__session_date
+msgid "Session Date"
+msgstr "Data de la sessió"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_extracurricular_import_line__action__skip
+msgid "Skip"
+msgstr "Ometre"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_aid__sponsor_id
+msgid "Sponsor"
+msgstr "Entitat finançadora"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__student_id
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_extracurricular_import_wizard_form
+msgid "Student"
+msgstr "Alumne/a"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__student_name
+msgid "Student Name"
+msgstr "Nom de l'alumne/a"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_service_group_schedule__weekday__7
+msgid "Sunday"
+msgstr "Diumenge"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_aid__tariff_basis
+msgid "Tariff Basis"
+msgstr "Criteri de tarifa"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_service_group_schedule__weekday__4
+msgid "Thursday"
+msgstr "Dijous"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group_schedule__hour_to
+msgid "To"
+msgstr "Fins al"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_service_group_schedule__weekday__2
+msgid "Tuesday"
+msgstr "Dimarts"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_extracurricular_aid__tariff_basis__membership
+msgid "Use the family membership tariff"
+msgstr "Fes servir la tarifa segons la condició de soci/a de la família"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields.selection,name:afa_extracurricular.selection__afa_service_group_schedule__weekday__3
+msgid "Wednesday"
+msgstr "Dimecres"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_service_group__schedule_ids
+#: model_terms:ir.ui.view,arch_db:afa_extracurricular.view_afa_service_form_extracurricular
+msgid "Weekly Schedule"
+msgstr "Horari setmanal"
+
+#. module: afa_extracurricular
+#: model:ir.model.fields,field_description:afa_extracurricular.field_afa_extracurricular_import_line__wizard_id
+msgid "Wizard"
+msgstr "Assistent"

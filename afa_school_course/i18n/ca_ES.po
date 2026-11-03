@@ -1,0 +1,193 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_school_course
+#: model_terms:ir.ui.view,arch_db:afa_school_course.view_afa_school_course_setup_wizard_form
+#: model_terms:ir.ui.view,arch_db:afa_school_course.view_afa_school_promotion_wizard_form
+msgid "Cancel"
+msgstr "Cancel·la"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion__completed_on
+msgid "Completed On"
+msgstr "Completat el"
+
+#. module: afa_school_course
+#: model_terms:ir.ui.view,arch_db:afa_school_course.view_afa_school_promotion_wizard_form
+msgid "Confirm Promotion"
+msgstr "Confirma la promoció"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_line__course_id
+msgid "Course"
+msgstr "Curs"
+
+#. module: afa_school_course
+#: model_terms:ir.ui.view,arch_db:afa_school_course.view_afa_school_course_setup_wizard_form
+msgid "Create Courses"
+msgstr "Crea els cursos"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course__create_uid
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course_setup_wizard__create_uid
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion__create_uid
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_line__create_uid
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_wizard__create_uid
+msgid "Created by"
+msgstr "Creat per"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course__create_date
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course_setup_wizard__create_date
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion__create_date
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_line__create_date
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_wizard__create_date
+msgid "Created on"
+msgstr "Creat el"
+
+#. module: afa_school_course
+#: model_terms:ir.ui.view,arch_db:afa_school_course.view_afa_school_course_setup_wizard_form
+msgid "Creates the missing courses, orders them and links each course to its\n                        successor. The last course of the last selected stage is left without a\n                        successor, which means graduation; a successor that is already configured\n                        is kept. Existing courses are never modified: only missing courses and\n                        empty successors are filled in, and the whole set must remain one\n                        connected ladder."
+msgstr "Crea els cursos que falten, els ordena i enllaça cada curs amb el següent. L'últim curs de l'última etapa seleccionada no tindrà curs següent i, per tant, indicarà la graduació. Es mantindrà qualsevol curs següent ja configurat. No es modificaran els cursos existents: només es crearan els que falten i s'ompliran els cursos següents buits, mantenint tota la seqüència connectada."
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course__display_name
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course_setup_wizard__display_name
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion__display_name
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_line__display_name
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_wizard__display_name
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_service_subscription__display_name
+#: model:ir.model.fields,field_description:afa_school_course.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nom mostrat"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion__graduated_count
+msgid "Graduated Count"
+msgstr "Nombre d'alumnes que han graduat"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course__write_uid
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course_setup_wizard__write_uid
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion__write_uid
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_line__write_uid
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Darrera actualització per"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course__write_date
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course_setup_wizard__write_date
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion__write_date
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_line__write_date
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_wizard__write_date
+msgid "Last Updated on"
+msgstr "Darrera actualització el"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_wizard__line_ids
+msgid "Line"
+msgstr "Línia"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course__next_course_id
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_line__next_course_id
+msgid "Next Course"
+msgstr "Curs següent"
+
+#. module: afa_school_course
+#: model_terms:ir.ui.view,arch_db:afa_school_course.view_afa_school_promotion_wizard_form
+msgid "Next Course (empty means graduation)"
+msgstr "Curs següent (deixeu-lo buit per indicar la graduació)"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion__period_id
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_wizard__period_id
+msgid "Period"
+msgstr "Període"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course_setup_wizard__infantil
+msgid "Preschool (i3, i4, i5)"
+msgstr "Educació infantil (i3, i4, i5)"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course_setup_wizard__primaria
+msgid "Primary (1r to 6è)"
+msgstr "Educació primària (de 1r a 6è)"
+
+#. module: afa_school_course
+#: model:ir.actions.act_window,name:afa_school_course.action_afa_school_promotion_wizard
+#: model:ir.ui.menu,name:afa_school_course.menu_afa_school_promotion_wizard
+#: model_terms:ir.ui.view,arch_db:afa_school_course.view_afa_school_promotion_wizard_form
+msgid "Promote Students"
+msgstr "Promociona els alumnes"
+
+#. module: afa_school_course
+#: model_terms:ir.ui.view,arch_db:afa_school_course.view_afa_school_promotion_wizard_form
+msgid "Promote all students shown?"
+msgstr "Vols promocionar tots els alumnes que es mostren?"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion__promoted_count
+msgid "Promoted Count"
+msgstr "Nombre d'alumnes promocionats"
+
+#. module: afa_school_course
+#: model:ir.actions.act_window,name:afa_school_course.action_afa_school_course_setup_wizard
+#: model:ir.ui.menu,name:afa_school_course.menu_afa_school_course_setup_wizard
+#: model_terms:ir.ui.view,arch_db:afa_school_course.view_afa_school_course_setup_wizard_form
+msgid "Quick Course Setup"
+msgstr "Configuració ràpida dels cursos"
+
+#. module: afa_school_course
+#: model_terms:ir.ui.view,arch_db:afa_school_course.view_afa_school_promotion_wizard_form
+msgid "Refresh Preview"
+msgstr "Actualitza la previsualització"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_res_partner__afa_course_id
+#: model:ir.model.fields,field_description:afa_school_course.field_res_users__afa_course_id
+msgid "School Course"
+msgstr "Curs escolar"
+
+#. module: afa_school_course
+#: model:ir.actions.act_window,name:afa_school_course.action_afa_school_course
+#: model:ir.ui.menu,name:afa_school_course.menu_afa_school_course
+msgid "School Courses"
+msgstr "Cursos escolars"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course_setup_wizard__secundaria
+msgid "Secondary (1r ESO to 4t ESO)"
+msgstr "Educació secundària (de 1r a 4t d'ESO)"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_course__sequence
+msgid "Sequence"
+msgstr "Seqüència"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_line__student_id
+msgid "Student"
+msgstr "Alumne/a"
+
+#. module: afa_school_course
+#: model:ir.model.fields,field_description:afa_school_course.field_afa_school_promotion_line__wizard_id
+msgid "Wizard"
+msgstr "Assistent"
