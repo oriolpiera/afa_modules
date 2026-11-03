@@ -25,31 +25,39 @@
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label class="form-label" for="guardian1_name">Nom i cognoms del tutor/a principal *</label>
-                                                <input class="form-control" id="guardian1_name" name="guardian1_name" required="required" maxlength="120"/>
+                                                <input class="form-control" id="guardian1_name" name="guardian1_name" required="required" maxlength="120" t-att-value="values.get('guardian1_name')"/>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label" for="guardian1_vat">DNI/NIE *</label>
-                                                <input class="form-control" id="guardian1_vat" name="guardian1_vat" required="required" maxlength="32"/>
+                                                <input class="form-control" id="guardian1_vat" name="guardian1_vat" required="required" maxlength="32" t-att-value="values.get('guardian1_vat')"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="guardian1_email">Correu electrònic *</label>
+                                                <input class="form-control" type="email" id="guardian1_email" name="guardian1_email" required="required" maxlength="254" t-att-value="values.get('guardian1_email')"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="guardian1_phone">Telèfon *</label>
+                                                <input class="form-control" id="guardian1_phone" name="guardian1_phone" required="required" maxlength="200" t-att-value="values.get('guardian1_phone')"/>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label" for="guardian2_name">Nom i cognoms del segon tutor/a</label>
-                                                <input class="form-control" id="guardian2_name" name="guardian2_name" maxlength="120"/>
+                                                <input class="form-control" id="guardian2_name" name="guardian2_name" maxlength="120" t-att-value="values.get('guardian2_name')"/>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label" for="guardian2_vat">DNI/NIE del segon tutor/a</label>
-                                                <input class="form-control" id="guardian2_vat" name="guardian2_vat" maxlength="32"/>
+                                                <input class="form-control" id="guardian2_vat" name="guardian2_vat" maxlength="32" t-att-value="values.get('guardian2_vat')"/>
                                             </div>
                                             <div class="col-md-6">
-                                                <label class="form-label" for="email">Correu electrònic *</label>
-                                                <input class="form-control" type="email" id="email" name="email" required="required" maxlength="254"/>
+                                                <label class="form-label" for="guardian2_email">Correu electrònic del segon tutor/a</label>
+                                                <input class="form-control" type="email" id="guardian2_email" name="guardian2_email" maxlength="254" t-att-value="values.get('guardian2_email')"/>
                                             </div>
                                             <div class="col-md-6">
-                                                <label class="form-label" for="phone_numbers">Telèfons de contacte *</label>
-                                                <input class="form-control" id="phone_numbers" name="phone_numbers" required="required" maxlength="200"/>
+                                                <label class="form-label" for="guardian2_phone">Telèfon del segon tutor/a</label>
+                                                <input class="form-control" id="guardian2_phone" name="guardian2_phone" maxlength="200" t-att-value="values.get('guardian2_phone')"/>
                                             </div>
                                             <div class="col-12">
                                                 <label class="form-label" for="address">Adreça completa *</label>
-                                                <textarea class="form-control" id="address" name="address" rows="2" required="required" maxlength="500"/>
+                                                <textarea class="form-control" id="address" name="address" rows="2" required="required" maxlength="500" t-esc="values.get('address')"/>
                                             </div>
                                         </div>
                                     </fieldset>
@@ -57,25 +65,27 @@
                                         <legend class="h3">Alumnes matriculats *</legend>
                                         <p>Afegiu tots els infants de la família que actualment estudien a l’escola.</p>
                                         <div id="student-list">
+                                            <t t-foreach="values.get('student_rows')" t-as="student">
                                             <div class="student-row row g-3 mb-3">
                                                 <div class="col-md-4">
                                                     <label class="form-label">Nom i cognoms *</label>
-                                                    <input class="form-control" name="student_name" required="required" maxlength="120"/>
+                                                    <input class="form-control" name="student_name" required="required" maxlength="120" t-att-value="student.get('name')"/>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">Data de naixement *</label>
-                                                    <input class="form-control" type="date" name="student_birthday" required="required"/>
+                                                    <input class="form-control" type="date" name="student_birthday" required="required" t-att-value="student.get('birthday')"/>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">Curs *</label>
                                                     <select class="form-select" name="student_course" required="required">
-                                                        <option value="">Seleccioneu el curs</option>
+                                                        <option value="" t-att-selected="not student.get('course_id')">Seleccioneu el curs</option>
                                                         <t t-foreach="courses" t-as="course">
-                                                            <option t-att-value="course.id" t-esc="course.name"/>
+                                                            <option t-att-value="course.id" t-att-selected="course.id == student.get('course_id')" t-esc="course.name"/>
                                                         </t>
                                                     </select>
                                                 </div>
                                             </div>
+                                            </t>
                                         </div>
                                         <button type="button" class="btn btn-outline-secondary" id="add-student">Afegeix un alumne</button>
                                     </fieldset>
@@ -83,20 +93,21 @@
                                         <legend class="h3">Quota i domiciliació</legend>
                                         <p>Voleu fer-vos sòcies de l’AFA? *</p>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="wants_membership" id="membership-yes" value="yes" required="required"/>
+                                            <input class="form-check-input" type="radio" name="wants_membership" id="membership-yes" value="yes" required="required" t-att-checked="values.get('wants_membership') == 'yes' and 'checked' or None"/>
                                             <label class="form-check-label" for="membership-yes">Sí, vull fer-me sòcia</label>
                                         </div>
                                         <div class="form-check mb-3">
-                                            <input class="form-check-input" type="radio" name="wants_membership" id="membership-no" value="no" required="required"/>
+                                            <input class="form-check-input" type="radio" name="wants_membership" id="membership-no" value="no" required="required" t-att-checked="values.get('wants_membership') == 'no' and 'checked' or None"/>
                                             <label class="form-check-label" for="membership-no">No</label>
                                         </div>
-                                        <div id="membership-details" class="border rounded p-3" hidden="hidden">
+                                        <div class="border rounded p-3">
+                                            <p class="small">Ompliu l’IBAN i accepteu el mandat només si voleu fer-vos sòcies.</p>
                                             <div class="mb-3">
-                                                <label class="form-label" for="iban">IBAN del compte de càrrec *</label>
-                                                <input class="form-control" id="iban" name="iban" autocomplete="off" maxlength="34"/>
+                                                <label class="form-label" for="iban">IBAN del compte de càrrec</label>
+                                                <input class="form-control" id="iban" name="iban" autocomplete="off" maxlength="34" t-att-value="values.get('iban')"/>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="mandate-accepted" name="mandate_accepted" value="yes"/>
+                                                <input class="form-check-input" type="checkbox" id="mandate-accepted" name="mandate_accepted" value="yes" t-att-checked="values.get('mandate_accepted') and 'checked' or None"/>
                                                 <label class="form-check-label" for="mandate-accepted">
                                                     Autoritzo l’AFA Escola La Bòbila a presentar càrrecs al compte indicat mitjançant domiciliació SEPA i confirmo que estic autoritzat/ada a disposar-ne.
                                                 </label>

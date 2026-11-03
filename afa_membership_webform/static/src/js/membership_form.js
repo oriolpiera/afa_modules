@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-document.addEventListener('DOMContentLoaded', () => {
+const initializeMembershipForm = () => {
     const form = document.querySelector('.afa-membership-form form');
     if (!form) {
         return;
@@ -8,19 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const studentList = form.querySelector('#student-list');
     const addStudentButton = form.querySelector('#add-student');
-    const membershipDetails = form.querySelector('#membership-details');
     const ibanInput = form.querySelector('#iban');
     const mandateInput = form.querySelector('#mandate-accepted');
 
     const updateMembershipFields = () => {
         const wantsMembership = form.querySelector('#membership-yes').checked;
-        membershipDetails.hidden = !wantsMembership;
         ibanInput.required = wantsMembership;
         mandateInput.required = wantsMembership;
-        if (!wantsMembership) {
-            ibanInput.value = '';
-            mandateInput.checked = false;
-        }
     };
 
     form.querySelectorAll('input[name="wants_membership"]').forEach((input) => {
@@ -44,4 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     updateMembershipFields();
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeMembershipForm, {once: true});
+} else {
+    initializeMembershipForm();
+}

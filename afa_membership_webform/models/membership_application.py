@@ -6,6 +6,7 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 MANDATE_TERMS_VERSION = '2026-01'
 _IBAN_COUNTRY_LENGTHS = {'ES': 24}
 _IBAN_RE = re.compile(r'^[A-Z0-9]+$')
+_GUARDIAN_ID_RE = re.compile(r'^[A-Z0-9]{1,32}$')
 
 
 def _valid_iban(value):
@@ -18,6 +19,14 @@ def _valid_iban(value):
     rearranged = iban[4:] + iban[:4]
     digits = ''.join(char if char.isdigit() else str(ord(char) - 55) for char in rearranged)
     return int(digits) % 97 == 1
+
+
+def _normalize_guardian_id(value):
+    return ''.join((value or '').split()).upper()
+
+
+def _valid_guardian_id(value):
+    return bool(_GUARDIAN_ID_RE.fullmatch(_normalize_guardian_id(value)))
 
 
 class AfaMembershipApplication(models.Model):
@@ -43,11 +52,13 @@ class AfaMembershipApplication(models.Model):
     )
     guardian1_name = fields.Char(required=True, groups='afa_family.group_family_manager')
     guardian1_vat = fields.Char(required=True, groups='afa_family.group_family_manager')
+    guardian1_email = fields.Char(required=True, groups='afa_family.group_family_manager')
+    guardian1_phone = fields.Char(required=True, groups='afa_family.group_family_manager')
     guardian2_name = fields.Char(groups='afa_family.group_family_manager')
     guardian2_vat = fields.Char(groups='afa_family.group_family_manager')
-    email = fields.Char(required=True, groups='afa_family.group_family_manager')
+    guardian2_email = fields.Char(groups='afa_family.group_family_manager')
+    guardian2_phone = fields.Char(groups='afa_family.group_family_manager')
     address = fields.Text(required=True, groups='afa_family.group_family_manager')
-    phone_numbers = fields.Char(required=True, groups='afa_family.group_family_manager')
     student_ids = fields.One2many(
         'afa.membership.application.student',
         'application_id',
@@ -71,11 +82,13 @@ class AfaMembershipApplication(models.Model):
     @api.constrains(
         'guardian1_name',
         'guardian1_vat',
+        'guardian1_email',
+        'guardian1_phone',
         'guardian2_name',
         'guardian2_vat',
-        'email',
+        'guardian2_email',
+        'guardian2_phone',
         'address',
-        'phone_numbers',
         'wants_membership',
         'iban',
         'mandate_accepted',
@@ -86,14 +99,36 @@ class AfaMembershipApplication(models.Model):
         for application in self:
             if not application.guardian1_name or not application.guardian1_vat:
                 raise ValidationError(_('The first guardian name and ID are required.'))
-            if bool(application.guardian2_name) != bool(application.guardian2_vat):
+            if not _valid_guardian_id(application.guardian1_vat):
+                raise ValidationError(_('Enter a valid first guardian ID.'))
+            has_second_guardian_data = any(
+                (
+                    application.guardian2_name,
+                    application.guardian2_vat,
+                    application.guardian2_email,
+                    application.guardian2_phone,
+                )
+            )
+            if has_second_guardian_data and not (
+                application.guardian2_name and application.guardian2_vat
+            ):
                 raise ValidationError(
                     _('The second guardian name and ID must be provided together.')
                 )
-            if not application.email or '@' not in application.email:
-                raise ValidationError(_('Enter a valid contact email address.'))
-            if not application.address or not application.phone_numbers:
-                raise ValidationError(_('The address and at least one contact phone are required.'))
+            if application.guardian2_vat and not _valid_guardian_id(application.guardian2_vat):
+                raise ValidationError(_('Enter a valid second guardian ID.'))
+            for email in (application.guardian1_email, application.guardian2_email):
+                if email and ('@' not in email or len(email) > 254):
+                    raise ValidationError(_('Enter a valid guardian email address.'))
+            if (
+                not application.guardian1_email
+                or not application.guardian1_phone
+                or len(application.guardian1_phone) > 200
+                or len(application.guardian2_phone or '') > 200
+            ):
+                raise ValidationError(_('The first guardian email and phone are required.'))
+            if not application.address:
+                raise ValidationError(_('The address is required.'))
             if not application.student_ids:
                 raise ValidationError(_('Add at least one student.'))
             if application.wants_membership:
@@ -116,8 +151,8 @@ class AfaMembershipApplication(models.Model):
         payer = self._get_or_create_guardian(
             self.guardian1_name,
             self.guardian1_vat,
-            email=self.email,
-            phone=self.phone_numbers,
+            email=self.guardian1_email,
+            phone=self.guardian1_phone,
             street=self.address,
         )
         family = self.env['afa.family'].create(
@@ -128,7 +163,12 @@ class AfaMembershipApplication(models.Model):
             }
         )
         if self.guardian2_name:
-            guardian = self._get_or_create_guardian(self.guardian2_name, self.guardian2_vat)
+            guardian = self._get_or_create_guardian(
+                self.guardian2_name,
+                self.guardian2_vat,
+                email=self.guardian2_email,
+                phone=self.guardian2_phone,
+            )
             guardian.write({'afa_family_id': family.id})
 
         for student in self.student_ids:
@@ -206,8 +246,11 @@ class AfaMembershipApplication(models.Model):
 
     def _get_or_create_guardian(self, name, vat, **extra_values):
         Partner = self.env['res.partner']
-        normalized_vat = vat.strip().upper()
+        normalized_vat = _normalize_guardian_id(vat)
+        if not _valid_guardian_id(normalized_vat):
+            raise ValidationError(_('Guardian IDs may contain only letters and numbers.'))
         self.env.cr.execute('SELECT pg_advisory_xact_lock(hashtext(%s))', [normalized_vat])
+        # The strict ID validator excludes SQL LIKE wildcards, making this a literal match.
         partner = Partner.sudo().search([('vat', '=ilike', normalized_vat)], limit=2)
         if len(partner) > 1:
             raise UserError(_('More than one contact uses guardian ID %s.') % vat)

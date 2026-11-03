@@ -9,7 +9,8 @@
                   decoration-muted="state == 'rejected'">
                 <field name="create_date" string="Submitted"/>
                 <field name="guardian1_name" string="Main Guardian"/>
-                <field name="email"/>
+                <field name="guardian1_email" string="Contact Email"/>
+                <field name="guardian1_phone" string="Contact Phone" optional="hide"/>
                 <field name="wants_membership"/>
                 <field name="state"/>
                 <field name="family_id" optional="hide"/>
@@ -47,8 +48,6 @@
                             <field name="name" readonly="1"/>
                             <field name="family_name" readonly="state != 'pending'"/>
                             <field name="create_date" readonly="1"/>
-                            <field name="email" readonly="state != 'pending'"/>
-                            <field name="phone_numbers" readonly="state != 'pending'"/>
                             <field name="address" readonly="state != 'pending'"/>
                         </group>
                         <group string="Membership and payment">
@@ -66,10 +65,14 @@
                                 <group string="First guardian">
                                     <field name="guardian1_name" readonly="state != 'pending'"/>
                                     <field name="guardian1_vat" readonly="state != 'pending'"/>
+                                    <field name="guardian1_email" readonly="state != 'pending'"/>
+                                    <field name="guardian1_phone" readonly="state != 'pending'"/>
                                 </group>
                                 <group string="Second guardian">
                                     <field name="guardian2_name" readonly="state != 'pending'"/>
                                     <field name="guardian2_vat" readonly="state != 'pending'"/>
+                                    <field name="guardian2_email" readonly="state != 'pending'"/>
+                                    <field name="guardian2_phone" readonly="state != 'pending'"/>
                                 </group>
                             </group>
                         </page>
@@ -106,7 +109,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="guardian1_name"/>
-                <field name="email"/>
+                <field name="guardian1_email"/>
                 <filter name="pending" string="Pending Review" domain="[('state', '=', 'pending')]"/>
                 <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
                 <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>

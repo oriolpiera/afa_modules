@@ -17,9 +17,9 @@ class TestMembershipApplication(TransactionCase):
             'family_name': 'Família Sol',
             'guardian1_name': 'Aina Sol',
             'guardian1_vat': 'DNI1001',
-            'email': 'aina@example.cat',
+            'guardian1_email': 'aina@example.cat',
+            'guardian1_phone': '+34600000001',
             'address': 'Carrer de l’Escola, 1, les Preses',
-            'phone_numbers': '+34600000001',
             'wants_membership': True,
             'iban': VALID_IBAN,
             'mandate_accepted': True,
@@ -41,7 +41,12 @@ class TestMembershipApplication(TransactionCase):
         return self.env['afa.membership.application'].create(values)
 
     def test_approval_creates_family_contacts_and_sepa_mandate(self):
-        application = self._application(guardian2_name='Joan Sol', guardian2_vat='DNI1002')
+        application = self._application(
+            guardian2_name='Joan Sol',
+            guardian2_vat='DNI1002',
+            guardian2_email='joan@example.cat',
+            guardian2_phone='+34600000002',
+        )
 
         action = application.action_approve()
 
@@ -53,8 +58,12 @@ class TestMembershipApplication(TransactionCase):
         self.assertEqual(family.billing_partner_id.name, 'Aina Sol')
         self.assertEqual(family.billing_partner_id.vat, 'DNI1001')
         self.assertEqual(family.billing_partner_id.email, 'aina@example.cat')
+        self.assertEqual(family.billing_partner_id.phone, '+34600000001')
         self.assertEqual(family.billing_partner_id.street, 'Carrer de l’Escola, 1, les Preses')
         self.assertEqual(set(family.guardian_ids.mapped('name')), {'Aina Sol', 'Joan Sol'})
+        second_guardian = family.guardian_ids.filtered(lambda guardian: guardian.name == 'Joan Sol')
+        self.assertEqual(second_guardian.email, 'joan@example.cat')
+        self.assertEqual(second_guardian.phone, '+34600000002')
         student = family.student_ids
         self.assertEqual(student.name, 'Pol Sol')
         self.assertEqual(student.afa_birthdate, fields.Date.to_date('2020-03-15'))
@@ -132,6 +141,10 @@ class TestMembershipApplication(TransactionCase):
     def test_invalid_iban_is_rejected(self):
         with self.assertRaisesRegex(ValidationError, 'valid IBAN'):
             self._application(iban='ES0000000000000000000000')
+
+    def test_guardian_id_like_wildcards_are_rejected(self):
+        with self.assertRaisesRegex(ValidationError, 'valid first guardian ID'):
+            self._application(guardian1_vat='DNI%_')
 
     def test_non_manager_cannot_review_applications(self):
         user = self.env['res.users'].create(
