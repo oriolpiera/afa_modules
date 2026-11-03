@@ -1,0 +1,457 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__family_id
+msgid "AFA Family"
+msgstr "Família de l'AFA"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__active
+msgid "Active"
+msgstr "Actiu"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_bank_statement_line__afa_service_charge_ids
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_move__afa_service_charge_ids
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_move_line__afa_service_charge_ids
+msgid "Afa Service Charge"
+msgstr "Càrrec de servei de l'AFA"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_bank_statement_line__afa_service_family_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_move__afa_service_family_id
+msgid "Afa Service Family"
+msgstr "Família del servei de l'AFA"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_bank_statement_line__afa_service_month
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_move__afa_service_month
+msgid "Afa Service Month"
+msgstr "Mes del servei de l'AFA"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_bank_statement_line__afa_service_sponsor_charge_ids
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_move__afa_service_sponsor_charge_ids
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_move_line__afa_service_sponsor_charge_ids
+msgid "Afa Service Sponsor Charge"
+msgstr "Càrrec del servei a l'entitat finançadora de l'AFA"
+
+#. module: afa_service_subscription
+#: model_terms:ir.ui.view,arch_db:afa_service_subscription.view_afa_service_form
+msgid "Billing"
+msgstr "Facturació"
+
+#. module: afa_service_subscription
+#: model_terms:ir.ui.view,arch_db:afa_service_subscription.view_afa_service_leave_form
+msgid "Cancel"
+msgstr "Cancel·la"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__window_ids
+msgid "Change Windows"
+msgstr "Modificar els períodes"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__charge_ids
+msgid "Charge"
+msgstr "Càrrec"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__company_id
+msgid "Company"
+msgstr "Empresa"
+
+#. module: afa_service_subscription
+#: model_terms:ir.ui.view,arch_db:afa_service_subscription.view_afa_service_leave_form
+msgid "Confirm Withdrawal"
+msgstr "Confirma la baixa"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__create_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing__create_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__create_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__create_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_leave__create_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__create_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_window__create_uid
+msgid "Created by"
+msgstr "Creat per"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__create_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing__create_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__create_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__create_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_leave__create_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__create_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_window__create_date
+msgid "Created on"
+msgstr "Creat el"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__currency_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__currency_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__currency_id
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__date_end
+msgid "Date End"
+msgstr "Data de finalització"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__date_start
+msgid "Date Start"
+msgstr "Data d'inici"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__discount_amount
+msgid "Discount"
+msgstr "Descompte"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__discount_amount
+msgid "Discount Amount"
+msgstr "Import del descompte"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_move__display_name
+#: model:ir.model.fields,field_description:afa_service_subscription.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__display_name
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing__display_name
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__display_name
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__display_name
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_leave__display_name
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__display_name
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_window__display_name
+#: model:ir.model.fields,field_description:afa_service_subscription.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nom mostrat"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_window__effective_month
+msgid "Effective Month"
+msgstr "Mes d'aplicació"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__end_month
+msgid "End Month"
+msgstr "Mes de finalització"
+
+#. module: afa_service_subscription
+#: model_terms:ir.ui.view,arch_db:afa_service_subscription.view_afa_service_form
+msgid "Enrollment and withdrawal windows"
+msgstr "Períodes d'alta i baixa"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__family_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__family_id
+#: model_terms:ir.ui.view,arch_db:afa_service_subscription.view_out_invoice_tree_afa_family
+msgid "Family"
+msgstr "Família"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__family_price
+msgid "Family Amount"
+msgstr "Import de la família"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__family_price
+msgid "Family Price"
+msgstr "Preu per a la família"
+
+#. module: afa_service_subscription
+#: model_terms:ir.ui.view,arch_db:afa_service_subscription.view_afa_service_billing_form
+msgid "Generate Draft Invoices"
+msgstr "Genera les factures esborrany"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__include
+msgid "Include"
+msgstr "Incloure"
+
+#. module: afa_service_subscription
+#: model_terms:ir.ui.view,arch_db:afa_service_subscription.view_afa_service_subscription_form
+msgid "Invoice History"
+msgstr "Historial de factures"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__invoice_journal_id
+msgid "Invoice Journal"
+msgstr "Diari de facturació"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__invoice_line_id
+msgid "Invoice Line"
+msgstr "Línia de factura"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields.selection,name:afa_service_subscription.selection__afa_service_window__kind__join
+msgid "Join"
+msgstr "Alta"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__join_requested_on
+msgid "Join Requested On"
+msgstr "Data de sol·licitud d'alta"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__join_window_id
+msgid "Join Window"
+msgstr "Període d'alta"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__journal_id
+msgid "Journal"
+msgstr "Diari"
+
+#. module: afa_service_subscription
+#: model:ir.model,name:afa_service_subscription.model_account_move
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__invoice_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__sponsor_invoice_id
+msgid "Journal Entry"
+msgstr "Assentament comptable"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_window__kind
+msgid "Kind"
+msgstr "Tipus"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__write_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing__write_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__write_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__write_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_leave__write_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__write_uid
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_window__write_uid
+msgid "Last Updated by"
+msgstr "Darrera actualització per"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__write_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing__write_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__write_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__write_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_leave__write_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__write_date
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_window__write_date
+msgid "Last Updated on"
+msgstr "Darrera actualització el"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields.selection,name:afa_service_subscription.selection__afa_service_window__kind__leave
+msgid "Leave"
+msgstr "Baixa"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__leave_requested_on
+msgid "Leave Requested On"
+msgstr "Data de sol·licitud de baixa"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__leave_window_id
+msgid "Leave Window"
+msgstr "Període de baixa"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing__line_ids
+msgid "Line"
+msgstr "Línia"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__member
+msgid "Member"
+msgstr "Soci/a"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__member_price
+msgid "Member Price"
+msgstr "Preu per a socis"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__member
+msgid "Member at Invoicing"
+msgstr "Soci/a en el moment de facturar"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields.selection,name:afa_service_subscription.selection__afa_service_billing_line__tariff_basis__member
+#: model:ir.model.fields.selection,name:afa_service_subscription.selection__afa_service_charge__tariff_basis__member
+msgid "Member tariff"
+msgstr "Tarifa de soci/a"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields.selection,name:afa_service_subscription.selection__afa_service_billing_line__tariff_basis__membership
+#: model:ir.model.fields.selection,name:afa_service_subscription.selection__afa_service_charge__tariff_basis__membership
+msgid "Membership-based tariff"
+msgstr "Tarifa segons la condició de soci/a"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing__month
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__month
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__month
+msgid "Month"
+msgstr "Mes"
+
+#. module: afa_service_subscription
+#: model:ir.actions.act_window,name:afa_service_subscription.action_afa_service_billing
+#: model:ir.ui.menu,name:afa_service_subscription.menu_afa_service_billing
+msgid "Monthly Service Billing"
+msgstr "Facturació mensual dels serveis"
+
+#. module: afa_service_subscription
+#: model:ir.actions.act_window,name:afa_service_subscription.action_afa_service
+#: model:ir.ui.menu,name:afa_service_subscription.menu_afa_service
+msgid "Monthly Services"
+msgstr "Serveis mensuals"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__nonmember_price
+msgid "Nonmember Price"
+msgstr "Preu per a no socis"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__payer_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__payer_id
+msgid "Payer"
+msgstr "Pagador/a"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__payment_mode_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__payment_mode_id
+msgid "Payment Mode"
+msgstr "Mètode de pagament"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__period_id
+msgid "Period"
+msgstr "Període"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__product_id
+msgid "Product"
+msgstr "Producte"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__reason
+msgid "Reason"
+msgstr "Motiu"
+
+#. module: afa_service_subscription
+#: model_terms:ir.ui.view,arch_db:afa_service_subscription.view_afa_service_billing_form
+msgid "Refresh Preview"
+msgstr "Actualitza la previsualització"
+
+#. module: afa_service_subscription
+#: model_terms:ir.ui.view,arch_db:afa_service_subscription.view_afa_service_subscription_form
+msgid "Request Withdrawal"
+msgstr "Sol·licita la baixa"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_window__date_start
+msgid "Requests From"
+msgstr "Sol·licituds des de"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_window__date_end
+msgid "Requests Through"
+msgstr "Sol·licituds fins al"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__service_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_leave__service_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__service_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_window__service_id
+msgid "Service"
+msgstr "Servei"
+
+#. module: afa_service_subscription
+#: model:ir.actions.act_window,name:afa_service_subscription.action_afa_service_subscription
+#: model:ir.ui.menu,name:afa_service_subscription.menu_afa_service_subscription
+msgid "Service Subscriptions"
+msgstr "Inscripcions als serveis"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__sponsor_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__sponsor_id
+msgid "Sponsor"
+msgstr "Entitat finançadora"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__sponsor_price
+msgid "Sponsor Amount"
+msgstr "Import a càrrec de l'entitat finançadora"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__sponsor_invoice_line_id
+msgid "Sponsor Invoice Line"
+msgstr "Línia de factura de l'entitat finançadora"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__sponsor_price
+msgid "Sponsor Price"
+msgstr "Preu per a l'entitat finançadora"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__start_month
+msgid "Start Month"
+msgstr "Mes d'inici"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__student_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__student_id
+msgid "Student"
+msgstr "Alumne/a"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__subscription_ids
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__subscription_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__subscription_id
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_leave__subscription_id
+msgid "Subscription"
+msgstr "Inscripció"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__subsidy_percent
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__subsidy_percent
+msgid "Subsidy Percent"
+msgstr "Percentatge de subvenció"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__tariff_basis
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__tariff_basis
+msgid "Tariff Basis"
+msgstr "Criteri de tarifa"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__price
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_charge__price
+msgid "Tariff Price"
+msgstr "Preu de la tarifa"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_leave__window_id
+msgid "Window"
+msgstr "Període"
+
+#. module: afa_service_subscription
+#: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_billing_line__wizard_id
+msgid "Wizard"
+msgstr "Assistent"

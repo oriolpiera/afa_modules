@@ -1,0 +1,408 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_acollida
+#: model:ir.actions.act_window,name:afa_acollida.action_afa_acollida_config
+#: model:ir.ui.menu,name:afa_acollida.menu_afa_acollida_config
+msgid "Acollida Billing Setup"
+msgstr "Configuració de la facturació d'acollida"
+
+#. module: afa_acollida
+#: model:ir.actions.act_window,name:afa_acollida.action_afa_acollida_billing
+#: model:ir.ui.menu,name:afa_acollida.menu_afa_acollida_billing
+msgid "Acollida Monthly Billing"
+msgstr "Facturació mensual d'acollida"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__action
+msgid "Action"
+msgstr "Acció"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__active
+msgid "Active"
+msgstr "Actiu"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_account_bank_statement_line__afa_acollida_charge_ids
+#: model:ir.model.fields,field_description:afa_acollida.field_account_move__afa_acollida_charge_ids
+#: model:ir.model.fields,field_description:afa_acollida.field_account_move_line__afa_acollida_charge_ids
+msgid "Afa Acollida Charge"
+msgstr "Càrrec d'acollida de l'AFA"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__amount
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__amount
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__amount
+msgid "Amount"
+msgstr "Import"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__base_amount
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__base_amount
+msgid "Base Amount"
+msgstr "Import base"
+
+#. module: afa_acollida
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_config_form
+msgid "Billing"
+msgstr "Facturació"
+
+#. module: afa_acollida
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_import_wizard_form
+msgid "Cancel"
+msgstr "Cancel·la"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__charge_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__charge_ids
+msgid "Charge"
+msgstr "Càrrec"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__company_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__company_id
+msgid "Company"
+msgstr "Empresa"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__config_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__config_id
+msgid "Config"
+msgstr "Configuració"
+
+#. module: afa_acollida
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_import_wizard_form
+msgid "Confirm Import"
+msgstr "Confirma la importació"
+
+#. module: afa_acollida
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_import_wizard_form
+msgid "Course"
+msgstr "Curs"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__course_name
+msgid "Course Name"
+msgstr "Nom del curs"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing__create_uid
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__create_uid
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__create_uid
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__create_uid
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__create_uid
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__create_uid
+msgid "Created by"
+msgstr "Creat per"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing__create_date
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__create_date
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__create_date
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__create_date
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__create_date
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__create_date
+msgid "Created on"
+msgstr "Creat el"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__currency_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__currency_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__currency_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__currency_id
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_account_move__display_name
+#: model:ir.model.fields,field_description:afa_acollida.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing__display_name
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__display_name
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__display_name
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__display_name
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__display_name
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__display_name
+msgid "Display Name"
+msgstr "Nom mostrat"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__family_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__family_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__family_id
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_import_wizard_form
+msgid "Family"
+msgstr "Família"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__family_name
+msgid "Family Name"
+msgstr "Nom de la família"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__file
+msgid "File"
+msgstr "Fitxer"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__filename
+msgid "Filename"
+msgstr "Nom del fitxer"
+
+#. module: afa_acollida
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_billing_form
+msgid "Generate Draft Invoices"
+msgstr "Genera les factures esborrany"
+
+#. module: afa_acollida
+#: model:ir.model.fields.selection,name:afa_acollida.selection__afa_acollida_import_line__action__create
+msgid "Import"
+msgstr "Importar"
+
+#. module: afa_acollida
+#: model:ir.model,name:afa_acollida.model_afa_acollida_import_wizard
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_import_wizard_form
+msgid "Import Fixed Acollida Fees"
+msgstr "Importa les quotes fixes d'acollida"
+
+#. module: afa_acollida
+#: model:ir.actions.act_window,name:afa_acollida.action_afa_acollida_import
+#: model:ir.ui.menu,name:afa_acollida.menu_afa_acollida_import
+msgid "Import Fixed Fees"
+msgstr "Importa les quotes fixes"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__import_month
+msgid "Import Month"
+msgstr "Mes d'importació"
+
+#. module: afa_acollida
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_import_wizard_form
+msgid "Import the Acollida monthly charges shown in the preview?"
+msgstr "Vols importar els càrrecs mensuals d'acollida que es mostren a la previsualització?"
+
+#. module: afa_acollida
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_config_form
+msgid "Imported Charges"
+msgstr "Càrrecs importats"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__include
+msgid "Include"
+msgstr "Incloure"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__invoice_journal_id
+msgid "Invoice Journal"
+msgstr "Diari de facturació"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__invoice_line_id
+msgid "Invoice Line"
+msgstr "Línia de factura"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__journal_id
+msgid "Journal"
+msgstr "Diari"
+
+#. module: afa_acollida
+#: model:ir.model,name:afa_acollida.model_account_move
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__invoice_id
+msgid "Journal Entry"
+msgstr "Assentament comptable"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing__write_uid
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__write_uid
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__write_uid
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__write_uid
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__write_uid
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Darrera actualització per"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing__write_date
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__write_date
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__write_date
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__write_date
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__write_date
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__write_date
+msgid "Last Updated on"
+msgstr "Darrera actualització el"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing__line_ids
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__line_ids
+msgid "Line"
+msgstr "Línia"
+
+#. module: afa_acollida
+#: model:ir.model.fields.selection,name:afa_acollida.selection__afa_acollida_import_wizard__import_month__3
+#: model:ir.model.fields.selection,name:afa_acollida.selection__afa_acollida_import_wizard__preview_month__3
+msgid "Marc"
+msgstr "Març"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__message
+msgid "Message"
+msgstr "Missatge"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing__month
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__month
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__month
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__month
+msgid "Month"
+msgstr "Mes"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: afa_acollida
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_import_wizard_form
+msgid "Parent"
+msgstr "Progenitor/a"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__parent_name
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__parent_name
+msgid "Parent Name"
+msgstr "Nom del progenitor"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__parse_error
+msgid "Parse Error"
+msgstr "Error d'interpretació"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__payer_id
+msgid "Payer"
+msgstr "Pagador/a"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__payment_mode_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__payment_mode_id
+msgid "Payment Mode"
+msgstr "Mètode de pagament"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__period_id
+msgid "Period"
+msgstr "Període"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__preview_checksum
+msgid "Preview Checksum"
+msgstr "Suma de verificació de la previsualització"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__preview_config_id
+msgid "Preview Config"
+msgstr "Configuració de la previsualització"
+
+#. module: afa_acollida
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_import_wizard_form
+msgid "Preview File"
+msgstr "Previsualitza el fitxer"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__preview_message
+msgid "Preview Message"
+msgstr "Missatge de previsualització"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_wizard__preview_month
+msgid "Preview Month"
+msgstr "Mes de previsualització"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__product_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_config__product_id
+msgid "Product"
+msgstr "Producte"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__reason
+msgid "Reason"
+msgstr "Motiu"
+
+#. module: afa_acollida
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_billing_form
+msgid "Refresh Preview"
+msgstr "Actualitza la previsualització"
+
+#. module: afa_acollida
+#: model:ir.model,name:afa_acollida.model_afa_acollida_billing
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_billing_form
+msgid "Review Monthly Acollida Billing"
+msgstr "Revisa la facturació mensual d'acollida"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__sequence
+msgid "Sequence"
+msgstr "Seqüència"
+
+#. module: afa_acollida
+#: model:ir.model.fields.selection,name:afa_acollida.selection__afa_acollida_import_line__action__skip
+msgid "Skip"
+msgstr "Ometre"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__source_row
+msgid "Source Row"
+msgstr "Fila d'origen"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__student_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__student_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__student_id
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_import_wizard_form
+msgid "Student"
+msgstr "Alumne/a"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__student_name
+msgid "Student Name"
+msgstr "Nom de l'alumne/a"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__tranche
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__tranche
+msgid "Tranche"
+msgstr "Tram"
+
+#. module: afa_acollida
+#: model_terms:ir.ui.view,arch_db:afa_acollida.view_afa_acollida_import_wizard_form
+msgid "Upload one row per family with FAMÍLIA, TRAM, HORES/SETMANA,\n                        IMPORT/MES and the selected month column. Other month amounts are ignored.\n                        Review warnings before confirming."
+msgstr "Carregueu una fila per família amb FAMÍLIA, TRAM, HORES/SETMANA, IMPORT/MES i la columna del mes seleccionat. S'ignoraran els imports dels altres mesos. Reviseu els avisos abans de confirmar."
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__warnings
+msgid "Warnings"
+msgstr "Avisos"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_charge__weekly_hours
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__weekly_hours
+msgid "Weekly Hours"
+msgstr "Hores setmanals"
+
+#. module: afa_acollida
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_billing_line__wizard_id
+#: model:ir.model.fields,field_description:afa_acollida.field_afa_acollida_import_line__wizard_id
+msgid "Wizard"
+msgstr "Assistent"

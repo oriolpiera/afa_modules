@@ -1,0 +1,186 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__action
+msgid "Action"
+msgstr "Acció"
+
+#. module: afa_family_import
+#: model_terms:ir.ui.view,arch_db:afa_family_import.view_afa_family_import_wizard_form
+msgid "Cancel"
+msgstr "Cancel·la"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_wizard__company_id
+msgid "Company"
+msgstr "Empresa"
+
+#. module: afa_family_import
+#: model_terms:ir.ui.view,arch_db:afa_family_import.view_afa_family_import_wizard_form
+msgid "Confirm Import"
+msgstr "Confirma la importació"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__course
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__course_id
+msgid "Course"
+msgstr "Curs"
+
+#. module: afa_family_import
+#: model:ir.model.fields.selection,name:afa_family_import.selection__afa_family_import_line__action__create
+msgid "Create"
+msgstr "Crear"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_wizard__create_mandates
+msgid "Create SEPA Mandates"
+msgstr "Crea mandats SEPA"
+
+#. module: afa_family_import
+#: model_terms:ir.ui.view,arch_db:afa_family_import.view_afa_family_import_wizard_form
+msgid "Create the families shown below?"
+msgstr "Vols crear les famílies que es mostren a continuació?"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__create_uid
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_wizard__create_uid
+msgid "Created by"
+msgstr "Creat per"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__create_date
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_wizard__create_date
+msgid "Created on"
+msgstr "Creat el"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__display_name
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_wizard__display_name
+msgid "Display Name"
+msgstr "Nom mostrat"
+
+#. module: afa_family_import
+#: model_terms:ir.ui.view,arch_db:afa_family_import.view_afa_family_import_wizard_form
+msgid "Download CSV Template"
+msgstr "Baixa la plantilla CSV"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__email
+msgid "Email"
+msgstr "Correu electrònic"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__family_name
+msgid "Family Name"
+msgstr "Nom de la família"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_wizard__file
+#: model_terms:ir.ui.view,arch_db:afa_family_import.view_afa_family_import_wizard_form
+msgid "File"
+msgstr "Fitxer"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_wizard__filename
+msgid "Filename"
+msgstr "Nom del fitxer"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__iban
+msgid "Iban"
+msgstr "IBAN"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__is_billing
+msgid "Is Billing"
+msgstr "És el/la tutor/a de facturació"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__is_payer
+msgid "Is Payer"
+msgstr "És el pagador/a"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__write_uid
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Darrera actualització per"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__write_date
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_wizard__write_date
+msgid "Last Updated on"
+msgstr "Darrera actualització el"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_wizard__line_ids
+msgid "Line"
+msgstr "Línia"
+
+#. module: afa_family_import
+#: model:ir.actions.act_window,name:afa_family_import.action_afa_family_import
+#: model:ir.ui.menu,name:afa_family_import.menu_afa_family_import
+#: model_terms:ir.ui.view,arch_db:afa_family_import.view_afa_family_import_wizard_form
+msgid "Load Families"
+msgstr "Carrega les famílies"
+
+#. module: afa_family_import
+#: model_terms:ir.ui.view,arch_db:afa_family_import.view_afa_family_import_wizard_form
+msgid "Load File"
+msgstr "Carrega el fitxer"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__mandate_date
+msgid "Mandate Date"
+msgstr "Data del mandat"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__membership_intent
+msgid "Membership Intent"
+msgstr "Intenció de fer-se soci/a"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__phone
+msgid "Phone"
+msgstr "Telèfon"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__role
+msgid "Role"
+msgstr "Rol"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__sequence
+msgid "Sequence"
+msgstr "Seqüència"
+
+#. module: afa_family_import
+#: model:ir.model.fields.selection,name:afa_family_import.selection__afa_family_import_line__action__skip
+msgid "Skip (family already exists)"
+msgstr "Ometre (la família ja existeix)"
+
+#. module: afa_family_import
+#: model_terms:ir.ui.view,arch_db:afa_family_import.view_afa_family_import_wizard_form
+msgid "Template"
+msgstr "Plantilla"
+
+#. module: afa_family_import
+#: model:ir.model.fields,field_description:afa_family_import.field_afa_family_import_line__wizard_id
+msgid "Wizard"
+msgstr "Assistent"

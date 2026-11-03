@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_account_reconcile
+#: model:ir.model.fields,field_description:afa_account_reconcile.field_res_partner__afa_is_accounting_partner_eligible
+#: model:ir.model.fields,field_description:afa_account_reconcile.field_res_users__afa_is_accounting_partner_eligible
+msgid "Afa Is Accounting Partner Eligible"
+msgstr "Contacte apte per a la conciliació bancària"
+
+#. module: afa_account_reconcile
+#: model:ir.model.fields,field_description:afa_account_reconcile.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nom mostrat"

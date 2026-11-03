@@ -1,0 +1,172 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-03 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_family
+#: model:ir.ui.menu,name:afa_family.menu_afa_family_root
+msgid "AFA Families"
+msgstr "Famílies de l'AFA"
+
+#. module: afa_family
+#: model:ir.model,name:afa_family.model_afa_family
+#: model:ir.model.fields,field_description:afa_family.field_res_partner__afa_family_id
+#: model:ir.model.fields,field_description:afa_family.field_res_users__afa_family_id
+#: model_terms:ir.ui.view,arch_db:afa_family.view_partner_form_afa_family
+msgid "AFA Family"
+msgstr "Família de l'AFA"
+
+#. module: afa_family
+#: model:res.groups,name:afa_family.group_family_manager
+msgid "AFA Family Manager"
+msgstr "Gestor/a de famílies de l'AFA"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_res_partner__afa_family_role
+#: model:ir.model.fields,field_description:afa_family.field_res_users__afa_family_role
+msgid "AFA Family Role"
+msgstr "Rol familiar de l'AFA"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family__active
+msgid "Active"
+msgstr "Actiu"
+
+#. module: afa_family
+#: model_terms:ir.ui.view,arch_db:afa_family.view_afa_family_member_add_wizard_form
+msgid "Add"
+msgstr "Afegeix"
+
+#. module: afa_family
+#: model_terms:ir.ui.view,arch_db:afa_family.view_afa_family_form
+msgid "Add Existing"
+msgstr "Afegeix existents"
+
+#. module: afa_family
+#. odoo-python
+#: code:addons/afa_family/models/afa_family.py:0
+#: model_terms:ir.ui.view,arch_db:afa_family.view_afa_family_member_add_wizard_form
+msgid "Add Existing Contacts"
+msgstr "Afegeix contactes existents"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_res_partner__afa_is_student
+#: model:ir.model.fields,field_description:afa_family.field_res_users__afa_is_student
+msgid "Afa Is Student"
+msgstr "És alumne/a"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family__billing_partner_id
+#: model:ir.model.fields,field_description:afa_family.field_res_partner__afa_is_billing_guardian
+#: model:ir.model.fields,field_description:afa_family.field_res_users__afa_is_billing_guardian
+msgid "Billing Guardian"
+msgstr "Tutor/a de facturació"
+
+#. module: afa_family
+#: model_terms:ir.ui.view,arch_db:afa_family.view_afa_family_member_add_wizard_form
+msgid "Cancel"
+msgstr "Cancel·la"
+
+#. module: afa_family
+#: model:ir.ui.menu,name:afa_family.menu_afa_family_collections
+msgid "Collections"
+msgstr "Cobraments"
+
+#. module: afa_family
+#: model:ir.ui.menu,name:afa_family.menu_afa_family_configuration
+msgid "Configuration"
+msgstr "Configuració"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family_member_add_wizard__partner_ids
+msgid "Contacts"
+msgstr "Contactes"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family__create_uid
+#: model:ir.model.fields,field_description:afa_family.field_afa_family_member_add_wizard__create_uid
+msgid "Created by"
+msgstr "Creat per"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family__create_date
+#: model:ir.model.fields,field_description:afa_family.field_afa_family_member_add_wizard__create_date
+msgid "Created on"
+msgstr "Creat el"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family__display_name
+#: model:ir.model.fields,field_description:afa_family.field_afa_family_member_add_wizard__display_name
+#: model:ir.model.fields,field_description:afa_family.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nom mostrat"
+
+#. module: afa_family
+#: model:ir.actions.act_window,name:afa_family.action_afa_family
+#: model:ir.ui.menu,name:afa_family.menu_afa_family
+msgid "Families"
+msgstr "Famílies"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family_member_add_wizard__family_id
+msgid "Family"
+msgstr "Família"
+
+#. module: afa_family
+#: model:ir.model.fields.selection,name:afa_family.selection__afa_family_member_add_wizard__role__guardian
+#: model:ir.model.fields.selection,name:afa_family.selection__res_partner__afa_family_role__guardian
+msgid "Guardian"
+msgstr "Tutor/a"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family__guardian_ids
+#: model_terms:ir.ui.view,arch_db:afa_family.view_afa_family_form
+msgid "Guardians"
+msgstr "Tutors/es"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family__write_uid
+#: model:ir.model.fields,field_description:afa_family.field_afa_family_member_add_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Darrera actualització per"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family__write_date
+#: model:ir.model.fields,field_description:afa_family.field_afa_family_member_add_wizard__write_date
+msgid "Last Updated on"
+msgstr "Darrera actualització el"
+
+#. module: afa_family
+#: model_terms:ir.ui.view,arch_db:afa_family.view_afa_family_form
+msgid "Members"
+msgstr "Membres"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family_member_add_wizard__role
+msgid "Role"
+msgstr "Rol"
+
+#. module: afa_family
+#: model:ir.model.fields.selection,name:afa_family.selection__afa_family_member_add_wizard__role__student
+#: model:ir.model.fields.selection,name:afa_family.selection__res_partner__afa_family_role__student
+msgid "Student"
+msgstr "Alumne/a"
+
+#. module: afa_family
+#: model:ir.model.fields,field_description:afa_family.field_afa_family__student_ids
+#: model_terms:ir.ui.view,arch_db:afa_family.view_afa_family_form
+msgid "Students"
+msgstr "Alumnes"
