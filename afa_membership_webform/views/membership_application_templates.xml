@@ -80,6 +80,9 @@
                                                         </t>
                                                     </select>
                                                 </div>
+                                                <div class="col-12" t-if="student_index > 0">
+                                                    <button type="button" class="btn btn-link text-danger text-start remove-student">Elimina aquest alumne</button>
+                                                </div>
                                             </div>
                                             </t>
                                         </div>

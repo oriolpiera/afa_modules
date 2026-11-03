@@ -116,6 +116,7 @@ class TestMembershipWebform(HttpCase):
         self.assertIn('value="aina@example.cat"', response.text)
         self.assertIn('value="Pol Sol"', response.text)
         self.assertIn('value="Laia Sol"', response.text)
+        self.assertIn('remove-student', response.text)
         self.assertIn('value="INVALID"', response.text)
         self.assertEqual(response.headers.get('Cache-Control'), 'no-store')
         self.assertFalse(self.env['afa.membership.application'].search([]))

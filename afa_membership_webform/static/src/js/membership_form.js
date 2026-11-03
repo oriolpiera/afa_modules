@@ -25,6 +25,13 @@ const initializeMembershipForm = () => {
     });
     mandateInput.addEventListener('change', updateMembershipFields);
 
+    studentList.addEventListener('click', (event) => {
+        const removeButton = event.target.closest('.remove-student');
+        if (removeButton) {
+            removeButton.closest('.student-row').remove();
+        }
+    });
+
     addStudentButton.addEventListener('click', () => {
         const template = studentList.querySelector('.student-row');
         const row = template.cloneNode(true);
@@ -34,9 +41,8 @@ const initializeMembershipForm = () => {
         row.querySelector('select').selectedIndex = 0;
         const remove = document.createElement('button');
         remove.type = 'button';
-        remove.className = 'btn btn-link text-danger col-12 text-start';
+        remove.className = 'btn btn-link text-danger text-start remove-student';
         remove.textContent = 'Elimina aquest alumne';
-        remove.addEventListener('click', () => row.remove());
         row.append(remove);
         studentList.append(row);
     });
