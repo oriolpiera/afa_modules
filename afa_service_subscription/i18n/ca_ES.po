@@ -60,7 +60,7 @@ msgstr "Cancel·la"
 #. module: afa_service_subscription
 #: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service__window_ids
 msgid "Change Windows"
-msgstr "Modificar els períodes"
+msgstr "Períodes d'alta i baixa"
 
 #. module: afa_service_subscription
 #: model:ir.model.fields,field_description:afa_service_subscription.field_afa_service_subscription__charge_ids
