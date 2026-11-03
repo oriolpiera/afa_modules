@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="membership_application_form" model="ir.ui.view">
+        <field name="name">afa.membership.application.form</field>
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_membership_webform.membership_application_form">
+                <t t-call="website.layout">
+                    <t t-set="additional_title">Alta de sòcia · AFA Escola La Bòbila</t>
+                    <div id="wrap" class="container py-5 afa-membership-form">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-9">
+                                <p class="text-uppercase text-success fw-bold">AFA Escola La Bòbila</p>
+                                <h1>Alta de sòcia</h1>
+                                <p>Ompliu aquest formulari per enviar la sol·licitud d’alta. L’AFA revisarà les dades abans de crear la família.</p>
+                                <div t-if="error" class="alert alert-danger" role="alert" t-esc="error"/>
+                                <form action="/alta-socia/submit" method="post" class="afa-membership-application-form">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <div class="position-absolute" style="left: -10000px" aria-hidden="true">
+                                        <label for="website_url">No ompliu aquest camp</label>
+                                        <input id="website_url" name="website_url" tabindex="-1" autocomplete="off"/>
+                                    </div>
+                                    <fieldset class="mb-4">
+                                        <legend class="h3">Tutors legals</legend>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="guardian1_name">Nom i cognoms del tutor/a principal *</label>
+                                                <input class="form-control" id="guardian1_name" name="guardian1_name" required="required" maxlength="120" t-att-value="values.get('guardian1_name')"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="guardian1_vat">DNI/NIE *</label>
+                                                <input class="form-control" id="guardian1_vat" name="guardian1_vat" required="required" maxlength="32" t-att-value="values.get('guardian1_vat')"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="guardian1_email">Correu electrònic *</label>
+                                                <input class="form-control" type="email" id="guardian1_email" name="guardian1_email" required="required" maxlength="254" t-att-value="values.get('guardian1_email')"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="guardian1_phone">Telèfon *</label>
+                                                <input class="form-control" id="guardian1_phone" name="guardian1_phone" required="required" maxlength="200" t-att-value="values.get('guardian1_phone')"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="guardian2_name">Nom i cognoms del segon tutor/a</label>
+                                                <input class="form-control" id="guardian2_name" name="guardian2_name" maxlength="120" t-att-value="values.get('guardian2_name')"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="guardian2_vat">DNI/NIE del segon tutor/a</label>
+                                                <input class="form-control" id="guardian2_vat" name="guardian2_vat" maxlength="32" t-att-value="values.get('guardian2_vat')"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="guardian2_email">Correu electrònic del segon tutor/a</label>
+                                                <input class="form-control" type="email" id="guardian2_email" name="guardian2_email" maxlength="254" t-att-value="values.get('guardian2_email')"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="guardian2_phone">Telèfon del segon tutor/a</label>
+                                                <input class="form-control" id="guardian2_phone" name="guardian2_phone" maxlength="200" t-att-value="values.get('guardian2_phone')"/>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <fieldset class="mb-4" id="students-section">
+                                        <legend class="h3">Alumnes matriculats *</legend>
+                                        <p>Afegiu tots els infants de la família que actualment estudien a l’escola.</p>
+                                        <div id="student-list">
+                                            <t t-foreach="values.get('student_rows')" t-as="student">
+                                            <div class="student-row row g-3 mb-3">
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Nom i cognoms *</label>
+                                                    <input class="form-control" name="student_name" required="required" maxlength="120" t-att-value="student.get('name')"/>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Data de naixement *</label>
+                                                    <input class="form-control" type="date" name="student_birthday" required="required" t-att-value="student.get('birthday')"/>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Curs *</label>
+                                                    <select class="form-select" name="student_course" required="required">
+                                                        <option value="" t-att-selected="not student.get('course_id')">Seleccioneu el curs</option>
+                                                        <t t-foreach="courses" t-as="course">
+                                                            <option t-att-value="course.id" t-att-selected="course.id == student.get('course_id')" t-esc="course.name"/>
+                                                        </t>
+                                                    </select>
+                                                </div>
+                                                <div class="col-12" t-if="student_index > 0">
+                                                    <button type="button" class="btn btn-link text-danger text-start remove-student">Elimina aquest alumne</button>
+                                                </div>
+                                            </div>
+                                            </t>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-secondary" id="add-student">Afegeix un alumne</button>
+                                    </fieldset>
+                                    <fieldset class="mb-4">
+                                        <legend class="h3">Quota i domiciliació</legend>
+                                        <p>Voleu fer-vos sòcies de l’AFA? *</p>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="wants_membership" id="membership-yes" value="yes" required="required" t-att-checked="values.get('wants_membership') == 'yes' and 'checked' or None"/>
+                                            <label class="form-check-label" for="membership-yes">Sí, vull fer-me sòcia</label>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="radio" name="wants_membership" id="membership-no" value="no" required="required" t-att-checked="values.get('wants_membership') == 'no' and 'checked' or None"/>
+                                            <label class="form-check-label" for="membership-no">No</label>
+                                        </div>
+                                        <div class="border rounded p-3">
+                                            <p class="small">Indiqueu les dades del compte si voleu fer-vos sòcies o domiciliar serveis d’acollida i extraescolars.</p>
+                                            <div class="mb-3">
+                                                <label class="form-label" for="bank_account_holder_name">Titular del compte bancari</label>
+                                                <input class="form-control" id="bank_account_holder_name" name="bank_account_holder_name" maxlength="200" t-att-value="values.get('bank_account_holder_name')"/>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label" for="iban">IBAN del compte de càrrec</label>
+                                                <input class="form-control" id="iban" name="iban" autocomplete="off" maxlength="34" t-att-value="values.get('iban')"/>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="mandate-accepted" name="mandate_accepted" value="yes" t-att-checked="values.get('mandate_accepted') and 'checked' or None"/>
+                                                <label class="form-check-label" for="mandate-accepted">
+                                                    Autoritzo l’AFA Escola La Bòbila, mitjançant domiciliació SEPA, a carregar al compte indicat la quota de sòcia (si escau) i els rebuts dels serveis d’acollida i extraescolars que contracti. Confirmo que soc titular o persona autoritzada per operar amb aquest compte.
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <p class="small text-muted">Les dades s’utilitzaran per gestionar aquesta sol·licitud i, si s’aprova, la relació amb l’AFA. L’IBAN només serà visible per a les persones autoritzades.</p>
+                                    <button class="btn btn-primary btn-lg" type="submit">Envia la sol·licitud</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="membership_application_thanks" model="ir.ui.view">
+        <field name="name">afa.membership.application.thanks</field>
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_membership_webform.membership_application_thanks">
+                <t t-call="website.layout">
+                    <t t-set="additional_title">Sol·licitud rebuda · AFA Escola La Bòbila</t>
+                    <div id="wrap" class="container py-5 text-center">
+                        <h1>Hem rebut la vostra sol·licitud</h1>
+                        <p>L’AFA revisarà les dades i gestionarà l’alta. Gràcies per la confiança.</p>
+                        <a class="btn btn-primary" href="/">Torna a l’inici</a>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_afa_birthdate" model="ir.ui.view">
+        <field name="name">res.partner.form.afa.birthdate</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="afa_birthdate" groups="afa_family.group_family_manager"
+                       invisible="afa_family_role != 'student'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
