@@ -8,18 +8,22 @@ const initializeMembershipForm = () => {
 
     const studentList = form.querySelector('#student-list');
     const addStudentButton = form.querySelector('#add-student');
+    const accountHolderInput = form.querySelector('#bank_account_holder_name');
     const ibanInput = form.querySelector('#iban');
     const mandateInput = form.querySelector('#mandate-accepted');
 
     const updateMembershipFields = () => {
         const wantsMembership = form.querySelector('#membership-yes').checked;
-        ibanInput.required = wantsMembership;
+        const needsMandate = wantsMembership || mandateInput.checked;
+        accountHolderInput.required = needsMandate;
+        ibanInput.required = needsMandate;
         mandateInput.required = wantsMembership;
     };
 
     form.querySelectorAll('input[name="wants_membership"]').forEach((input) => {
         input.addEventListener('change', updateMembershipFields);
     });
+    mandateInput.addEventListener('change', updateMembershipFields);
 
     addStudentButton.addEventListener('click', () => {
         const template = studentList.querySelector('.student-row');

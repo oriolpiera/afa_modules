@@ -7,12 +7,13 @@ Website, Family, Membership, School Courses, and SEPA addons.
 Public submissions are stored as **Pending Review**. They do not create family
 contacts or a mandate until an AFA Family Manager approves the application.
 Approval creates or reuses an unassigned guardian matched by DNI, creates the
-family and student contacts, records the selected school courses, and—when the
-family joins—creates the payer's bank account and a draft recurrent SEPA Core
-mandate. A manager must validate the mandate after confirming the bank accepts
-the electronic authorization process. The application records the explicit
-authorization timestamp and terms version. Rejected submissions create no
-family or contact records.
+family and student contacts, records the selected school courses, and—when a
+SEPA authorization was accepted—creates the payer's bank account and a draft
+recurrent SEPA Core mandate. The mandate can cover membership dues and any
+contracted Acollida or extracurricular services. A manager must validate the
+mandate after confirming the bank accepts the electronic authorization process.
+The application records the explicit authorization timestamp and terms version.
+Rejected submissions create no family or contact records.
 
 Configure the school's course ladder in **AFA Families → Configuration → School
 Courses** before publishing the form; the course selector uses those records.

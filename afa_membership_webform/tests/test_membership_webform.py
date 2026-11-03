@@ -26,7 +26,7 @@ class TestMembershipWebform(HttpCase):
             'guardian2_vat': '',
             'guardian2_email': '',
             'guardian2_phone': '',
-            'address': 'Carrer de l’Escola, 1, les Preses',
+            'bank_account_holder_name': 'Aina Sol',
             'student_name': ['Pol Sol'],
             'student_birthday': ['2020-03-15'],
             'student_course': [str(course_id)],
@@ -47,6 +47,9 @@ class TestMembershipWebform(HttpCase):
         self.assertIn(f'value="{course.id}"', response.text)
         self.assertIn('id="iban"', response.text)
         self.assertIn('name="mandate_accepted"', response.text)
+        self.assertIn('name="bank_account_holder_name"', response.text)
+        self.assertNotIn('id="address"', response.text)
+        self.assertIn('serveis d’acollida i extraescolars que contracti', response.text)
 
     def test_valid_submission_creates_pending_application_only(self):
         course = self._course()
@@ -73,8 +76,27 @@ class TestMembershipWebform(HttpCase):
         self.assertEqual(application.guardian1_phone, '+34600000001')
         self.assertEqual(application.guardian2_email, 'joan@example.cat')
         self.assertEqual(application.guardian2_phone, '+34600000002')
+        self.assertEqual(application.bank_account_holder_name, 'Aina Sol')
         self.assertEqual(application.student_ids.name, 'Pol Sol')
         self.assertFalse(self.env['res.partner'].search([('vat', '=', 'DNI1001')]))
+
+    def test_non_member_can_submit_sepa_authorization_for_services(self):
+        course = self._course()
+
+        response = self.url_open(
+            '/alta-socia/submit',
+            data=self._submission(course.id, wants_membership='no'),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        application = self.env['afa.membership.application'].search(
+            [('guardian1_vat', '=', 'DNI1001')]
+        )
+        self.assertEqual(len(application), 1)
+        self.assertFalse(application.wants_membership)
+        self.assertTrue(application.mandate_accepted)
+        self.assertEqual(application.bank_account_holder_name, 'Aina Sol')
+        self.assertEqual(application.iban, VALID_IBAN)
 
     def test_invalid_submission_preserves_values_and_creates_nothing(self):
         course = self._course()

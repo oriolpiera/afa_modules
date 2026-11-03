@@ -3,7 +3,7 @@ import re
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 
-MANDATE_TERMS_VERSION = '2026-01'
+MANDATE_TERMS_VERSION = '2026-11'
 _IBAN_COUNTRY_LENGTHS = {'ES': 24}
 _IBAN_RE = re.compile(r'^[A-Z0-9]+$')
 _GUARDIAN_ID_RE = re.compile(r'^[A-Z0-9]{1,32}$')
@@ -58,7 +58,8 @@ class AfaMembershipApplication(models.Model):
     guardian2_vat = fields.Char(groups='afa_family.group_family_manager')
     guardian2_email = fields.Char(groups='afa_family.group_family_manager')
     guardian2_phone = fields.Char(groups='afa_family.group_family_manager')
-    address = fields.Text(required=True, groups='afa_family.group_family_manager')
+    address = fields.Text(groups='afa_family.group_family_manager')
+    bank_account_holder_name = fields.Char(groups='afa_family.group_family_manager')
     student_ids = fields.One2many(
         'afa.membership.application.student',
         'application_id',
@@ -89,6 +90,7 @@ class AfaMembershipApplication(models.Model):
         'guardian2_email',
         'guardian2_phone',
         'address',
+        'bank_account_holder_name',
         'wants_membership',
         'iban',
         'mandate_accepted',
@@ -127,14 +129,16 @@ class AfaMembershipApplication(models.Model):
                 or len(application.guardian2_phone or '') > 200
             ):
                 raise ValidationError(_('The first guardian email and phone are required.'))
-            if not application.address:
-                raise ValidationError(_('The address is required.'))
             if not application.student_ids:
                 raise ValidationError(_('Add at least one student.'))
-            if application.wants_membership:
+            if application.wants_membership and not application.mandate_accepted:
+                raise ValidationError(_('Accept the SEPA direct debit authorization.'))
+            if application.mandate_accepted:
+                if not application.bank_account_holder_name:
+                    raise ValidationError(_('Enter the bank account holder name.'))
                 if not _valid_iban(application.iban):
                     raise ValidationError(_('Enter a valid IBAN for membership payments.'))
-                if not application.mandate_accepted or not application.mandate_accepted_at:
+                if not application.mandate_accepted_at:
                     raise ValidationError(_('Accept the SEPA direct debit authorization.'))
 
     def _check_manager(self):
@@ -182,7 +186,7 @@ class AfaMembershipApplication(models.Model):
                 }
             )
 
-        if self.wants_membership:
+        if self.mandate_accepted:
             normalized_iban = ''.join(self.iban.split()).upper()
             bank = payer.bank_ids.sudo().filtered(
                 lambda account: ''.join(account.acc_number.split()).upper() == normalized_iban
@@ -191,8 +195,16 @@ class AfaMembershipApplication(models.Model):
                 bank = (
                     self.env['res.partner.bank']
                     .sudo()
-                    .create({'acc_number': normalized_iban, 'partner_id': payer.id})
+                    .create(
+                        {
+                            'acc_number': normalized_iban,
+                            'partner_id': payer.id,
+                            'acc_holder_name': self.bank_account_holder_name,
+                        }
+                    )
                 )
+            else:
+                bank.write({'acc_holder_name': self.bank_account_holder_name})
             self.env['account.banking.mandate'].sudo().create(
                 {
                     'partner_bank_id': bank.id,

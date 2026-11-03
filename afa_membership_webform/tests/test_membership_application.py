@@ -20,11 +20,12 @@ class TestMembershipApplication(TransactionCase):
             'guardian1_email': 'aina@example.cat',
             'guardian1_phone': '+34600000001',
             'address': 'Carrer de l’Escola, 1, les Preses',
+            'bank_account_holder_name': 'Aina Sol',
             'wants_membership': True,
             'iban': VALID_IBAN,
             'mandate_accepted': True,
             'mandate_accepted_at': fields.Datetime.now(),
-            'mandate_terms_version': '2026-01',
+            'mandate_terms_version': '2026-11',
             'student_ids': [
                 (
                     0,
@@ -72,6 +73,7 @@ class TestMembershipApplication(TransactionCase):
         bank = family.billing_partner_id.bank_ids
         self.assertEqual(len(bank), 1)
         self.assertEqual(''.join(bank.acc_number.split()), VALID_IBAN)
+        self.assertEqual(bank.acc_holder_name, 'Aina Sol')
         mandate = self.env['account.banking.mandate'].search([('partner_bank_id', '=', bank.id)])
         self.assertEqual(len(mandate), 1)
         self.assertEqual(mandate.state, 'draft')
@@ -85,6 +87,7 @@ class TestMembershipApplication(TransactionCase):
         application = self._application(
             wants_membership=False,
             iban=False,
+            bank_account_holder_name=False,
             mandate_accepted=False,
             mandate_accepted_at=False,
             mandate_terms_version=False,
@@ -99,6 +102,19 @@ class TestMembershipApplication(TransactionCase):
                 [('partner_id', '=', application.family_id.billing_partner_id.id)]
             )
         )
+
+    def test_non_member_can_authorize_service_debits(self):
+        application = self._application(wants_membership=False)
+
+        application.action_approve()
+
+        self.assertFalse(application.family_id.manual_member)
+        bank = application.family_id.billing_partner_id.bank_ids
+        self.assertEqual(len(bank), 1)
+        self.assertEqual(bank.acc_holder_name, 'Aina Sol')
+        mandate = self.env['account.banking.mandate'].search([('partner_bank_id', '=', bank.id)])
+        self.assertEqual(len(mandate), 1)
+        self.assertEqual(mandate.state, 'draft')
 
     def test_rejection_does_not_create_family_or_contacts(self):
         application = self._application()

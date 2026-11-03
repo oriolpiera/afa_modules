@@ -41,8 +41,8 @@ class AfaMembershipWebformController(http.Controller):
             submitted_values['guardian2_vat'],
             submitted_values['guardian2_email'],
             submitted_values['guardian2_phone'],
-            submitted_values['address'],
             submitted_values['wants_membership'],
+            submitted_values['bank_account_holder_name'],
             submitted_values['iban'],
             submitted_values['mandate_accepted'],
             submitted_values['student_rows'],
@@ -51,7 +51,7 @@ class AfaMembershipWebformController(http.Controller):
             return self._render_form(error, status=400, values=submitted_values)
 
         wants_membership = submitted_values['wants_membership'] == 'yes'
-        mandate_accepted = wants_membership and submitted_values['mandate_accepted']
+        mandate_accepted = submitted_values['mandate_accepted']
         application_values = {
             'name': submitted_values['guardian1_name'],
             'company_id': request.website.company_id.id,
@@ -64,9 +64,12 @@ class AfaMembershipWebformController(http.Controller):
             'guardian2_vat': submitted_values['guardian2_vat'],
             'guardian2_email': submitted_values['guardian2_email'],
             'guardian2_phone': submitted_values['guardian2_phone'],
-            'address': submitted_values['address'],
+            'address': False,
+            'bank_account_holder_name': (
+                submitted_values['bank_account_holder_name'] if mandate_accepted else False
+            ),
             'wants_membership': wants_membership,
-            'iban': submitted_values['iban'] if wants_membership else False,
+            'iban': submitted_values['iban'] if mandate_accepted else False,
             'mandate_accepted': mandate_accepted,
             'mandate_accepted_at': (fields.Datetime.now() if mandate_accepted else False),
             'mandate_terms_version': (MANDATE_TERMS_VERSION if mandate_accepted else False),
@@ -134,7 +137,7 @@ class AfaMembershipWebformController(http.Controller):
             'guardian2_vat': _normalize_guardian_id(form.get('guardian2_vat')),
             'guardian2_email': self._text(form.get('guardian2_email')).lower(),
             'guardian2_phone': self._text(form.get('guardian2_phone')),
-            'address': self._text(form.get('address')),
+            'bank_account_holder_name': self._text(form.get('bank_account_holder_name')),
             'wants_membership': form.get('wants_membership') or '',
             'iban': self._text(form.get('iban')).replace(' ', '').upper(),
             'mandate_accepted': form.get('mandate_accepted') == 'yes',
@@ -163,8 +166,8 @@ class AfaMembershipWebformController(http.Controller):
         guardian2_vat,
         guardian2_email,
         guardian2_phone,
-        address,
         wants_membership,
+        bank_account_holder_name,
         iban,
         mandate_accepted,
         student_rows,
@@ -183,10 +186,14 @@ class AfaMembershipWebformController(http.Controller):
                 guardian1_phone,
                 guardian2_email,
                 guardian2_phone,
-                address,
             )
             or self._validate_students(student_rows)
-            or self._validate_membership(wants_membership == 'yes', iban, mandate_accepted)
+            or self._validate_membership(
+                wants_membership == 'yes',
+                bank_account_holder_name,
+                iban,
+                mandate_accepted,
+            )
         )
 
     @staticmethod
@@ -217,7 +224,6 @@ class AfaMembershipWebformController(http.Controller):
         guardian1_phone,
         guardian2_email,
         guardian2_phone,
-        address,
     ):
         if not _EMAIL_RE.fullmatch(guardian1_email):
             return 'Introduïu un correu vàlid per al primer tutor o tutora.'
@@ -227,8 +233,6 @@ class AfaMembershipWebformController(http.Controller):
             return 'L’adreça electrònica és massa llarga.'
         if not guardian1_phone or len(guardian1_phone) > 200 or len(guardian2_phone) > 200:
             return 'Indiqueu un telèfon vàlid per al primer tutor o tutora.'
-        if not address or len(address) > 500:
-            return 'Indiqueu una adreça completa vàlida.'
 
     def _validate_students(self, student_rows):
         if not student_rows or len(student_rows) > _MAX_STUDENTS:
@@ -249,12 +253,14 @@ class AfaMembershipWebformController(http.Controller):
                 return 'La data de naixement no pot ser futura.'
 
     @staticmethod
-    def _validate_membership(wants_membership, iban, mandate_accepted):
-        if wants_membership:
+    def _validate_membership(wants_membership, bank_account_holder_name, iban, mandate_accepted):
+        if wants_membership and not mandate_accepted:
+            return 'Per fer-se sòcia cal acceptar l’autorització de domiciliació SEPA.'
+        if mandate_accepted:
             from ..models.membership_application import _valid_iban
 
+            if not bank_account_holder_name or len(bank_account_holder_name) > 200:
+                return 'Indiqueu el titular del compte bancari.'
             if not _valid_iban(iban):
                 return 'Introduïu un IBAN vàlid.'
-            if not mandate_accepted:
-                return 'Per fer-se sòcia cal acceptar l’autorització de domiciliació SEPA.'
         return ''
