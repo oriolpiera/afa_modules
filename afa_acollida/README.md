@@ -46,6 +46,8 @@ imported for the same student/month must be resolved before confirming.
   the existing monthly service invoice grouping. Acollida and other monthly-service
   charges can share the same draft family invoice.
 - Invoices are generated as drafts for normal accounting review and posting.
+- The invoice date is the day the draft is generated; the accounting date is the
+  last day of the billed month.
 - Canceling an invoice preserves its charge history and deactivates those charges.
   Reimport the workbook to create replacement charges for a canceled month.
 
