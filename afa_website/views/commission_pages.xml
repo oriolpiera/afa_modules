@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="menu_commissions" model="website.menu">
+        <field name="name">Comissions</field>
+        <field name="url">#</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="parent_id" search="[('url', '=', '#'), ('website_id', '=', ref('website.default_website'))]" />
+        <field name="sequence" type="int">20</field>
+    </record>
+    <record id="menu_junta" model="website.menu">
+        <field name="name">Junta</field>
+        <field name="url">/junta</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="parent_id" ref="menu_commissions" />
+        <field name="sequence" type="int">10</field>
+    </record>
+    <record id="menu_acollida" model="website.menu">
+        <field name="name">Acollida</field>
+        <field name="url">/acollida</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="parent_id" ref="menu_commissions" />
+        <field name="sequence" type="int">20</field>
+    </record>
+    <record id="menu_menjador" model="website.menu">
+        <field name="name">Menjador</field>
+        <field name="url">/menjador</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="parent_id" ref="menu_commissions" />
+        <field name="sequence" type="int">30</field>
+    </record>
+    <record id="menu_extraescolars" model="website.menu">
+        <field name="name">Extraescolars</field>
+        <field name="url">/extraescolars</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="parent_id" ref="menu_commissions" />
+        <field name="sequence" type="int">40</field>
+    </record>
+    <record id="menu_xandalls" model="website.menu">
+        <field name="name">Xandalls</field>
+        <field name="url">/xandalls</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="parent_id" ref="menu_commissions" />
+        <field name="sequence" type="int">50</field>
+    </record>
+    <record id="menu_economia" model="website.menu">
+        <field name="name">Economia</field>
+        <field name="url">/economia</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="parent_id" ref="menu_commissions" />
+        <field name="sequence" type="int">60</field>
+    </record>
+    <record id="menu_festes" model="website.menu">
+        <field name="name">Festes</field>
+        <field name="url">/festes</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="parent_id" ref="menu_commissions" />
+        <field name="sequence" type="int">70</field>
+    </record>
+
+    <record id="page_junta" model="website.page">
+        <field name="name">Junta</field>
+        <field name="is_published" eval="True" />
+        <field name="key">afa_website.page_junta</field>
+        <field name="url">/junta</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_website.page_junta">
+                <t t-call="website.layout">
+                    <t t-set="additional_title">La Junta · AFA Escola La Bòbila</t>
+                    <div id="wrap" class="oe_structure afa-homepage afa-commission-page">
+                        <section class="afa-commission-hero">
+                            <img src="/afa_website/static/src/img/school-front.jpg" alt="Entrada de l’Escola La Bòbila" />
+                            <div class="container afa-commission-hero__content">
+                                <p class="afa-eyebrow">Les persones al darrere</p>
+                                <h1>La Junta</h1>
+                                <p>Coordina les iniciatives de l’AFA i fa de canal entre l’escola i les famílies.</p>
+                            </div>
+                        </section>
+                        <section class="afa-commission-body">
+                            <div class="container afa-commission-body__grid">
+                                <p class="afa-eyebrow afa-eyebrow--green">Què fa la Junta</p>
+                                <div>
+                                    <h2>Connectem idees i persones.</h2>
+                                    <p>La Junta representa les famílies i ajuda a coordinar els projectes i les comissions de l’AFA. Treballa perquè la comunicació amb l’escola sigui fluida i perquè les necessitats de les famílies tinguin un espai compartit.</p>
+                                    <p>La participació és oberta: les reunions mensuals són una bona manera de conèixer què s’està fent i aportar noves idees.</p>
+                                    <a class="afa-inline-link" href="/contactus">Vine a una reunió <span aria-hidden="true">→</span></a>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_acollida" model="website.page">
+        <field name="name">Acollida</field>
+        <field name="is_published" eval="True" />
+        <field name="key">afa_website.page_acollida</field>
+        <field name="url">/acollida</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_website.page_acollida">
+                <t t-call="website.layout">
+                    <t t-set="additional_title">Acollida · AFA Escola La Bòbila</t>
+                    <div id="wrap" class="oe_structure afa-homepage afa-commission-page">
+                        <section class="afa-commission-hero">
+                            <img src="/afa_website/static/src/img/school-garden.jpg" alt="Espais verds de l’Escola La Bòbila" />
+                            <div class="container afa-commission-hero__content">
+                                <p class="afa-eyebrow">Un espai abans i després de classe</p>
+                                <h1>Acollida</h1>
+                                <p>Acompanyem els infants en horaris no lectius i ajudem les famílies a conciliar el dia a dia.</p>
+                            </div>
+                        </section>
+                        <section class="afa-commission-body">
+                            <div class="container afa-commission-body__grid">
+                                <p class="afa-eyebrow afa-eyebrow--green">El servei</p>
+                                <div>
+                                    <h2>Temps per jugar, llegir i compartir.</h2>
+                                    <p>L’acollida ofereix un entorn tranquil i acompanyat abans i després de l’horari lectiu. Segons el moment del dia, els infants poden esmorzar o berenar, jugar, llegir, fer jocs de taula i avançar deures.</p>
+                                    <p>Per conèixer els horaris, les places disponibles i com inscriure-us, contacteu amb la comissió.</p>
+                                    <a class="afa-inline-link" href="mailto:acollida@afabobila.cat">Escriu a acollida@afabobila.cat <span aria-hidden="true">↗</span></a>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_menjador" model="website.page">
+        <field name="name">Menjador</field>
+        <field name="is_published" eval="True" />
+        <field name="key">afa_website.page_menjador</field>
+        <field name="url">/menjador</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_website.page_menjador">
+                <t t-call="website.layout">
+                    <t t-set="additional_title">Menjador · AFA Escola La Bòbila</t>
+                    <div id="wrap" class="oe_structure afa-homepage afa-commission-page">
+                        <section class="afa-commission-hero">
+                            <img src="/afa_website/static/src/img/school-courtyard.jpg" alt="Pati de l’Escola La Bòbila" />
+                            <div class="container afa-commission-hero__content">
+                                <p class="afa-eyebrow">Un espai per créixer plegats</p>
+                                <h1>Menjador</h1>
+                                <p>Fem seguiment del servei i treballem perquè l’estona de migdia sigui una part cuidada del dia a l’escola.</p>
+                            </div>
+                        </section>
+                        <section class="afa-commission-body">
+                            <div class="container afa-commission-body__grid">
+                                <p class="afa-eyebrow afa-eyebrow--green">La comissió</p>
+                                <div>
+                                    <h2>Coordinació i qualitat del servei.</h2>
+                                    <p>La comissió es coordina amb l’escola i amb l’empresa responsable del menjador per fer seguiment del servei i canalitzar les preguntes i propostes de les famílies.</p>
+                                    <p>Per consultar la informació vigent sobre menús, inscripcions i funcionament, contacteu amb la comissió.</p>
+                                    <a class="afa-inline-link" href="mailto:menjador@afabobila.cat">Escriu a menjador@afabobila.cat <span aria-hidden="true">↗</span></a>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_extraescolars" model="website.page">
+        <field name="name">Extraescolars</field>
+        <field name="is_published" eval="True" />
+        <field name="key">afa_website.page_extraescolars</field>
+        <field name="url">/extraescolars</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_website.page_extraescolars">
+                <t t-call="website.layout">
+                    <t t-set="additional_title">Extraescolars · AFA Escola La Bòbila</t>
+                    <div id="wrap" class="oe_structure afa-homepage afa-commission-page">
+                        <section class="afa-commission-hero">
+                            <img src="/afa_website/static/src/img/school-courtyard.jpg" alt="Pista esportiva de l’Escola La Bòbila" />
+                            <div class="container afa-commission-hero__content">
+                                <p class="afa-eyebrow">Aprendre també fora de l’aula</p>
+                                <h1>Extraescolars</h1>
+                                <p>Proposem activitats perquè els infants descobreixin interessos, aprenguin i gaudeixin en grup.</p>
+                            </div>
+                        </section>
+                        <section class="afa-commission-body">
+                            <div class="container afa-commission-body__grid">
+                                <p class="afa-eyebrow afa-eyebrow--green">La comissió</p>
+                                <div>
+                                    <h2>Activitats pensades per les famílies.</h2>
+                                    <p>La comissió recull propostes, ajuda a organitzar les activitats extraescolars i en fa seguiment al llarg del curs en coordinació amb l’escola i les famílies.</p>
+                                    <p>La programació, els horaris i les inscripcions poden canviar cada curs. Demaneu la informació actualitzada a la comissió.</p>
+                                    <a class="afa-inline-link" href="mailto:extraescolars@afabobila.cat">Escriu a extraescolars@afabobila.cat <span aria-hidden="true">↗</span></a>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_xandalls" model="website.page">
+        <field name="name">Xandalls</field>
+        <field name="is_published" eval="True" />
+        <field name="key">afa_website.page_xandalls</field>
+        <field name="url">/xandalls</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_website.page_xandalls">
+                <t t-call="website.layout">
+                    <t t-set="additional_title">Xandalls · AFA Escola La Bòbila</t>
+                    <div id="wrap" class="oe_structure afa-homepage afa-commission-page">
+                        <section class="afa-commission-hero">
+                            <img src="/afa_website/static/src/img/school-landscape.jpg" alt="Vista de l’Escola La Bòbila" />
+                            <div class="container afa-commission-hero__content">
+                                <p class="afa-eyebrow">Equipament de l’escola</p>
+                                <h1>Xandalls</h1>
+                                <p>Ens ocupem de les comandes i de l’estoc de la roba escolar.</p>
+                            </div>
+                        </section>
+                        <section class="afa-commission-body">
+                            <div class="container afa-commission-body__grid">
+                                <p class="afa-eyebrow afa-eyebrow--green">Comandes i reutilització</p>
+                                <div>
+                                    <h2>Una segona vida per la roba.</h2>
+                                    <p>La comissió gestiona les comandes de l’equipament escolar i pot orientar-vos sobre disponibilitat i talles.</p>
+                                    <p>Per a la compra o l’intercanvi de roba de segona mà entre famílies, podeu fer servir <a href="https://scoolapp.com/" target="_blank" rel="noopener">Scoolapp</a>. Aquesta gestió es fa directament entre famílies.</p>
+                                    <a class="afa-inline-link" href="mailto:xandalls@afabobila.cat">Escriu a xandalls@afabobila.cat <span aria-hidden="true">↗</span></a>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_economia" model="website.page">
+        <field name="name">Economia</field>
+        <field name="is_published" eval="True" />
+        <field name="key">afa_website.page_economia</field>
+        <field name="url">/economia</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_website.page_economia">
+                <t t-call="website.layout">
+                    <t t-set="additional_title">Economia · AFA Escola La Bòbila</t>
+                    <div id="wrap" class="oe_structure afa-homepage afa-commission-page">
+                        <section class="afa-commission-hero">
+                            <img src="/afa_website/static/src/img/school-front.jpg" alt="Escola La Bòbila" />
+                            <div class="container afa-commission-hero__content">
+                                <p class="afa-eyebrow">Fem possibles els projectes</p>
+                                <h1>Economia</h1>
+                                <p>Donem suport a la gestió econòmica perquè l’AFA pugui tirar endavant la seva activitat.</p>
+                            </div>
+                        </section>
+                        <section class="afa-commission-body">
+                            <div class="container afa-commission-body__grid">
+                                <p class="afa-eyebrow afa-eyebrow--green">La comissió</p>
+                                <div>
+                                    <h2>Una gestió responsable i compartida.</h2>
+                                    <p>La comissió dona suport al seguiment dels rebuts, els pagaments i les despeses de l’AFA, i ajuda a mantenir una visió clara dels recursos destinats als serveis i projectes.</p>
+                                    <p>Les famílies sòcies poden contactar amb l’AFA per a consultes relacionades amb la gestió econòmica.</p>
+                                    <a class="afa-inline-link" href="/contactus">Contacta amb l’AFA <span aria-hidden="true">→</span></a>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_festes" model="website.page">
+        <field name="name">Festes</field>
+        <field name="is_published" eval="True" />
+        <field name="key">afa_website.page_festes</field>
+        <field name="url">/festes</field>
+        <field name="website_id" ref="website.default_website" />
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_website.page_festes">
+                <t t-call="website.layout">
+                    <t t-set="additional_title">Festes · AFA Escola La Bòbila</t>
+                    <div id="wrap" class="oe_structure afa-homepage afa-commission-page">
+                        <section class="afa-commission-hero">
+                            <img src="/afa_website/static/src/img/school-garden.jpg" alt="Entorn de l’Escola La Bòbila" />
+                            <div class="container afa-commission-hero__content">
+                                <p class="afa-eyebrow">Moments per fer comunitat</p>
+                                <h1>Festes</h1>
+                                <p>Creem espais per trobar-nos, celebrar i gaudir plegats al llarg del curs.</p>
+                            </div>
+                        </section>
+                        <section class="afa-commission-body">
+                            <div class="container afa-commission-body__grid">
+                                <p class="afa-eyebrow afa-eyebrow--green">La comissió</p>
+                                <div>
+                                    <h2>Celebracions fetes entre totes.</h2>
+                                    <p>La comissió proposa i organitza activitats lúdiques que ajuden a enfortir els vincles entre famílies. També es coordina amb l’escola quan les celebracions es fan conjuntament.</p>
+                                    <p>Les idees i les mans de les famílies fan possible cada activitat. Si vols participar, posa’t en contacte amb l’AFA.</p>
+                                    <a class="afa-inline-link" href="/contactus">Vull col·laborar <span aria-hidden="true">→</span></a>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+</odoo>

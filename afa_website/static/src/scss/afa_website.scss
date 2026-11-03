@@ -1,0 +1,192 @@
+.afa-header-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #315d49 !important;
+    font-weight: 700;
+    text-decoration: none;
+}
+.afa-header-brand__mark {
+    display: inline-grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border-radius: 50%;
+    background: #315d49;
+    color: #fffdf5;
+    font-size: .78rem;
+    letter-spacing: .04em;
+}
+.afa-header-brand__name { font-family: Georgia, "Times New Roman", serif; font-size: 1.08rem; }
+.afa-header-brand:hover { color: #315d49 !important; }
+.afa-login-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 999px;
+    background: #315d49;
+    color: #fffdf5 !important;
+    padding: 10px 18px;
+    font-size: .9rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.afa-login-button:hover { background: #263b32; color: #fffdf5 !important; }
+
+.afa-homepage {
+    --afa-ink: #263b32;
+    --afa-green: #315d49;
+    --afa-cream: #faf8f0;
+    --afa-orange: #e8a15d;
+    color: var(--afa-ink);
+    font-family: "DM Sans", "Avenir Next", sans-serif;
+
+    h1, h2, h3, p { color: inherit; }
+    h1, h2, h3 { font-family: "Georgia", "Times New Roman", serif; font-weight: 500; }
+    a { text-decoration: none; }
+
+    .afa-hero {
+        position: relative;
+        overflow: hidden;
+        min-height: 590px;
+        display: flex;
+        align-items: center;
+        background: var(--afa-green);
+        color: #fffdf5;
+        padding: 92px 0 80px;
+    }
+    .afa-hero__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 52%; }
+    .afa-hero::after { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(32, 65, 49, .96) 0%, rgba(32, 65, 49, .86) 43%, rgba(32, 65, 49, .25) 100%); content: ""; }
+    .afa-hero__inner { position: relative; z-index: 1; }
+    .afa-eyebrow { margin: 0 0 18px; color: #f1c18a; font-size: .76rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .afa-eyebrow--green { color: var(--afa-green); }
+    .afa-hero h1 { max-width: 760px; margin: 0; color: inherit; font-size: clamp(3.5rem, 8vw, 7.3rem); line-height: .98; letter-spacing: -.055em; }
+    .afa-hero h1 span { color: #f2c28f; font-style: italic; }
+    .afa-hero__lead { max-width: 540px; margin: 28px 0 0; color: rgba(255,253,245,.84); font-size: 1.15rem; line-height: 1.7; }
+    .afa-hero__actions { display: flex; align-items: center; gap: 28px; margin-top: 34px; }
+    .afa-button { border: 0; border-radius: 999px; padding: 14px 25px; font-weight: 700; }
+    .afa-button--light { background: #fffdf5; color: var(--afa-green); }
+    .afa-button--light:hover { background: #f2c28f; color: var(--afa-ink); }
+    .afa-button--dark { background: var(--afa-ink); color: #fffdf5; }
+    .afa-button--dark:hover { background: #426c55; color: #fffdf5; }
+    .afa-text-link { color: inherit; font-weight: 700; }
+    .afa-text-link span, .afa-inline-link span { margin-left: 5px; }
+    .afa-hero__note { margin-top: 64px; color: rgba(255,253,245,.72); font-size: .9rem; }
+    .afa-hero__note span { margin-right: 9px; color: #f2c28f; }
+    .afa-hero__shape { position: absolute; border: 1px solid rgba(255,255,255,.16); border-radius: 50%; pointer-events: none; }
+    .afa-hero__shape--one { width: 520px; height: 520px; right: -90px; top: 40px; }
+    .afa-hero__shape--two { width: 370px; height: 370px; right: -15px; top: 115px; background: rgba(232,161,93,.08); }
+
+    .afa-intro { padding: 110px 0; background: var(--afa-cream); }
+    .afa-intro__grid { display: grid; grid-template-columns: 1fr 2fr; gap: 48px; }
+    .afa-intro h2, .afa-section-heading h2, .afa-join h2 { margin: 0 0 20px; font-size: clamp(2.3rem, 4vw, 3.8rem); line-height: 1.08; letter-spacing: -.035em; }
+    .afa-intro p:not(.afa-eyebrow) { max-width: 720px; color: #59665d; font-size: 1.1rem; line-height: 1.8; }
+    .afa-inline-link { display: inline-block; margin-top: 12px; color: var(--afa-green); font-weight: 700; }
+
+    .afa-school-gallery { padding: 0 0 85px; background: var(--afa-cream); }
+    .afa-school-gallery__grid { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 16px; }
+    .afa-school-gallery figure { height: 250px; margin: 0; overflow: hidden; border-radius: 6px 28px 6px 6px; }
+    .afa-school-gallery img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+    .afa-school-gallery figure:hover img { transform: scale(1.04); }
+
+    .afa-services { padding: 100px 0 115px; background: #fff; }
+    .afa-section-heading { display: flex; justify-content: space-between; align-items: end; gap: 44px; margin-bottom: 45px; }
+    .afa-section-heading h2 { max-width: 650px; margin-bottom: 0; }
+    .afa-section-heading > p { max-width: 350px; margin: 0 0 5px; color: #68736b; line-height: 1.7; }
+    .afa-service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .afa-service-card { min-height: 230px; padding: 28px; border-radius: 8px 38px 8px 8px; }
+    .afa-service-card__number { display: inline-block; margin-bottom: 28px; color: #526358; font-size: .75rem; font-weight: 700; letter-spacing: .1em; }
+    .afa-service-card h3 { margin: 0 0 10px; font-size: 1.65rem; }
+    .afa-service-card p { max-width: 330px; margin: 0; color: #59665d; line-height: 1.65; }
+    .afa-card-link { display: inline-block; margin-top: 16px; color: var(--afa-green); font-size: .9rem; font-weight: 700; }
+    .afa-card-link span { margin-left: 4px; }
+    .afa-service-card--peach { background: #f8e8dc; }
+    .afa-service-card--sage { background: #e7eee5; }
+    .afa-service-card--butter { background: #f6f0d8; }
+    .afa-service-card--lavender { background: #eeebf4; }
+    .afa-service-card--blue { background: #e5eef0; }
+    .afa-service-card--rose { background: #f4e5e4; }
+
+    .afa-commission-hero { position: relative; display: flex; min-height: 390px; align-items: center; overflow: hidden; background: var(--afa-green); color: #fffdf5; }
+    .afa-commission-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .afa-commission-hero::after { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(32, 65, 49, .94), rgba(32, 65, 49, .72) 55%, rgba(32, 65, 49, .26)); content: ""; }
+    .afa-commission-hero__content { position: relative; z-index: 1; padding-top: 70px; padding-bottom: 70px; }
+    .afa-commission-hero h1 { margin: 0; color: inherit; font-size: clamp(3.2rem, 7vw, 6rem); letter-spacing: -.05em; line-height: 1; }
+    .afa-commission-hero__content > p:last-child { max-width: 640px; margin: 22px 0 0; color: rgba(255, 253, 245, .88); font-size: 1.15rem; line-height: 1.7; }
+    .afa-commission-body { padding: 95px 0 110px; background: var(--afa-cream); }
+    .afa-commission-body__grid { display: grid; grid-template-columns: 1fr 2fr; gap: 48px; }
+    .afa-commission-body h2 { margin: 0 0 18px; font-size: clamp(2.2rem, 4vw, 3.6rem); letter-spacing: -.035em; line-height: 1.1; }
+    .afa-commission-body__grid > div > p { max-width: 760px; color: #59665d; font-size: 1.05rem; line-height: 1.8; }
+    .afa-commission-body__grid a { color: var(--afa-green); }
+
+    .afa-join { overflow: hidden; padding: 82px 0; background: #edb77d; }
+    .afa-join__inner { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 54px; }
+    .afa-join .afa-eyebrow { color: #63482e; }
+    .afa-join h2 { max-width: 580px; margin-bottom: 14px; }
+    .afa-join__inner > div:first-child > p:last-child { max-width: 660px; margin: 0; color: #574a3b; line-height: 1.75; }
+    .afa-join__actions { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 18px; min-width: 230px; }
+    .afa-join .afa-text-link { color: var(--afa-ink); }
+    .afa-join__spark { position: absolute; top: -85px; right: 11%; color: rgba(255,255,255,.25); font-size: 10rem; }
+
+    @media (max-width: 767.98px) {
+        .afa-hero { min-height: 540px; padding: 72px 0 56px; }
+        .afa-hero__shape--one { right: -340px; }
+        .afa-hero__shape--two { right: -260px; }
+        .afa-hero__actions { align-items: flex-start; flex-direction: column; gap: 20px; }
+        .afa-hero__note { margin-top: 45px; }
+        .afa-intro, .afa-services { padding: 72px 0; }
+        .afa-intro__grid { grid-template-columns: 1fr; gap: 12px; }
+        .afa-school-gallery { padding-bottom: 64px; }
+        .afa-school-gallery__grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+        .afa-school-gallery figure { height: 170px; }
+        .afa-school-gallery figure:first-child { grid-column: 1 / -1; }
+        .afa-section-heading, .afa-join__inner { align-items: flex-start; flex-direction: column; gap: 24px; }
+        .afa-service-grid { grid-template-columns: 1fr; }
+        .afa-service-card { min-height: 195px; }
+        .afa-commission-hero { min-height: 350px; }
+        .afa-commission-body { padding: 70px 0; }
+        .afa-commission-body__grid { grid-template-columns: 1fr; gap: 12px; }
+        .afa-join { padding: 66px 0; }
+        .afa-join__spark { top: -45px; right: -20px; font-size: 6rem; }
+    }
+}
+
+.afa-site-footer { padding: 30px 0; background: #263b32; color: rgba(255,253,245,.78); }
+.afa-site-footer__inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.afa-site-footer .afa-header-brand { color: #fffdf5 !important; }
+.afa-site-footer .afa-header-brand__mark { background: #fffdf5; color: #315d49; }
+.afa-site-footer__location { margin: 8px 0 0 50px; color: inherit; font-size: .9rem; }
+.afa-site-footer nav { display: flex; flex-wrap: wrap; gap: 22px; }
+.afa-site-footer a { color: inherit; text-decoration: none; }
+.afa-site-footer a:hover { color: #f2c28f; }
+.afa-site-footer__email { font-weight: 700; }
+
+.afa-contact-page { background: #faf8f0; }
+.afa-contact-hero { padding: 68px 0; background: #315d49; color: #fffdf5; }
+.afa-contact-hero .afa-eyebrow { color: #f1c18a; }
+.afa-contact-hero h1 { margin: 0; color: inherit; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.8rem, 6vw, 5rem); letter-spacing: -.045em; }
+.afa-contact-page .s_text_block { padding-top: 65px !important; padding-bottom: 90px !important; }
+.afa-contact-page .s_text_block .lead { max-width: 650px; margin-bottom: 28px; color: #59665d; line-height: 1.75; }
+.afa-contact-page .s_website_form { padding: 30px; border-radius: 8px 30px 8px 8px; background: #fff; box-shadow: 0 14px 42px rgba(38, 59, 50, .08); }
+.afa-contact-page .s_website_form_label { width: auto !important; margin-bottom: 6px; color: #263b32; font-weight: 600; }
+.afa-contact-page .s_website_form_input { min-height: 48px; border-color: #d8e0d7; border-radius: 6px; }
+.afa-contact-page textarea.s_website_form_input { min-height: 170px; }
+.afa-contact-page .s_website_form_send { border: 0; border-radius: 999px; background: #315d49; padding: 13px 24px; font-weight: 700; }
+.afa-contact-page .s_website_form_send:hover { background: #263b32; }
+.afa-contact-details { padding: 28px; border-radius: 8px 30px 8px 8px; background: #e7eee5; }
+.afa-contact-details h2 { color: #263b32; font-family: Georgia, "Times New Roman", serif; }
+.afa-contact-details p, .afa-contact-details a { color: #59665d; line-height: 1.7; }
+.afa-contact-details li { padding: 7px 0; }
+.afa-contact-details a { color: #315d49; font-weight: 700; }
+
+@media (max-width: 767.98px) {
+    .afa-site-footer__inner { align-items: flex-start; flex-direction: column; }
+    .afa-site-footer nav { gap: 12px 20px; }
+    .afa-header-brand__mark { width: 36px; height: 36px; }
+    .afa-header-brand__name { font-size: .95rem; }
+    .o_header_mobile .afa-login-button { justify-content: flex-start; }
+    .afa-contact-hero { padding: 54px 0; }
+    .afa-contact-page .s_website_form { padding: 22px; }
+}

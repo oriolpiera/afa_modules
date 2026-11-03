@@ -5,7 +5,8 @@
 The development-only stack in `compose.test.yaml` runs PostgreSQL 18 and Odoo 19
 with `afa_family`, `afa_account_reconcile`, `afa_membership`, `afa_member_pricing`, `afa_sepa`,
 `afa_apparel_shop`, `afa_service_subscription`, `afa_school_course`, `afa_extracurricular`,
-`afa_family_import`, `afa_acollida`, and `afa_attendance_kiosk_pwa` mounted from
+`afa_family_import`, `afa_acollida`, `afa_attendance_kiosk_pwa`, and
+`afa_website` mounted from
 this checkout. It does not change the separate Odoo 16 stack. Docker Engine and
 Compose are required.
 
