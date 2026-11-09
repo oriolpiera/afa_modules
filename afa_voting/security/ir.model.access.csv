@@ -6,3 +6,4 @@ access_voting_option_manager,afa.voting.option.manager,model_afa_voting_option,a
 access_voting_invitation_manager,afa.voting.invitation.manager,model_afa_voting_invitation,afa_voting.group_voting_manager,1,1,1,1
 access_voting_invitation_history_manager,afa.voting.invitation.history.manager,model_afa_voting_invitation_history,afa_voting.group_voting_manager,1,0,0,0
 access_voting_vote_manager,afa.voting.vote.manager,model_afa_voting_vote,afa_voting.group_voting_manager,1,0,0,0
+access_voting_add_families_wizard_manager,afa.voting.add.families.wizard.manager,model_afa_voting_add_families_wizard,afa_voting.group_voting_manager,1,1,1,1

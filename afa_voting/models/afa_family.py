@@ -1,9 +1,25 @@
-from odoo import _, models
-from odoo.exceptions import ValidationError
+from odoo import Command, _, models
+from odoo.exceptions import AccessError, ValidationError
 
 
 class AfaFamily(models.Model):
     _inherit = 'afa.family'
+
+    def action_add_to_voting(self):
+        if not self.env.user.has_group('afa_voting.group_voting_manager'):
+            raise AccessError(_('Only voting managers can add families to a voting.'))
+        wizard = self.env['afa.voting.add.families.wizard'].create(
+            {'family_ids': [Command.set(self.ids)]}
+        )
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Add families to a voting'),
+            'res_model': 'afa.voting.add.families.wizard',
+            'view_mode': 'form',
+            'view_id': self.env.ref('afa_voting.view_add_families_wizard_form').id,
+            'res_id': wizard.id,
+            'target': 'new',
+        }
 
     def write(self, vals):
         previous = (

@@ -123,6 +123,15 @@ class TestAfaVoting(TransactionCase):
             invitation.write({'voting_id': destination.id})
         self.assertEqual(invitation.voting_id, self.voting)
 
+    def test_catalan_translations_are_loaded(self):
+        voting_fields = self.env['afa.voting'].with_context(lang='ca_ES').fields_get(['state'])
+        state_labels = dict(voting_fields['state']['selection'])
+        menu = self.env.ref('afa_voting.menu_afa_voting').with_context(lang='ca_ES')
+
+        self.assertEqual(state_labels['draft'], 'Esborrany')
+        self.assertEqual(state_labels['open'], 'Oberta')
+        self.assertEqual(menu.name, 'Votacions')
+
     def test_vote_cannot_be_changed_or_deleted(self):
         self.voting.action_publish()
         invitation = self.voting.invitation_ids

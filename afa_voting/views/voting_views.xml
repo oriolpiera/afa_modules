@@ -36,7 +36,7 @@
                             <field name="option_ids" readonly="state != 'draft'"><list editable="bottom"><field name="sequence" widget="handle"/><field name="name"/></list></field>
                         </page>
                         <page string="Participants" groups="afa_voting.group_voting_manager">
-                            <group><field name="participant_family_ids" widget="many2many_tags" readonly="state != 'draft'" options="{'no_create': True}"/></group>
+                            <group><field name="participant_family_ids" string="Families" help="Select families here or use Add to Voting from the Families list." widget="many2many_tags" readonly="state != 'draft'" options="{'no_create': True}"/></group>
                             <field name="invitation_ids" readonly="1">
                                 <list><field name="family_id"/><field name="recipient_partner_id"/><field name="state"/><field name="voted_at"/></list>
                                 <form><sheet><group><field name="family_id"/><field name="recipient_partner_id"/><field name="state"/><field name="voted_at"/></group><field name="history_ids" readonly="1"><list><field name="recipient_partner_id"/><field name="issued_at"/><field name="revoked_at"/><field name="state"/></list></field></sheet></form>

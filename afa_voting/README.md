@@ -13,8 +13,10 @@ sure each participating family's billing guardian has an email address. Grant
 Voting Results User** only to internal users who may view aggregate results.
 Voting managers can additionally inspect invitations and identifiable votes.
 
-Create a draft, add at least two options, select participating families, set the
-start and end times, then publish. Publishing creates invitations and queues
+Create a draft, add at least two options, select participating families in the
+Participants tab or open **AFA Families → Families** and use **Add to Voting** on
+a family row to choose a draft voting. Set the start and end times, then
+publish. Publishing creates invitations and queues
 email. The cron closes open ballots after their deadline (within five minutes).
 Managers can resend invitations to pending families; a resend rotates the
 credential and invalidates the previous link. A billing guardian reassignment
@@ -46,6 +48,9 @@ rate, and aggregate counts and percentages per option. Managers can export a
 participant-status CSV and an aggregate-results CSV. Individual votes and
 invitation records are restricted to voting managers.
 
+The voting menu is nested under **AFA Families**. The backend interface has a
+Catalan (`ca_ES`) translation.
+
 ## Tests
 
 The repository's Odoo 19 test stack is documented in the root README. With
@@ -53,5 +58,5 @@ The repository's Odoo 19 test stack is documented in the root README. With
 
 ```sh
 docker compose -f compose.test.yaml up -d db
-docker compose -f compose.test.yaml run --rm odoo -d afa_voting_test -i afa_voting --test-enable --test-tags /afa_voting --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo
+docker compose -f compose.test.yaml run --rm odoo -d afa_voting_test -i afa_voting --load-language=ca_ES --test-enable --test-tags /afa_voting --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo
 ```

@@ -139,7 +139,7 @@ jobs:
       - name: Run voting tests
         run: |
           set -o pipefail
-          docker compose -f compose.test.yaml run --rm odoo -d afa_voting_ci -i afa_voting --test-enable --test-tags /afa_voting --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo 2>&1 | python3 -c '
+          docker compose -f compose.test.yaml run --rm odoo -d afa_voting_ci -i afa_voting --load-language=ca_ES --test-enable --test-tags /afa_voting --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo 2>&1 | python3 -c '
           import re
           import sys
 
@@ -158,6 +158,10 @@ jobs:
               for marker in (
                   "Starting TestAfaVoting.test_publish_and_aggregate_results",
                   "Starting TestAfaVoting.test_invitation_cannot_be_moved_into_published_voting",
+                  "Starting TestAfaVoting.test_catalan_translations_are_loaded",
+                  "Starting TestAfaVotingFamilyEntrypoint.test_family_list_action_opens_preselected_add_to_voting_wizard",
+                  "Starting TestAfaVotingFamilyEntrypoint.test_wizard_adds_family_to_selected_draft_voting",
+                  "Starting TestAfaVotingFamilyEntrypoint.test_votings_menu_is_nested_under_afa_families",
                   "Starting TestAfaVotingSecurity.test_results_user_cannot_read_individual_votes_or_invitations",
                   "Starting TestAfaVotingConcurrency.test_database_unique_constraints_prevent_duplicate_invitation_and_vote",
                   "Starting TestAfaVotingConcurrentSubmissions.test_two_simultaneous_posts_create_one_vote",

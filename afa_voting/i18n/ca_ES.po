@@ -1,0 +1,850 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-09 18:06+0000\n"
+"PO-Revision-Date: 2026-11-09 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"Language: ca_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_voting
+#: model:mail.template,body_html:afa_voting.mail_template_voting_invitation
+msgid ""
+"<div style=\"margin: 0; padding: 0;\">\n"
+"                <p>Us convidem a participar en la votació de l’AFA.</p>\n"
+"                <h2 t-out=\"object.voting_id.name\"/>\n"
+"                <div t-out=\"object.voting_id.description\"/>\n"
+"                <p>Data límit: <strong t-out=\"format_datetime(object."
+"voting_id.date_end)\"/></p>\n"
+"                <p><a t-att-href=\"ctx.get('voting_url')\">Accedeix a la "
+"votació</a></p>\n"
+"                <p>AFA Escola La Bòbila</p>\n"
+"            </div>\n"
+"        "
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.constraint,message:afa_voting.constraint_afa_voting_invitation_voting_family_unique
+msgid "A family can only be invited once per voting."
+msgstr "Cada família només pot rebre una invitació per votació."
+
+#. module: afa_voting
+#: model:ir.model.constraint,message:afa_voting.constraint_afa_voting_vote_voting_family_vote_unique
+msgid "A family can only vote once per voting."
+msgstr "Cada família només pot votar una vegada per votació."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_vote.py:0
+msgid "A submitted vote is final and cannot be changed."
+msgstr "El vot emès és definitiu i no es pot modificar."
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.voting_link_landing
+#: model_terms:ir.ui.view,arch_db:afa_voting.voting_page
+msgid "AFA Escola La Bòbila"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model,name:afa_voting.model_afa_family
+msgid "AFA Family"
+msgstr "Família de l'AFA"
+
+#. module: afa_voting
+#: model:ir.model,name:afa_voting.model_afa_voting
+msgid "AFA Voting"
+msgstr "Votació de l'AFA"
+
+#. module: afa_voting
+#: model:ir.model,name:afa_voting.model_afa_voting_invitation
+#: model:mail.template,name:afa_voting.mail_template_voting_invitation
+msgid "AFA Voting Invitation"
+msgstr "Invitació de votació de l'AFA"
+
+#. module: afa_voting
+#: model:ir.model,name:afa_voting.model_afa_voting_invitation_history
+msgid "AFA Voting Invitation History"
+msgstr "Historial d'invitacions de votació de l'AFA"
+
+#. module: afa_voting
+#: model:res.groups,name:afa_voting.group_voting_manager
+msgid "AFA Voting Manager"
+msgstr "Gestor/a de votacions de l'AFA"
+
+#. module: afa_voting
+#: model:ir.model,name:afa_voting.model_afa_voting_option
+msgid "AFA Voting Option"
+msgstr "Opció de votació de l'AFA"
+
+#. module: afa_voting
+#: model:res.groups,name:afa_voting.group_voting_user
+msgid "AFA Voting Results User"
+msgstr "Usuari/ària de resultats de votacions de l'AFA"
+
+#. module: afa_voting
+#: model:ir.model,name:afa_voting.model_afa_voting_vote
+msgid "AFA Voting Vote"
+msgstr "Vot de l'AFA"
+
+#. module: afa_voting
+#: model:ir.actions.server,name:afa_voting.ir_cron_close_expired_votings_ir_actions_server
+msgid "AFA: Close expired votings"
+msgstr "AFA: Tanca les votacions vençudes"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_add_families_wizard_form
+msgid "Add Families to a Voting"
+msgstr "Afegeix famílies a una votació"
+
+#. module: afa_voting
+#: model:ir.model,name:afa_voting.model_afa_voting_add_families_wizard
+msgid "Add Families to an AFA Voting"
+msgstr "Afegeix famílies a una votació de l'AFA"
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid "Add at least two options and one participating family."
+msgstr "Afegeix com a mínim dues opcions i una família participant."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/afa_family.py:0
+msgid "Add families to a voting"
+msgstr "Afegeix famílies a una votació"
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_add_families_wizard_form
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_family_list_add_to_voting
+msgid "Add to Voting"
+msgstr "Afegeix a la votació"
+
+#. module: afa_voting
+#: model:ir.model.constraint,message:afa_voting.constraint_afa_voting_vote_invitation_vote_unique
+msgid "An invitation can only be used once."
+msgstr "Cada invitació només es pot utilitzar una vegada."
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.voting_unavailable
+msgid "Aquest enllaç no és vàlid o la votació ja no està disponible."
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_add_families_wizard_form
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "Cancel"
+msgstr "Cancel·la"
+
+#. module: afa_voting
+#: model:ir.model.fields.selection,name:afa_voting.selection__afa_voting__state__cancelled
+msgid "Cancelled"
+msgstr "Cancel·lada"
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.voting_link_landing
+msgid "Carregant la votació"
+msgstr ""
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "Close"
+msgstr "Tanca"
+
+#. module: afa_voting
+#: model:ir.model.fields.selection,name:afa_voting.selection__afa_voting__state__closed
+msgid "Closed"
+msgstr "Tancada"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__create_uid
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_add_families_wizard__create_uid
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__create_uid
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__create_uid
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_option__create_uid
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__create_date
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_add_families_wizard__create_date
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__create_date
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__create_date
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_option__create_date
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__date_end
+msgid "Date End"
+msgstr "Data de finalització"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__date_start
+msgid "Date Start"
+msgstr "Data d'inici"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__description
+msgid "Description"
+msgstr "Descripció"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_family__display_name
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__display_name
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_add_families_wizard__display_name
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__display_name
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__display_name
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_option__display_name
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields.selection,name:afa_voting.selection__afa_voting__state__draft
+msgid "Draft"
+msgstr "Esborrany"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_add_families_wizard__voting_id
+msgid "Draft Voting"
+msgstr "Votació en esborrany"
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.voting_unavailable
+msgid "Enllaç no disponible"
+msgstr ""
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.voting_link_landing
+msgid "Enllaç no disponible. Comproveu que heu utilitzat l’enllaç complet."
+msgstr ""
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.voting_page
+msgid "Envia el vot"
+msgstr ""
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid ""
+"Every billing guardian must have an email address to receive the invitation."
+msgstr ""
+"Tots els tutors de facturació han de tenir una adreça electrònica per rebre "
+"la invitació."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid "Every participating family must have a billing guardian."
+msgstr "Cada família participant ha de tenir un tutor de facturació."
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "Export aggregate results"
+msgstr "Exporta els resultats agregats"
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "Export participants"
+msgstr "Exporta els participants"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__participant_family_ids
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_add_families_wizard__family_ids
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "Families"
+msgstr "Famílies"
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/wizard/add_families.py:0
+msgid "Families can only be added to a draft voting."
+msgstr "Només es poden afegir famílies a una votació en esborrany."
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__family_id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__family_id
+msgid "Family"
+msgstr "Família"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,help:afa_voting.field_afa_voting__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "General"
+msgstr "General"
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.voting_confirmation
+msgid "Gràcies per participar. El vot és definitiu."
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__history_ids
+msgid "History"
+msgstr "Historial"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_family__id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_add_families_wizard__id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_option__id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__id
+msgid "ID"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,help:afa_voting.field_afa_voting__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,help:afa_voting.field_afa_voting__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,help:afa_voting.field_afa_voting__message_has_error
+#: model:ir.model.fields,help:afa_voting.field_afa_voting__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__invitation_ids
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__invitation_id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__invitation_id
+msgid "Invitation"
+msgstr "Invitació"
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_invitation.py:0
+msgid "Invitation history updates require elevated internal access."
+msgstr ""
+"L'actualització de l'historial d'invitacions requereix permisos interns "
+"elevats."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_invitation.py:0
+msgid "Invitation state and credentials are managed by the voting workflow."
+msgstr ""
+"L'estat i les credencials de la invitació es gestionen des del flux de "
+"votació."
+
+#. module: afa_voting
+#: model:ir.model.constraint,message:afa_voting.constraint_afa_voting_invitation_token_hash_unique
+msgid "Invitation token hashes must be unique."
+msgstr "Els hash dels tokens d'invitació han de ser únics."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_invitation.py:0
+msgid "Invitation workflow updates require elevated internal access."
+msgstr ""
+"L'actualització del flux d'invitacions requereix permisos interns elevats."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_invitation.py:0
+msgid "Invitations can only be prepared for draft votings."
+msgstr "Només es poden preparar invitacions per a votacions en esborrany."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_invitation.py:0
+msgid "Invitations cannot be moved into a published voting."
+msgstr "No es poden traslladar invitacions a una votació publicada."
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__issued_at
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__issued_at
+msgid "Issued At"
+msgstr "Data d'emissió"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__write_uid
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_add_families_wizard__write_uid
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__write_uid
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__write_uid
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_option__write_uid
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__write_uid
+msgid "Last Updated by"
+msgstr "Darrera actualització per"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__write_date
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_add_families_wizard__write_date
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__write_date
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__write_date
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_option__write_date
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__write_date
+msgid "Last Updated on"
+msgstr "Darrera actualització el"
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.voting_page
+msgid ""
+"L’enllaç és privat: qualsevol persona que el tingui el pot utilitzar. El vot "
+"és definitiu."
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__message_has_error
+msgid "Message Delivery error"
+msgstr "Error en el lliurament del missatge"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__name
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_option__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,help:afa_voting.field_afa_voting__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,help:afa_voting.field_afa_voting__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid "Only draft or open votings can be cancelled."
+msgstr "Només es poden cancel·lar les votacions en esborrany o obertes."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid "Only draft votings can be published."
+msgstr "Només es poden publicar les votacions en esborrany."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/afa_family.py:0
+#: code:addons/afa_voting/wizard/add_families.py:0
+msgid "Only voting managers can add families to a voting."
+msgstr "Només els gestors de votacions poden afegir famílies a una votació."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid "Only voting managers can manage votings."
+msgstr "Només els gestors de votacions poden gestionar les votacions."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_invitation.py:0
+msgid "Only voting managers can send invitations."
+msgstr "Només els gestors de votacions poden enviar invitacions."
+
+#. module: afa_voting
+#: model:ir.model.fields.selection,name:afa_voting.selection__afa_voting__state__open
+msgid "Open"
+msgstr "Oberta"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__option_id
+msgid "Option"
+msgstr "Opció"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__option_ids
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "Options"
+msgstr "Opcions"
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_option.py:0
+msgid "Options cannot be changed after publication."
+msgstr "No es poden modificar les opcions després de publicar la votació."
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__participant_count
+msgid "Participant Count"
+msgstr "Nombre de famílies participants"
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "Participants"
+msgstr "Participants"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__participation_percent
+msgid "Participation Percent"
+msgstr "Percentatge de participació"
+
+#. module: afa_voting
+#: model:ir.model.fields.selection,name:afa_voting.selection__afa_voting_invitation__state__pending
+msgid "Pending"
+msgstr "Pendent"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__pending_count
+msgid "Pending Count"
+msgstr "Nombre de famílies pendents"
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "Publish"
+msgstr "Publica"
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid "Publish the voting before exporting its results."
+msgstr "Publica la votació abans d'exportar-ne els resultats."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_invitation.py:0
+msgid "Published invitations cannot be deleted."
+msgstr "No es poden suprimir les invitacions d'una votació publicada."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_invitation.py:0
+msgid "Published participants cannot be changed."
+msgstr "No es poden modificar els participants d'una votació publicada."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid "Published voting details and participants cannot be changed."
+msgstr ""
+"No es poden modificar els detalls ni els participants d'una votació "
+"publicada."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid "Published votings cannot be deleted."
+msgstr "No es poden suprimir les votacions publicades."
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__recipient_partner_id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__recipient_partner_id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__recipient_partner_id
+msgid "Recipient Partner"
+msgstr "Tutor/a destinatari/ària"
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "Resend pending invitations"
+msgstr "Reenvia les invitacions pendents"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__activity_user_id
+msgid "Responsible User"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__option_result_ids
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "Results"
+msgstr "Resultats"
+
+#. module: afa_voting
+#: model:ir.model.fields.selection,name:afa_voting.selection__afa_voting_invitation__state__revoked
+#: model:ir.model.fields.selection,name:afa_voting.selection__afa_voting_invitation_history__state__revoked
+msgid "Revoked"
+msgstr "Revocada"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__revoked_at
+msgid "Revoked At"
+msgstr "Data de revocació"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/wizard/add_families.py:0
+msgid "Select a draft voting."
+msgstr "Selecciona una votació en esborrany."
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_voting_form
+msgid "Select families here or use Add to Voting from the Families list."
+msgstr ""
+"Selecciona les famílies aquí o fes servir «Afegeix a la votació» a la llista "
+"de famílies."
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_option__sequence
+msgid "Sequence"
+msgstr "Seqüència"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__state
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__state
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__state
+msgid "State"
+msgstr "Estat"
+
+#. module: afa_voting
+#: model:ir.model.fields,help:afa_voting.field_afa_voting__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_vote.py:0
+msgid "Submitted votes cannot be deleted."
+msgstr "No es poden suprimir els vots emesos."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid "The end date must be after the start date."
+msgstr "La data de finalització ha de ser posterior a la data d'inici."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_invitation.py:0
+msgid "The invitation recipient must be a guardian of the invited family."
+msgstr ""
+"El destinatari de la invitació ha de ser un tutor de la família convidada."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_invitation.py:0
+msgid "The invited family must be selected as a participant."
+msgstr "La família convidada ha d'estar seleccionada com a participant."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/afa_family.py:0
+msgid "The new billing guardian needs an email address for voting invitations."
+msgstr ""
+"El nou tutor de facturació necessita una adreça electrònica per rebre les "
+"invitacions de votació."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_vote.py:0
+msgid "The vote, option, family and invitation must belong together."
+msgstr ""
+"El vot, l'opció, la família i la invitació han de correspondre a la mateixa "
+"votació."
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__token_hash
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation_history__token_hash
+msgid "Token Hash"
+msgstr "Hash del token"
+
+#. module: afa_voting
+#: model:ir.model.fields,help:afa_voting.field_afa_voting__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.voting_confirmation
+msgid "Vot registrat"
+msgstr ""
+
+#. module: afa_voting
+#: model_terms:ir.ui.view,arch_db:afa_voting.voting_page
+msgid "Votació oberta fins al"
+msgstr ""
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__vote_ids
+msgid "Vote"
+msgstr "Vot"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__vote_count
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_option__vote_count
+msgid "Vote Count"
+msgstr "Nombre de vots"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_option__vote_percent
+msgid "Vote Percent"
+msgstr "Percentatge de vots"
+
+#. module: afa_voting
+#: model:ir.model.fields.selection,name:afa_voting.selection__afa_voting_invitation__state__voted
+msgid "Voted"
+msgstr "Votada"
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__voted_at
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__voted_at
+msgid "Voted At"
+msgstr "Data i hora del vot"
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_vote.py:0
+msgid "Votes are accepted only while voting is open."
+msgstr "Només s'accepten vots mentre la votació està oberta."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_vote.py:0
+msgid "Votes can only be created through the private voting link."
+msgstr "Els vots només es poden emetre mitjançant l'enllaç privat de votació."
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_invitation__voting_id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_option__voting_id
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting_vote__voting_id
+msgid "Voting"
+msgstr "Votació"
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting_vote.py:0
+msgid "Voting is outside the permitted period."
+msgstr "La votació és fora del període permès."
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid "Voting state can only be changed through its workflow actions."
+msgstr ""
+"L'estat de la votació només es pot canviar mitjançant les seves accions."
+
+#. module: afa_voting
+#: model:ir.actions.act_window,name:afa_voting.action_afa_voting
+#: model:ir.ui.menu,name:afa_voting.menu_afa_voting
+msgid "Votings"
+msgstr "Votacions"
+
+#. module: afa_voting
+#. odoo-python
+#: code:addons/afa_voting/models/voting.py:0
+msgid "Votings must be created as drafts."
+msgstr "Les votacions s'han de crear en esborrany."
+
+#. module: afa_voting
+#: model:ir.model.fields,field_description:afa_voting.field_afa_voting__website_message_ids
+msgid "Website Messages"
+msgstr "Missatges del lloc web"
+
+#. module: afa_voting
+#: model:ir.model.fields,help:afa_voting.field_afa_voting__website_message_ids
+msgid "Website communication history"
+msgstr "Historial de comunicacions del lloc web"
+
+#. module: afa_voting
+#: model:mail.template,subject:afa_voting.mail_template_voting_invitation
+msgid "{{ object.voting_id.name }}"
+msgstr "{{ object.voting_id.name }}"
