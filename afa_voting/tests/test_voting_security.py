@@ -1,4 +1,5 @@
 from datetime import timedelta
+from urllib.parse import urlsplit
 
 from odoo import fields
 from odoo.exceptions import AccessError
@@ -41,6 +42,12 @@ class TestAfaVotingSecurity(TransactionCase):
             }
         )
         voting.action_publish()
+        export_action = voting.action_export_participants()
+        attachment_id = int(urlsplit(export_action['url']).path.rsplit('/', 1)[-1])
+        attachment = self.env['ir.attachment'].browse(attachment_id)
+        self.assertEqual(attachment.res_model, 'afa.voting.invitation')
+        with self.assertRaises(AccessError):
+            attachment.with_user(user).check_access('read')
         with self.assertRaises(AccessError):
             voting.with_user(user).action_close()
         self.assertEqual(voting.state, 'open')

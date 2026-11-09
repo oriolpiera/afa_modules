@@ -187,13 +187,16 @@ class AfaVoting(models.Model):
         output = io.StringIO()
         writer = csv.writer(output)
         writer.writerows([self._safe_csv_cell(value) for value in row] for row in rows)
+        invitation = self.invitation_ids[:1]
+        if not invitation:
+            raise UserError(_('Publish the voting before exporting its results.'))
         attachment = self.env['ir.attachment'].create(
             {
                 'name': filename,
                 'type': 'binary',
                 'datas': base64.b64encode(output.getvalue().encode()),
-                'res_model': self._name,
-                'res_id': self.id,
+                'res_model': invitation._name,
+                'res_id': invitation.id,
                 'public': False,
             }
         )
