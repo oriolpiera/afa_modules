@@ -157,6 +157,7 @@ jobs:
               marker in output
               for marker in (
                   "Starting TestAfaVoting.test_publish_and_aggregate_results",
+                  "Starting TestAfaVoting.test_invitation_cannot_be_moved_into_published_voting",
                   "Starting TestAfaVotingSecurity.test_results_user_cannot_read_individual_votes_or_invitations",
                   "Starting TestAfaVotingConcurrency.test_database_unique_constraints_prevent_duplicate_invitation_and_vote",
                   "Starting TestAfaVotingConcurrentSubmissions.test_two_simultaneous_posts_create_one_vote",

@@ -65,6 +65,20 @@ class AfaVotingInvitation(models.Model):
             'family_id',
         } & set(vals):
             raise UserError(_('Published participants cannot be changed.'))
+        if {'voting_id', 'family_id'} & set(vals):
+            for invitation in self:
+                voting = self.env['afa.voting'].browse(
+                    vals.get('voting_id', invitation.voting_id.id)
+                )
+                family = self.env['afa.family'].browse(
+                    vals.get('family_id', invitation.family_id.id)
+                )
+                if voting.state != 'draft':
+                    raise UserError(_('Invitations cannot be moved into a published voting.'))
+                if family not in voting.participant_family_ids:
+                    raise ValidationError(
+                        _('The invited family must be selected as a participant.')
+                    )
         return super().write(vals)
 
     def unlink(self):

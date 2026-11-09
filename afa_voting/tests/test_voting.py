@@ -91,6 +91,38 @@ class TestAfaVoting(TransactionCase):
         with self.assertRaises(AccessError), self.cr.savepoint():
             invitation.with_context(_voting_internal=True).write({'state': 'revoked'})
 
+    def test_invitation_cannot_be_moved_into_published_voting(self):
+        invitation = self.env['afa.voting.invitation'].create(
+            {
+                'voting_id': self.voting.id,
+                'family_id': self.family.id,
+                'recipient_partner_id': self.guardian.id,
+            }
+        )
+        other_guardian = self.env['res.partner'].create(
+            {
+                'name': 'Other Guardian',
+                'email': 'other@example.test',
+                'afa_family_role': 'guardian',
+            }
+        )
+        other_family = self.env['afa.family'].create(
+            {'name': 'Other Family', 'billing_partner_id': other_guardian.id}
+        )
+        destination = self.env['afa.voting'].create(
+            {
+                'name': 'Published destination',
+                'date_start': fields.Datetime.now() - timedelta(hours=1),
+                'date_end': fields.Datetime.now() + timedelta(hours=1),
+                'option_ids': [(0, 0, {'name': 'A'}), (0, 0, {'name': 'B'})],
+                'participant_family_ids': [(6, 0, other_family.ids)],
+            }
+        )
+        destination.action_publish()
+        with self.assertRaises(UserError), self.cr.savepoint():
+            invitation.write({'voting_id': destination.id})
+        self.assertEqual(invitation.voting_id, self.voting)
+
     def test_vote_cannot_be_changed_or_deleted(self):
         self.voting.action_publish()
         invitation = self.voting.invitation_ids
