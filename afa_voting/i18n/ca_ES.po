@@ -144,8 +144,8 @@ msgid "Add families to a voting"
 msgstr "Afegeix famílies a una votació"
 
 #. module: afa_voting
+#: model:ir.actions.server,name:afa_voting.server_action_add_families_to_voting
 #: model_terms:ir.ui.view,arch_db:afa_voting.view_add_families_wizard_form
-#: model_terms:ir.ui.view,arch_db:afa_voting.view_afa_family_list_add_to_voting
 msgid "Add to Voting"
 msgstr "Afegeix a la votació"
 

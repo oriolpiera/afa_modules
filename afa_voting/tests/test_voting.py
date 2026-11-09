@@ -127,10 +127,14 @@ class TestAfaVoting(TransactionCase):
         voting_fields = self.env['afa.voting'].with_context(lang='ca_ES').fields_get(['state'])
         state_labels = dict(voting_fields['state']['selection'])
         menu = self.env.ref('afa_voting.menu_afa_voting').with_context(lang='ca_ES')
+        add_action = self.env.ref('afa_voting.server_action_add_families_to_voting').with_context(
+            lang='ca_ES'
+        )
 
         self.assertEqual(state_labels['draft'], 'Esborrany')
         self.assertEqual(state_labels['open'], 'Oberta')
         self.assertEqual(menu.name, 'Votacions')
+        self.assertEqual(add_action.name, 'Afegeix a la votació')
 
     def test_vote_cannot_be_changed_or_deleted(self):
         self.voting.action_publish()
