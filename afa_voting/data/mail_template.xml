@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_template_voting_invitation" model="mail.template">
+        <field name="name">AFA Voting Invitation</field>
+        <field name="model_id" ref="model_afa_voting_invitation"/>
+        <field name="subject">{{ object.voting_id.name }}</field>
+        <field name="email_from">{{ user.email_formatted or '' }}</field>
+        <field name="email_to">{{ object.recipient_partner_id.email or '' }}</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0; padding: 0;">
+                <p>Us convidem a participar en la votació de l’AFA.</p>
+                <h2 t-out="object.voting_id.name"/>
+                <div t-out="object.voting_id.description"/>
+                <p>Data límit: <strong t-out="format_datetime(object.voting_id.date_end)"/></p>
+                <p><a t-att-href="ctx.get('voting_url')">Accedeix a la votació</a></p>
+                <p>AFA Escola La Bòbila</p>
+            </div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="server_action_add_families_to_voting" model="ir.actions.server">
+        <field name="name">Add to Voting</field>
+        <field name="model_id" ref="afa_family.model_afa_family"/>
+        <field name="binding_model_id" ref="afa_family.model_afa_family"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_add_to_voting()</field>
+        <field name="group_ids" eval="[(4, ref('afa_voting.group_voting_manager'))]"/>
+    </record>
+</odoo>

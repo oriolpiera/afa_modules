@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="afa_family.menu_afa_family_root" model="ir.ui.menu">
+        <field name="group_ids" eval="[(4, ref('afa_voting.group_voting_user'))]"/>
+    </record>
+    <menuitem id="menu_afa_voting" name="Votings" parent="afa_family.menu_afa_family_root" action="action_afa_voting" sequence="20" groups="afa_voting.group_voting_user"/>
+</odoo>

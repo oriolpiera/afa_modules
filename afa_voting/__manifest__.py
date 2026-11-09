@@ -1,0 +1,22 @@
+{
+    'name': 'AFA Voting',
+    'version': '19.0.1.0.0',
+    'summary': 'Family voting with private invitations and aggregate results',
+    'category': 'Services',
+    'license': 'LGPL-3',
+    'depends': ['base', 'mail', 'website', 'afa_family'],
+    'data': [
+        'security/voting_groups.xml',
+        'security/ir.model.access.csv',
+        'security/voting_rules.xml',
+        'views/voting_views.xml',
+        'views/voting_menus.xml',
+        'views/voting_templates.xml',
+        'wizard/add_families_views.xml',
+        'data/family_actions.xml',
+        'data/mail_template.xml',
+        'data/cron.xml',
+    ],
+    'installable': True,
+    'application': False,
+}

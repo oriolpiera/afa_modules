@@ -40,6 +40,7 @@ services:
       - ./afa_attendance_kiosk_pwa:/mnt/extra-addons/afa_attendance_kiosk_pwa:ro
       - ./afa_website:/mnt/extra-addons/afa_website:ro
       - ./afa_membership_webform:/mnt/extra-addons/afa_membership_webform:ro
+      - ./afa_voting:/mnt/extra-addons/afa_voting:ro
       - ./.oca-bank-payment/account_payment_mode:/mnt/extra-addons/account_payment_mode:ro
       - ./.oca-bank-payment/account_payment_order:/mnt/extra-addons/account_payment_order:ro
       - ./.oca-bank-payment/account_banking_pain_base:/mnt/extra-addons/account_banking_pain_base:ro

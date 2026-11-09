@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="voting_link_landing" model="ir.ui.view">
+        <field name="name">afa.voting.private.link.landing</field>
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_voting.voting_link_landing">
+                <t t-call="website.layout">
+                    <div id="wrap" class="container py-5 text-center">
+                        <p class="text-uppercase text-success fw-bold">AFA Escola La Bòbila</p>
+                        <h1>Carregant la votació</h1>
+                        <p id="voting-link-error" class="d-none">Enllaç no disponible. Comproveu que heu utilitzat l’enllaç complet.</p>
+                        <form id="voting-link-form" action="/afa/vote/open" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" id="voting-link-token" name="token" value=""/>
+                        </form>
+                    </div>
+                    <script>
+                        (() =&gt; {
+                            const token = window.location.hash.slice(1);
+                            window.history.replaceState(null, '', window.location.pathname);
+                            if (token) {
+                                document.getElementById('voting-link-token').value = token;
+                                document.getElementById('voting-link-form').submit();
+                            } else {
+                                document.getElementById('voting-link-error').classList.remove('d-none');
+                            }
+                        })();
+                    </script>
+                </t>
+            </t>
+        </field>
+    </record>
+    <record id="voting_page" model="ir.ui.view">
+        <field name="name">afa.voting.public.page</field><field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="afa_voting.voting_page">
+                <t t-call="website.layout">
+                    <div id="wrap" class="container py-5">
+                        <div class="row justify-content-center"><div class="col-lg-8">
+                            <p class="text-uppercase text-success fw-bold">AFA Escola La Bòbila</p>
+                            <h1 t-esc="voting.name"/><div t-field="voting.description"/>
+                            <p class="text-muted">Votació oberta fins al <span t-field="voting.date_end"/>.</p>
+                            <form action="/afa/vote/submit" method="post">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="token" t-att-value="token"/>
+                                <input type="hidden" name="token" t-att-value="token"/>
+                                <t t-foreach="options" t-as="option">
+                                    <div class="form-check border rounded p-3 mb-2">
+                                        <input class="form-check-input" type="radio" name="option_id" required="required" t-att-id="'option_%s' % option.id" t-att-value="option.id"/>
+                                        <label class="form-check-label" t-att-for="'option_%s' % option.id" t-esc="option.name"/>
+                                    </div>
+                                </t>
+                                <button class="btn btn-primary btn-lg mt-3" type="submit">Envia el vot</button>
+                            </form>
+                            <p class="small text-muted mt-4">L’enllaç és privat: qualsevol persona que el tingui el pot utilitzar. El vot és definitiu.</p>
+                        </div></div>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+    <record id="voting_unavailable" model="ir.ui.view">
+        <field name="name">afa.voting.unavailable</field><field name="type">qweb</field>
+        <field name="arch" type="xml"><t t-name="afa_voting.voting_unavailable"><t t-call="website.layout"><div id="wrap" class="container py-5 text-center"><h1>Enllaç no disponible</h1><p>Aquest enllaç no és vàlid o la votació ja no està disponible.</p></div></t></t></field>
+    </record>
+    <record id="voting_confirmation" model="ir.ui.view">
+        <field name="name">afa.voting.confirmation</field><field name="type">qweb</field>
+        <field name="arch" type="xml"><t t-name="afa_voting.voting_confirmation"><t t-call="website.layout"><div id="wrap" class="container py-5 text-center"><h1>Vot registrat</h1><p>Gràcies per participar. El vot és definitiu.</p></div></t></t></field>
+    </record>
+</odoo>

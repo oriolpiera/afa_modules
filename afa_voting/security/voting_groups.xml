@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_voting_user" model="res.groups">
+        <field name="name">AFA Voting Results User</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="group_voting_manager" model="res.groups">
+        <field name="name">AFA Voting Manager</field>
+        <field name="implied_ids" eval="[(4, ref('afa_voting.group_voting_user')), (4, ref('afa_family.group_family_manager'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+</odoo>
