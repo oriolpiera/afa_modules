@@ -15,7 +15,8 @@ Voting managers can additionally inspect invitations and identifiable votes.
 
 Create a draft, add at least two options, select participating families in the
 Participants tab or open **AFA Families → Families** and use **Add to Voting** on
-a family row to choose a draft voting. Set the start and end times, then
+a family list's **Actions** menu to select several families and choose a draft
+voting. Set the start and end times, then
 publish. Publishing creates invitations and queues
 email. The cron closes open ballots after their deadline (within five minutes).
 Managers can resend invitations to pending families; a resend rotates the

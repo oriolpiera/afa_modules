@@ -8,6 +8,8 @@ class AfaFamily(models.Model):
     def action_add_to_voting(self):
         if not self.env.user.has_group('afa_voting.group_voting_manager'):
             raise AccessError(_('Only voting managers can add families to a voting.'))
+        if not self:
+            raise ValidationError(_('Select at least one family.'))
         wizard = self.env['afa.voting.add.families.wizard'].create(
             {'family_ids': [Command.set(self.ids)]}
         )

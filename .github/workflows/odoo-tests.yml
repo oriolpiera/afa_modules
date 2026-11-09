@@ -159,7 +159,7 @@ jobs:
                   "Starting TestAfaVoting.test_publish_and_aggregate_results",
                   "Starting TestAfaVoting.test_invitation_cannot_be_moved_into_published_voting",
                   "Starting TestAfaVoting.test_catalan_translations_are_loaded",
-                  "Starting TestAfaVotingFamilyEntrypoint.test_family_list_action_opens_preselected_add_to_voting_wizard",
+                  "Starting TestAfaVotingFamilyEntrypoint.test_actions_menu_opens_wizard_with_multiple_selected_families",
                   "Starting TestAfaVotingFamilyEntrypoint.test_wizard_adds_family_to_selected_draft_voting",
                   "Starting TestAfaVotingFamilyEntrypoint.test_votings_menu_is_nested_under_afa_families",
                   "Starting TestAfaVotingSecurity.test_results_user_cannot_read_individual_votes_or_invitations",
