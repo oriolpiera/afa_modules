@@ -136,6 +136,37 @@ jobs:
           sys.exit(0 if passed and test_markers_ran else 1)
           '
 
+      - name: Run voting tests
+        run: |
+          set -o pipefail
+          docker compose -f compose.test.yaml run --rm odoo -d afa_voting_ci -i afa_voting --test-enable --test-tags /afa_voting --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo 2>&1 | python3 -c '
+          import re
+          import sys
+
+          output = sys.stdin.read()
+          print(output, end="")
+          summaries = re.findall(
+              r"odoo\.tests\.result: (\d+) failed, (\d+) error\(s\) of (\d+) tests when loading database",
+              output,
+          )
+          passed = bool(summaries) and all(
+              failures == "0" and errors == "0" and int(count) > 0
+              for failures, errors, count in summaries
+          )
+          test_markers_ran = all(
+              marker in output
+              for marker in (
+                  "Starting TestAfaVoting.test_publish_and_aggregate_results",
+                  "Starting TestAfaVotingSecurity.test_results_user_cannot_read_individual_votes_or_invitations",
+                  "Starting TestAfaVotingConcurrency.test_database_unique_constraints_prevent_duplicate_invitation_and_vote",
+                  "Starting TestAfaVotingConcurrentSubmissions.test_two_simultaneous_posts_create_one_vote",
+                  "Starting TestAfaVotingHttp.test_public_page_hides_family_details_and_vote_is_single_use",
+                  "Starting TestAfaVotingHttp.test_revoked_link_has_generic_response",
+              )
+          )
+          sys.exit(0 if passed and test_markers_ran else 1)
+          '
+
       - name: Verify current-month demo billing preview
         run: |
           set -euo pipefail

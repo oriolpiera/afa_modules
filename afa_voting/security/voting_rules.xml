@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_voting_manager_all" model="ir.rule">
+        <field name="name">Voting managers can see all votings</field>
+        <field name="model_id" ref="model_afa_voting"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('afa_voting.group_voting_manager'))]"/>
+    </record>
+    <record id="rule_voting_user_results" model="ir.rule">
+        <field name="name">Voting results users can see aggregate records</field>
+        <field name="model_id" ref="model_afa_voting"/>
+        <field name="domain_force">[('state', 'in', ['open', 'closed'])]</field>
+        <field name="groups" eval="[(4, ref('afa_voting.group_voting_user'))]"/>
+    </record>
+</odoo>

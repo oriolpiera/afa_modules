@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_voting_list" model="ir.ui.view">
+        <field name="name">afa.voting.list</field>
+        <field name="model">afa.voting</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="state"/>
+                <field name="participant_count" groups="afa_voting.group_voting_user"/>
+                <field name="participation_percent" groups="afa_voting.group_voting_user" widget="percentage"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_afa_voting_form" model="ir.ui.view">
+        <field name="name">afa.voting.form</field>
+        <field name="model">afa.voting</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_publish" type="object" string="Publish" class="btn-primary" invisible="state != 'draft'" groups="afa_voting.group_voting_manager"/>
+                    <button name="action_close" type="object" string="Close" invisible="state != 'open'" groups="afa_voting.group_voting_manager"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state not in ['draft', 'open']" groups="afa_voting.group_voting_manager"/>
+                    <button name="action_send_reminders" type="object" string="Resend pending invitations" invisible="state != 'open'" groups="afa_voting.group_voting_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,open,closed,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" readonly="state != 'draft'"/></h1></div>
+                    <notebook>
+                        <page string="General">
+                            <group><field name="description" readonly="state != 'draft'"/><field name="date_start" readonly="state != 'draft'"/><field name="date_end" readonly="state != 'draft'"/></group>
+                        </page>
+                        <page string="Options">
+                            <field name="option_ids" readonly="state != 'draft'"><list editable="bottom"><field name="sequence" widget="handle"/><field name="name"/></list></field>
+                        </page>
+                        <page string="Participants" groups="afa_voting.group_voting_manager">
+                            <group><field name="participant_family_ids" widget="many2many_tags" readonly="state != 'draft'" options="{'no_create': True}"/></group>
+                            <field name="invitation_ids" readonly="1">
+                                <list><field name="family_id"/><field name="recipient_partner_id"/><field name="state"/><field name="voted_at"/></list>
+                                <form><sheet><group><field name="family_id"/><field name="recipient_partner_id"/><field name="state"/><field name="voted_at"/></group><field name="history_ids" readonly="1"><list><field name="recipient_partner_id"/><field name="issued_at"/><field name="revoked_at"/><field name="state"/></list></field></sheet></form>
+                            </field>
+                        </page>
+                        <page string="Results" groups="afa_voting.group_voting_user">
+                            <group><field name="participant_count"/><field name="vote_count"/><field name="pending_count"/><field name="participation_percent" widget="percentage"/></group>
+                            <field name="option_result_ids" readonly="1"><list><field name="name"/><field name="vote_count"/><field name="vote_percent" widget="percentage"/></list></field>
+                            <field name="vote_ids" readonly="1" groups="afa_voting.group_voting_manager"><list><field name="family_id"/><field name="recipient_partner_id"/><field name="option_id"/><field name="voted_at"/></list></field>
+                            <button name="action_export_participants" type="object" string="Export participants" groups="afa_voting.group_voting_manager"/>
+                            <button name="action_export_results" type="object" string="Export aggregate results" groups="afa_voting.group_voting_manager"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_afa_voting" model="ir.actions.act_window">
+        <field name="name">Votings</field><field name="res_model">afa.voting</field><field name="view_mode">list,form</field>
+    </record>
+</odoo>
