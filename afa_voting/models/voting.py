@@ -12,6 +12,7 @@ class AfaVoting(models.Model):
     description = fields.Html()
     date_start = fields.Datetime(required=True, tracking=True)
     date_end = fields.Datetime(required=True, tracking=True)
+    active = fields.Boolean(default=True, tracking=True)
     state = fields.Selection(
         [('draft', 'Draft'), ('open', 'Open'), ('closed', 'Closed'), ('cancelled', 'Cancelled')],
         required=True,
@@ -44,6 +45,8 @@ class AfaVoting(models.Model):
     def create(self, vals_list):
         if any(vals.get('state', 'draft') != 'draft' for vals in vals_list):
             raise AccessError(_('Votings must be created as drafts.'))
+        if any(not vals.get('active', True) for vals in vals_list):
+            raise UserError(_('Votings cannot be created archived.'))
         return super().create(vals_list)
 
     @api.depends('invitation_ids', 'invitation_ids.state', 'vote_ids')
@@ -67,6 +70,10 @@ class AfaVoting(models.Model):
                 raise ValidationError(_('The end date must be after the start date.'))
 
     def write(self, vals):
+        if vals.get('active') is False and any(
+            record.state not in ('closed', 'cancelled') for record in self
+        ):
+            raise UserError(_('Only closed or cancelled votings can be archived.'))
         if 'state' in vals:
             raise AccessError(_('Voting state can only be changed through its workflow actions.'))
         if any(record.state != 'draft' for record in self) and set(vals) & {
@@ -85,6 +92,8 @@ class AfaVoting(models.Model):
         for voting in self:
             if voting.state != 'draft':
                 raise UserError(_('Only draft votings can be published.'))
+            if not voting.active:
+                raise UserError(_('Archived votings cannot be published.'))
             if len(voting.option_ids) < 2 or not voting.participant_family_ids:
                 raise ValidationError(_('Add at least two options and one participating family.'))
             no_payer = voting.participant_family_ids.filtered(
@@ -215,7 +224,9 @@ class AfaVoting(models.Model):
 
     @api.model
     def _cron_close_expired(self):
-        expired = self.search([('state', '=', 'open'), ('date_end', '<=', fields.Datetime.now())])
+        expired = self.with_context(active_test=False).search(
+            [('state', '=', 'open'), ('date_end', '<=', fields.Datetime.now())]
+        )
         for voting in expired:
             super(AfaVoting, voting).write({'state': 'closed'})
         return len(expired)

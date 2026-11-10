@@ -3,7 +3,8 @@
     <!-- Each initial guardian starts unassigned; family creation links the payer. -->
     <record id="demo_cedar_payer" model="res.partner">
         <field name="name">Cedar Example Guardian One</field>
-        <field name="afa_family_role">guardian</field>
+	<field name="afa_family_role">guardian</field>
+	<field name="email">a@a.com</field>
     </record>
     <record id="demo_family_cedar" model="afa.family">
         <field name="name">Cedar Example Family</field>
@@ -28,6 +29,7 @@
     <record id="demo_maple_payer" model="res.partner">
         <field name="name">Maple Example Guardian One</field>
         <field name="afa_family_role">guardian</field>
+	<field name="email">b@b.com</field>
     </record>
     <record id="demo_family_maple" model="afa.family">
         <field name="name">Maple Example Family</field>

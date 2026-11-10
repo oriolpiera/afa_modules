@@ -33,6 +33,10 @@ class TestAfaVoting(TransactionCase):
             }
         )
 
+    def _archive_as_legacy_record(self, voting):
+        self.env.cr.execute('UPDATE afa_voting SET active = FALSE WHERE id = %s', (voting.id,))
+        voting.invalidate_recordset(['active'])
+
     def test_publish_and_aggregate_results(self):
         self.voting.action_publish()
         invitation = self.voting.invitation_ids
@@ -58,6 +62,40 @@ class TestAfaVoting(TransactionCase):
         self.assertEqual(self.voting.pending_count, 0)
         self.assertEqual(self.voting.participation_percent, 1.0)
         self.assertEqual(self.voting.option_ids[0].vote_count, 1)
+
+    def test_only_closed_or_cancelled_votings_can_be_archived(self):
+        form_view = self.env.ref('afa_voting.view_afa_voting_form')
+        self.assertIn('name="active"', form_view.arch_db)
+
+        with self.assertRaises(UserError):
+            self.voting.write({'active': False})
+
+        self.voting.action_cancel()
+        self.voting.write({'active': False})
+
+        self.assertFalse(self.voting.active)
+        self.assertFalse(self.env['afa.voting'].search([('id', '=', self.voting.id)]))
+        self.assertTrue(
+            self.env['afa.voting']
+            .with_context(active_test=False)
+            .search([('id', '=', self.voting.id)])
+        )
+
+    def test_archived_votings_cannot_be_created_or_published(self):
+        with self.assertRaises(UserError):
+            self.env['afa.voting'].create(
+                {
+                    'name': 'Archived choice',
+                    'date_start': fields.Datetime.now(),
+                    'date_end': fields.Datetime.now() + timedelta(hours=1),
+                    'active': False,
+                }
+            )
+
+        # Simulate a legacy archived draft that predates the create constraint.
+        self._archive_as_legacy_record(self.voting)
+        with self.assertRaises(UserError):
+            self.voting.action_publish()
 
     def test_invitation_email_contains_raw_token_but_model_stores_only_hash(self):
         token = 'generated-private-token'
@@ -237,6 +275,7 @@ class TestAfaVoting(TransactionCase):
             }
         )
         expired.action_publish()
+        self._archive_as_legacy_record(expired)
         self.env['afa.voting']._cron_close_expired()
         self.assertEqual(expired.state, 'closed')
         self.assertEqual(self.env['afa.voting']._cron_close_expired(), 0)
