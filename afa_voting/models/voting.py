@@ -12,6 +12,7 @@ class AfaVoting(models.Model):
     description = fields.Html()
     date_start = fields.Datetime(required=True, tracking=True)
     date_end = fields.Datetime(required=True, tracking=True)
+    active = fields.Boolean(default=True, tracking=True)
     state = fields.Selection(
         [('draft', 'Draft'), ('open', 'Open'), ('closed', 'Closed'), ('cancelled', 'Cancelled')],
         required=True,
@@ -67,6 +68,10 @@ class AfaVoting(models.Model):
                 raise ValidationError(_('The end date must be after the start date.'))
 
     def write(self, vals):
+        if vals.get('active') is False and any(
+            record.state not in ('closed', 'cancelled') for record in self
+        ):
+            raise UserError(_('Only closed or cancelled votings can be archived.'))
         if 'state' in vals:
             raise AccessError(_('Voting state can only be changed through its workflow actions.'))
         if any(record.state != 'draft' for record in self) and set(vals) & {

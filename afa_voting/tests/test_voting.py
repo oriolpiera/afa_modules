@@ -59,6 +59,21 @@ class TestAfaVoting(TransactionCase):
         self.assertEqual(self.voting.participation_percent, 1.0)
         self.assertEqual(self.voting.option_ids[0].vote_count, 1)
 
+    def test_only_closed_or_cancelled_votings_can_be_archived(self):
+        with self.assertRaises(UserError):
+            self.voting.write({'active': False})
+
+        self.voting.action_cancel()
+        self.voting.write({'active': False})
+
+        self.assertFalse(self.voting.active)
+        self.assertFalse(self.env['afa.voting'].search([('id', '=', self.voting.id)]))
+        self.assertTrue(
+            self.env['afa.voting']
+            .with_context(active_test=False)
+            .search([('id', '=', self.voting.id)])
+        )
+
     def test_invitation_email_contains_raw_token_but_model_stores_only_hash(self):
         token = 'generated-private-token'
         with patch(
