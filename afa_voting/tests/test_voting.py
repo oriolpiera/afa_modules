@@ -60,6 +60,9 @@ class TestAfaVoting(TransactionCase):
         self.assertEqual(self.voting.option_ids[0].vote_count, 1)
 
     def test_only_closed_or_cancelled_votings_can_be_archived(self):
+        form_view = self.env.ref('afa_voting.view_afa_voting_form')
+        self.assertIn('name="active"', form_view.arch_db)
+
         with self.assertRaises(UserError):
             self.voting.write({'active': False})
 

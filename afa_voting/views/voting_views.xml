@@ -25,6 +25,7 @@
                     <button name="action_cancel" type="object" string="Cancel" invisible="state not in ['draft', 'open']" groups="afa_voting.group_voting_manager"/>
                     <button name="action_send_reminders" type="object" string="Resend pending invitations" invisible="state != 'open'" groups="afa_voting.group_voting_manager"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,open,closed,cancelled"/>
+                    <field name="active" string="Active" invisible="state not in ['closed', 'cancelled']" groups="afa_voting.group_voting_manager"/>
                 </header>
                 <sheet>
                     <div class="oe_title"><h1><field name="name" readonly="state != 'draft'"/></h1></div>
