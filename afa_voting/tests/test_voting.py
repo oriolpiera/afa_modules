@@ -77,6 +77,22 @@ class TestAfaVoting(TransactionCase):
             .search([('id', '=', self.voting.id)])
         )
 
+    def test_archived_votings_cannot_be_created_or_published(self):
+        with self.assertRaises(UserError):
+            self.env['afa.voting'].create(
+                {
+                    'name': 'Archived choice',
+                    'date_start': fields.Datetime.now(),
+                    'date_end': fields.Datetime.now() + timedelta(hours=1),
+                    'active': False,
+                }
+            )
+
+        # Simulate a legacy archived draft that predates the create constraint.
+        super(type(self.voting), self.voting).write({'active': False})
+        with self.assertRaises(UserError):
+            self.voting.action_publish()
+
     def test_invitation_email_contains_raw_token_but_model_stores_only_hash(self):
         token = 'generated-private-token'
         with patch(
@@ -255,6 +271,7 @@ class TestAfaVoting(TransactionCase):
             }
         )
         expired.action_publish()
+        super(type(expired), expired).write({'active': False})
         self.env['afa.voting']._cron_close_expired()
         self.assertEqual(expired.state, 'closed')
         self.assertEqual(self.env['afa.voting']._cron_close_expired(), 0)
