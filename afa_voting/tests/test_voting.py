@@ -33,6 +33,10 @@ class TestAfaVoting(TransactionCase):
             }
         )
 
+    def _archive_as_legacy_record(self, voting):
+        self.env.cr.execute('UPDATE afa_voting SET active = FALSE WHERE id = %s', (voting.id,))
+        voting.invalidate_recordset(['active'])
+
     def test_publish_and_aggregate_results(self):
         self.voting.action_publish()
         invitation = self.voting.invitation_ids
@@ -89,7 +93,7 @@ class TestAfaVoting(TransactionCase):
             )
 
         # Simulate a legacy archived draft that predates the create constraint.
-        super(type(self.voting), self.voting).write({'active': False})
+        self._archive_as_legacy_record(self.voting)
         with self.assertRaises(UserError):
             self.voting.action_publish()
 
@@ -271,7 +275,7 @@ class TestAfaVoting(TransactionCase):
             }
         )
         expired.action_publish()
-        super(type(expired), expired).write({'active': False})
+        self._archive_as_legacy_record(expired)
         self.env['afa.voting']._cron_close_expired()
         self.assertEqual(expired.state, 'closed')
         self.assertEqual(self.env['afa.voting']._cron_close_expired(), 0)
