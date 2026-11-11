@@ -1,5 +1,6 @@
 {
     'name': 'Attendance Kiosk PWA',
+    'author': 'Oriol Piera',
     'version': '19.0.1.0.0',
     'summary': 'Install the attendance kiosk as a standalone Android web app',
     'category': 'Human Resources/Attendances',

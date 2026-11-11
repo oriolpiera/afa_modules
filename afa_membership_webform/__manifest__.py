@@ -1,5 +1,6 @@
 {
     'name': 'AFA Membership Web Form',
+    'author': 'Oriol Piera',
     'version': '19.0.1.0.0',
     'summary': 'Public member registration requests with manager review',
     'category': 'Website',

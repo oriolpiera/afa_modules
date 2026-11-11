@@ -1,5 +1,6 @@
 {
     'name': 'AFA Website',
+    'author': 'Oriol Piera',
     'version': '19.0.1.1.0',
     'summary': 'A welcoming public website for AFA Escola La Bòbila',
     'category': 'Website',

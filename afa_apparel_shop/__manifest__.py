@@ -1,5 +1,6 @@
 {
     'name': 'AFA Apparel Shop',
+    'author': 'Oriol Piera',
     'version': '19.0.1.0.0',
     'summary': 'Reserve website stock for AFA bank-transfer orders',
     'category': 'Sales',

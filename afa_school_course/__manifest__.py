@@ -1,5 +1,6 @@
 {
     'name': 'AFA School Courses',
+    'author': 'Oriol Piera',
     'version': '19.0.1.0.0',
     'summary': 'School course ladder and annual student promotion',
     'category': 'Services',

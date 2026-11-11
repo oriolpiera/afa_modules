@@ -1,5 +1,6 @@
 {
     'name': 'AFA Voting',
+    'author': 'Oriol Piera',
     'version': '19.0.1.0.0',
     'summary': 'Family voting with private invitations and aggregate results',
     'category': 'Services',

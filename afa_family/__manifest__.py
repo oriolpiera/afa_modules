@@ -1,5 +1,6 @@
 {
     'name': 'AFA Families',
+    'author': 'Oriol Piera',
     'version': '19.0.1.0.0',
     'summary': 'Family membership and designated guardian for billing',
     'category': 'Services',

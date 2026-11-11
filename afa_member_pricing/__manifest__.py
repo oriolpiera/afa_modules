@@ -1,5 +1,6 @@
 {
     'name': 'AFA Member Pricing',
+    'author': 'Oriol Piera',
     'version': '19.0.1.0.0',
     'summary': 'Family-based member and non-member prices in sales and eCommerce',
     'category': 'Sales',
