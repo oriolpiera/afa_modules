@@ -110,18 +110,26 @@ class AfaServiceBilling(models.TransientModel):
             )
         return allocations
 
-    def _existing_invoice(self, family, payer, journal, payment_mode):
-        return self.env['account.move'].search(
-            [
-                ('afa_service_family_id', '=', family.id),
-                ('afa_service_month', '=', self.month),
-                ('partner_id', '=', payer.id),
-                ('journal_id', '=', journal.id),
-                ('payment_mode_id', '=', payment_mode.id),
-                ('state', '!=', 'cancel'),
-            ],
-            limit=1,
-        )
+    def _existing_invoice(self, family, payer, journal, payment_mode, extra=('service',)):
+        domain = [
+            ('afa_service_family_id', '=', family.id),
+            ('afa_service_month', '=', self.month),
+            ('partner_id', '=', payer.id),
+            ('journal_id', '=', journal.id),
+            ('payment_mode_id', '=', payment_mode.id),
+            ('state', '!=', 'cancel'),
+        ]
+        domain.extend(self._invoice_group_extra_domain(extra))
+        return self.env['account.move'].search(domain, limit=1)
+
+    def _invoice_group_extra(self, subscription, snapshot):
+        return ('service',)
+
+    def _invoice_group_extra_domain(self, extra):
+        return [('afa_service_billing_type', '=', extra[0])]
+
+    def _invoice_group_extra_values(self, extra):
+        return {'afa_service_billing_type': extra[0]}
 
     def _invoices_for_group(self, family, journal, payment_mode):
         return self.env['account.move'].search(
@@ -194,6 +202,7 @@ class AfaServiceBilling(models.TransientModel):
                 payer,
                 subscription.service_id.invoice_journal_id,
                 payment_mode,
+                self._invoice_group_extra(subscription, snapshot),
             )
             if invoice and invoice.state != 'draft':
                 return _(
@@ -299,12 +308,13 @@ class AfaServiceBilling(models.TransientModel):
                     allocation['payer_id'],
                     snapshot['journal_id'],
                     allocation['payment_mode_id'] or False,
-                )
+                ) + self._invoice_group_extra(subscription, snapshot)
                 grouped_lines.setdefault(key, []).append((line, subscription, snapshot, allocation))
         return grouped_lines
 
     def _generate_invoice_group(self, key, entries, invoice_lines_by_subscription):
-        family_id, payer_id, journal_id, payment_mode_id = key
+        family_id, payer_id, journal_id, payment_mode_id = key[:4]
+        extra = key[4:]
         family = self.env['afa.family'].browse(family_id)
         payer = self.env['res.partner'].browse(payer_id)
         journal = self.env['account.journal'].browse(journal_id)
@@ -318,7 +328,7 @@ class AfaServiceBilling(models.TransientModel):
             raise ValidationError(
                 _('Invoice journal and payment mode must match the service company.')
             )
-        invoice = self._existing_invoice(family, payer, journal, payment_mode)
+        invoice = self._existing_invoice(family, payer, journal, payment_mode, extra)
         if invoice and invoice.state != 'draft':
             raise ValidationError(
                 _('The invoice to %s is already posted; cancel it before billing new services.')
@@ -339,6 +349,7 @@ class AfaServiceBilling(models.TransientModel):
                         'invoice_date': fields.Date.context_today(self),
                         'afa_service_month': self.month,
                         'afa_service_family_id': family.id,
+                        **self._invoice_group_extra_values(extra),
                     }
                 )
             )

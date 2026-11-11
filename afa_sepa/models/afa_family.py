@@ -1,9 +1,13 @@
-from odoo import _, models
+from odoo import _, fields, models
 from odoo.exceptions import AccessError
 
 
 class AfaFamily(models.Model):
     _inherit = 'afa.family'
+
+    sepa_mandate_rule_ids = fields.One2many(
+        'afa.sepa.mandate.rule', 'family_id', string='SEPA Mandate Assignments'
+    )
 
     def action_open_afa_sepa_lines(self):
         self.ensure_one()

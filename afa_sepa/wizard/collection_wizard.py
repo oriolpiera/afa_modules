@@ -41,31 +41,7 @@ class AfaSepaWizard(models.TransientModel):
         return result
 
     def _mandate_for(self, invoice):
-        def usable(mandate):
-            return (
-                mandate.partner_id == invoice.partner_id
-                and mandate.company_id == invoice.company_id
-                and mandate.state == 'valid'
-                and mandate.format == 'sepa'
-                and mandate.scheme == 'CORE'
-                and mandate.signature_date
-                and mandate.signature_date <= fields.Date.context_today(self)
-                and mandate.partner_bank_id.partner_id == invoice.partner_id
-                and mandate.partner_bank_id.acc_type == 'iban'
-                and not (mandate.type == 'oneoff' and mandate.last_debit_date)
-            )
-
-        linked = invoice.mandate_id.filtered(usable)
-        if linked:
-            return linked[:1]
-        mandates = self.env['account.banking.mandate'].search(
-            [
-                ('partner_id', '=', invoice.partner_id.id),
-                ('company_id', '=', invoice.company_id.id),
-                ('state', '=', 'valid'),
-            ]
-        )
-        return mandates.filtered(usable)[:1]
+        return invoice._afa_sepa_resolve_collection_mandate()
 
     def _evaluate(self, invoice):
         if (
@@ -101,9 +77,9 @@ class AfaSepaWizard(models.TransientModel):
             and (self.journal_id not in self.payment_mode_id.variable_journal_ids)
         ):
             return False, _('The journal is not allowed by this payment mode.')
-        mandate = self._mandate_for(invoice)
+        mandate, mandate_error = self._mandate_for(invoice)
         if not mandate:
-            return False, _('No valid SEPA Core mandate with an IBAN owned by the invoice payer.')
+            return False, mandate_error
         receivables = invoice.line_ids.filtered(
             lambda l: (
                 l.account_id.account_type == 'asset_receivable'

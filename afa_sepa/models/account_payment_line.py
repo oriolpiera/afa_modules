@@ -120,6 +120,14 @@ class AccountPaymentLine(models.Model):
                 raise ValidationError(
                     _('The invoice payer needs their own valid SEPA Core mandate and IBAN.')
                 )
+            expected_mandate, _mandate_error = invoice._afa_sepa_resolve_collection_mandate()
+            if not expected_mandate or expected_mandate != mandate:
+                raise ValidationError(
+                    _(
+                        'The family mandate assignment changed after this debit was prepared. '
+                        'Check eligibility and prepare the debit again.'
+                    )
+                )
             if (
                 not creditor
                 or line.currency_id.name != 'EUR'

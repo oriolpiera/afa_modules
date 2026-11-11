@@ -8,6 +8,16 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     afa_service_month = fields.Date(copy=False, readonly=True, index=True)
+    afa_service_billing_type = fields.Selection(
+        [
+            ('service', 'Monthly Service'),
+            ('extracurricular', 'Extracurricular Activities'),
+            ('acollida', 'Acollida'),
+        ],
+        copy=False,
+        readonly=True,
+        index=True,
+    )
     afa_service_family_id = fields.Many2one(
         'afa.family', copy=False, readonly=True, groups='afa_family.group_family_manager'
     )
@@ -22,11 +32,16 @@ class AccountMove(models.Model):
     def init(self):
         self.env.cr.execute('DROP INDEX IF EXISTS afa_service_invoice_family_month_uniq')
         self.env.cr.execute('DROP INDEX IF EXISTS afa_service_invoice_group_uniq')
+        self.env.cr.execute('DROP INDEX IF EXISTS afa_service_invoice_payer_group_uniq')
+        self.env.cr.execute(
+            "UPDATE account_move SET afa_service_billing_type = 'service' "
+            'WHERE afa_service_family_id IS NOT NULL AND afa_service_billing_type IS NULL'
+        )
         self.env.cr.execute(
             'CREATE UNIQUE INDEX IF NOT EXISTS afa_service_invoice_payer_group_uniq '
             'ON account_move '
             '(afa_service_family_id, afa_service_month, partner_id, journal_id, '
-            'COALESCE(payment_mode_id, 0)) '
+            "COALESCE(payment_mode_id, 0), COALESCE(afa_service_billing_type, '')) "
             "WHERE afa_service_family_id IS NOT NULL AND state != 'cancel'"
         )
 
@@ -46,6 +61,7 @@ class AccountMove(models.Model):
                 'partner_id',
                 'afa_service_month',
                 'afa_service_family_id',
+                'afa_service_billing_type',
             }
             & vals.keys()
         ):
