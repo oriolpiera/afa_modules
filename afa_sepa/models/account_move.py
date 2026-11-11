@@ -9,7 +9,8 @@ class AccountMove(models.Model):
         self.ensure_one()
         purposes = set()
 
-        if 'afa_acollida_charge_ids' in self._fields and self.afa_acollida_charge_ids:
+        has_acollida_sources = self._afa_sepa_has_acollida_charges()
+        if has_acollida_sources:
             purposes.add('acollida')
 
         billing_type = self.afa_service_billing_type
@@ -33,9 +34,13 @@ class AccountMove(models.Model):
             if len(extracurricular_charges) != len(service_charges):
                 purposes.add('default')
 
-        if billing_type == 'service' and not has_service_sources:
+        if billing_type == 'service' and not has_service_sources and not has_acollida_sources:
             purposes.add('default')
         return purposes or {'default'}
+
+    def _afa_sepa_has_acollida_charges(self):
+        self.ensure_one()
+        return bool('afa_acollida_charge_ids' in self._fields and self.afa_acollida_charge_ids)
 
     def action_open_afa_sepa_lines(self):
         self.ensure_one()

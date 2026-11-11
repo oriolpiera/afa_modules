@@ -418,6 +418,12 @@ class TestAfaSepa(TransactionCase):
         self.invoice.afa_service_billing_type = 'extracurricular'
         self.assertEqual(self.invoice._afa_sepa_mandate_purposes(), {'extracurricular'})
 
+    def test_acollida_only_legacy_invoice_does_not_gain_default_purpose(self):
+        self.invoice.afa_service_billing_type = 'service'
+        account_move_class = type(self.invoice)
+        with patch.object(account_move_class, '_afa_sepa_has_acollida_charges', return_value=True):
+            self.assertEqual(self.invoice._afa_sepa_mandate_purposes(), {'acollida'})
+
     def test_acollida_assignment_does_not_reuse_monthly_service_invoice(self):
         if 'afa.acollida.billing' not in self.env.registry.models:
             self.skipTest('afa_acollida is not installed')
