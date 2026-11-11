@@ -30,6 +30,26 @@ not determine the direct-debit version.
    After a return, recheck eligibility to prepare a replacement order; the
    wizard will open that new order rather than the uploaded one.
 
+## Families with multiple payer IBANs
+
+Most families need no additional setup: when exactly one usable mandate exists,
+the collection wizard uses it. For a family with multiple valid mandates, open
+the family and add assignments on **SEPA Mandates**, per company:
+
+- **Default** applies to billing types without a specific assignment.
+- **Acollida** and **Extracurricular Activities** override the default for those
+  invoices.
+
+If an assigned mandate is no longer valid, the affected invoice is excluded; the
+wizard never redirects it to another IBAN. If multiple valid mandates exist but
+the invoice has no unambiguous assignment, the wizard asks for configuration.
+When a family has a specific extracurricular assignment, monthly service billing
+separates those charges from other services. An Acollida assignment is billed on
+its own invoice. This keeps ordinary families' invoices grouped while ensuring
+the exceptional family's invoices can use the intended mandates. Any existing
+invoice containing types assigned to different mandates must be canceled and
+rebilled into separate invoices before collection.
+
 The pinned OCA module defaults to `pain.008.001.02`; its payment method allows
 other supported `pain.008` versions. Verify the version, creditor identifier,
 requested collection date, and a sample file with the actual bank before use.

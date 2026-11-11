@@ -12,6 +12,25 @@
             </xpath>
         </field>
     </record>
+    <record id="view_afa_sepa_family_mandate_rules" model="ir.ui.view">
+        <field name="name">afa.sepa.family.mandate.rules</field>
+        <field name="model">afa.family</field>
+        <field name="inherit_id" ref="afa_family.view_afa_family_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="SEPA Mandates" groups="afa_family.group_family_manager">
+                    <field name="sepa_mandate_rule_ids" context="{'default_family_id': id}">
+                        <list editable="bottom">
+                            <field name="company_id"/>
+                            <field name="purpose"/>
+                            <field name="mandate_id"
+                                   domain="[('partner_id', '=', parent.billing_partner_id), ('company_id', '=', company_id), ('format', '=', 'sepa'), ('scheme', '=', 'CORE')]"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
     <record id="view_afa_sepa_family_form" model="ir.ui.view">
         <field name="name">afa.sepa.family.form</field>
         <field name="model">afa.family</field>

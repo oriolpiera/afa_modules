@@ -5,6 +5,38 @@ from odoo.exceptions import AccessError
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
+    def _afa_sepa_mandate_purposes(self):
+        self.ensure_one()
+        purposes = set()
+
+        if 'afa_acollida_charge_ids' in self._fields and self.afa_acollida_charge_ids:
+            purposes.add('acollida')
+
+        billing_type = self.afa_service_billing_type
+        if billing_type == 'acollida':
+            purposes.add('acollida')
+        elif billing_type == 'extracurricular':
+            purposes.add('extracurricular')
+
+        has_service_sources = False
+        if 'afa_service_charge_ids' in self._fields and self.afa_service_charge_ids:
+            has_service_sources = True
+            service_charges = self.afa_service_charge_ids
+            extracurricular_charges = service_charges.filtered(
+                lambda charge: (
+                    'is_extracurricular' in charge.subscription_id.service_id._fields
+                    and charge.subscription_id.service_id.is_extracurricular
+                )
+            )
+            if extracurricular_charges:
+                purposes.add('extracurricular')
+            if len(extracurricular_charges) != len(service_charges):
+                purposes.add('default')
+
+        if billing_type == 'service' and not has_service_sources:
+            purposes.add('default')
+        return purposes or {'default'}
+
     def action_open_afa_sepa_lines(self):
         self.ensure_one()
         if not self.env.user.has_group('afa_family.group_family_manager') or not (

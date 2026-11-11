@@ -45,7 +45,10 @@ class AfaAcollidaBilling(models.TransientModel):
             'amount': charge.amount,
         }
 
-    def _existing_invoice(self, family, journal, payment_mode):
+    def _existing_invoice(self, family, journal, payment_mode, company_id=None):
+        company_id = company_id or self.env.company.id
+        if self._has_acollida_mandate_assignment(family, company_id):
+            return self.env['account.move']
         # Managers may review charges without accounting access; sudo only this identity lookup.
         return (
             self.env['account.move']
@@ -56,9 +59,18 @@ class AfaAcollidaBilling(models.TransientModel):
                     ('afa_service_month', '=', self.month),
                     ('journal_id', '=', journal.id),
                     ('payment_mode_id', '=', payment_mode.id),
+                    ('afa_service_billing_type', '=', 'service'),
                     ('state', '!=', 'cancel'),
                 ],
                 limit=1,
+            )
+        )
+
+    def _has_acollida_mandate_assignment(self, family, company_id):
+        return bool(
+            'sepa_mandate_rule_ids' in family._fields
+            and family.sepa_mandate_rule_ids.filtered(
+                lambda rule: rule.company_id.id == company_id and rule.purpose == 'acollida'
             )
         )
 
@@ -77,6 +89,7 @@ class AfaAcollidaBilling(models.TransientModel):
             charge.family_id,
             charge.config_id.invoice_journal_id,
             charge.config_id.payment_mode_id,
+            snapshot['company_id'],
         )
         if invoice and invoice.state != 'draft':
             return _('The family invoice is already posted; cancel it before billing Acollida.')
@@ -174,7 +187,7 @@ class AfaAcollidaBilling(models.TransientModel):
                     )
                 prepared.append((line, charge, snapshot))
 
-            invoice = self._existing_invoice(family, journal, payment_mode)
+            invoice = self._existing_invoice(family, journal, payment_mode, company.id)
             if not invoice:
                 invoice = (
                     self.env['account.move']
@@ -190,6 +203,11 @@ class AfaAcollidaBilling(models.TransientModel):
                             'invoice_date': fields.Date.context_today(self),
                             'afa_service_month': self.month,
                             'afa_service_family_id': family.id,
+                            'afa_service_billing_type': (
+                                'acollida'
+                                if self._has_acollida_mandate_assignment(family, company.id)
+                                else 'service'
+                            ),
                         }
                     )
                 )

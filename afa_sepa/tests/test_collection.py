@@ -1,4 +1,5 @@
 import base64
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from lxml import etree
@@ -259,6 +260,202 @@ class TestAfaSepa(TransactionCase):
         order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
         self.assertEqual(order.payment_line_ids.mandate_id, replacement)
         self.assertEqual(self.invoice.mandate_id, self.mandate)
+
+    def _create_second_mandate(self, reference='AFA-TEST-02'):
+        payer_bank = self.env['res.partner.bank'].create(
+            {
+                'partner_id': self.invoice.partner_id.id,
+                'acc_number': 'ES9121000418450200051332',
+            }
+        )
+        payer_bank._compute_acc_type()
+        return self.env['account.banking.mandate'].create(
+            {
+                'format': 'sepa',
+                'type': 'recurrent',
+                'scheme': 'CORE',
+                'signature_date': fields.Date.today(),
+                'partner_bank_id': payer_bank.id,
+                'state': 'valid',
+                'unique_mandate_reference': reference,
+            }
+        )
+
+    def test_multiple_valid_mandates_need_assignment_instead_of_first_match(self):
+        self._create_second_mandate()
+
+        self.wizard.action_preview()
+
+        self.assertFalse(self.wizard.line_ids.eligible)
+        self.assertIn('Multiple valid SEPA mandates', self.wizard.line_ids.reason)
+
+    def test_family_default_mandate_is_used_for_all_unmapped_purposes(self):
+        second = self._create_second_mandate()
+        self.env['afa.sepa.mandate.rule'].create(
+            {
+                'family_id': self.family.id,
+                'company_id': self.env.company.id,
+                'purpose': 'default',
+                'mandate_id': second.id,
+            }
+        )
+
+        self.wizard.action_preview()
+        action = self.wizard.action_prepare()
+        order = self.env['account.payment.order'].browse(action['res_id'])
+
+        self.assertTrue(self.wizard.line_ids.eligible, self.wizard.line_ids.reason)
+        self.assertEqual(order.payment_line_ids.mandate_id, second)
+
+    def test_invalid_service_assignment_does_not_fall_back_to_another_mandate(self):
+        assigned = self._create_second_mandate()
+        self.env['afa.sepa.mandate.rule'].create(
+            {
+                'family_id': self.family.id,
+                'company_id': self.env.company.id,
+                'purpose': 'acollida',
+                'mandate_id': assigned.id,
+            }
+        )
+        assigned.state = 'cancel'
+        self.invoice.mandate_id = self.mandate
+        account_move_class = type(self.invoice)
+        with patch.object(
+            account_move_class, '_afa_sepa_mandate_purposes', return_value={'acollida'}
+        ):
+            self.wizard.action_preview()
+
+        self.assertFalse(self.wizard.line_ids.eligible)
+        self.assertIn('no longer valid', self.wizard.line_ids.reason)
+
+    def test_service_specific_mandate_is_not_an_implicit_default(self):
+        other = self._create_second_mandate()
+        self.env['afa.sepa.mandate.rule'].create(
+            {
+                'family_id': self.family.id,
+                'company_id': self.env.company.id,
+                'purpose': 'acollida',
+                'mandate_id': self.mandate.id,
+            }
+        )
+        other.state = 'cancel'
+        account_move_class = type(self.invoice)
+        with patch.object(
+            account_move_class, '_afa_sepa_mandate_purposes', return_value={'default'}
+        ):
+            self.wizard.action_preview()
+
+        self.assertFalse(self.wizard.line_ids.eligible)
+        self.assertIn('No default SEPA mandate', self.wizard.line_ids.reason)
+
+    def test_invoice_with_different_purpose_mandates_must_be_split(self):
+        second = self._create_second_mandate()
+        self.env['afa.sepa.mandate.rule'].create(
+            [
+                {
+                    'family_id': self.family.id,
+                    'company_id': self.env.company.id,
+                    'purpose': 'default',
+                    'mandate_id': self.mandate.id,
+                },
+                {
+                    'family_id': self.family.id,
+                    'company_id': self.env.company.id,
+                    'purpose': 'extracurricular',
+                    'mandate_id': second.id,
+                },
+            ]
+        )
+        account_move_class = type(self.invoice)
+        with patch.object(
+            account_move_class,
+            '_afa_sepa_mandate_purposes',
+            return_value={'default', 'extracurricular'},
+        ):
+            self.wizard.action_preview()
+
+        self.assertFalse(self.wizard.line_ids.eligible)
+        self.assertIn('split the invoice', self.wizard.line_ids.reason)
+
+    def test_extracurricular_assignment_splits_monthly_service_billing(self):
+        billing = self.env['afa.service.billing'].create({})
+        subscription = SimpleNamespace(
+            family_id=self.family,
+            service_id=SimpleNamespace(
+                _fields={'is_extracurricular': object()},
+                company_id=self.env.company,
+                is_extracurricular=True,
+            ),
+        )
+        self.assertEqual(
+            billing._invoice_group_extra(subscription, {}),
+            ('service',),
+        )
+        self.env['afa.sepa.mandate.rule'].create(
+            {
+                'family_id': self.family.id,
+                'company_id': self.env.company.id,
+                'purpose': 'extracurricular',
+                'mandate_id': self.mandate.id,
+            }
+        )
+
+        self.assertEqual(
+            billing._invoice_group_extra(subscription, {}),
+            ('extracurricular',),
+        )
+        subscription.service_id.is_extracurricular = False
+        self.assertEqual(
+            billing._invoice_group_extra(subscription, {}),
+            ('service',),
+        )
+
+    def test_invoice_billing_type_resolves_the_sepa_mandate_purpose(self):
+        self.invoice.afa_service_billing_type = 'acollida'
+
+        self.assertEqual(self.invoice._afa_sepa_mandate_purposes(), {'acollida'})
+
+        self.invoice.afa_service_billing_type = 'extracurricular'
+        self.assertEqual(self.invoice._afa_sepa_mandate_purposes(), {'extracurricular'})
+
+    def test_acollida_assignment_does_not_reuse_monthly_service_invoice(self):
+        if 'afa.acollida.billing' not in self.env.registry.models:
+            self.skipTest('afa_acollida is not installed')
+        self.env['account.move'].with_context(_afa_generate_service_invoices=True).create(
+            {
+                'move_type': 'out_invoice',
+                'partner_id': self.invoice.partner_id.id,
+                'company_id': self.env.company.id,
+                'journal_id': self.env['account.journal']
+                .search([('company_id', '=', self.env.company.id), ('type', '=', 'sale')], limit=1)
+                .id,
+                'payment_mode_id': self.mode.id,
+                'date': '2026-10-31',
+                'invoice_date': '2026-10-31',
+                'afa_service_month': '2026-10-01',
+                'afa_service_family_id': self.family.id,
+                'afa_service_billing_type': 'service',
+            }
+        )
+        self.env['afa.sepa.mandate.rule'].create(
+            {
+                'family_id': self.family.id,
+                'company_id': self.env.company.id,
+                'purpose': 'acollida',
+                'mandate_id': self.mandate.id,
+            }
+        )
+        billing = self.env['afa.acollida.billing'].create({'month': '2026-10-01'})
+
+        invoice = billing._existing_invoice(
+            self.family,
+            self.env['account.journal'].search(
+                [('company_id', '=', self.env.company.id), ('type', '=', 'sale')], limit=1
+            ),
+            self.mode,
+        )
+
+        self.assertFalse(invoice)
 
     def test_non_iban_creditor_account_is_excluded(self):
         bank_account = self.env['res.partner.bank'].create(

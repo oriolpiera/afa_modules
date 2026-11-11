@@ -55,9 +55,6 @@ class AfaSepaWizard(models.TransientModel):
                 and not (mandate.type == 'oneoff' and mandate.last_debit_date)
             )
 
-        linked = invoice.mandate_id.filtered(usable)
-        if linked:
-            return linked[:1]
         mandates = self.env['account.banking.mandate'].search(
             [
                 ('partner_id', '=', invoice.partner_id.id),
@@ -65,7 +62,55 @@ class AfaSepaWizard(models.TransientModel):
                 ('state', '=', 'valid'),
             ]
         )
-        return mandates.filtered(usable)[:1]
+        usable_mandates = mandates.filtered(usable)
+        family = invoice.afa_membership_id.family_id or invoice.partner_id.afa_family_id
+        purposes = invoice._afa_sepa_mandate_purposes()
+        family_rules = family.sepa_mandate_rule_ids.filtered(
+            lambda rule: rule.company_id == invoice.company_id
+        )
+        selected = self.env['account.banking.mandate']
+
+        for purpose in purposes:
+            rules = family_rules.filtered(
+                lambda rule, current_purpose=purpose: rule.purpose == current_purpose
+            )
+            if not rules and purpose != 'default':
+                rules = family_rules.filtered(lambda rule: rule.purpose == 'default')
+            if rules:
+                mandate = rules.mandate_id
+                if mandate not in usable_mandates:
+                    return self.env['account.banking.mandate'], _(
+                        'The assigned SEPA mandate for this billing type is no longer valid.'
+                    )
+            else:
+                if len(usable_mandates) == 1 and not family_rules:
+                    mandate = usable_mandates
+                elif usable_mandates:
+                    linked = invoice.mandate_id.filtered(usable)
+                    if linked and not family_rules:
+                        mandate = linked[:1]
+                        selected |= mandate
+                        continue
+                    if len(usable_mandates) == 1:
+                        return self.env['account.banking.mandate'], _(
+                            'No default SEPA mandate is assigned for this billing type.'
+                        )
+                    return self.env['account.banking.mandate'], _(
+                        'Multiple valid SEPA mandates exist; configure a default and any '
+                        'service-specific assignments.'
+                    )
+                else:
+                    return self.env['account.banking.mandate'], _(
+                        'No valid SEPA Core mandate with an IBAN owned by the invoice payer.'
+                    )
+            selected |= mandate
+
+        if len(selected) != 1:
+            return self.env['account.banking.mandate'], _(
+                'This invoice includes billing types assigned to different SEPA mandates; '
+                'split the invoice before collection.'
+            )
+        return selected, False
 
     def _evaluate(self, invoice):
         if (
@@ -101,9 +146,9 @@ class AfaSepaWizard(models.TransientModel):
             and (self.journal_id not in self.payment_mode_id.variable_journal_ids)
         ):
             return False, _('The journal is not allowed by this payment mode.')
-        mandate = self._mandate_for(invoice)
+        mandate, mandate_error = self._mandate_for(invoice)
         if not mandate:
-            return False, _('No valid SEPA Core mandate with an IBAN owned by the invoice payer.')
+            return False, mandate_error
         receivables = invoice.line_ids.filtered(
             lambda l: (
                 l.account_id.account_type == 'asset_receivable'
