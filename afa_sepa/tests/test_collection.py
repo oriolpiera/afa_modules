@@ -424,6 +424,25 @@ class TestAfaSepa(TransactionCase):
         with patch.object(account_move_class, '_afa_sepa_has_acollida_charges', return_value=True):
             self.assertEqual(self.invoice._afa_sepa_mandate_purposes(), {'acollida'})
 
+    def test_order_revalidates_mandate_assignment_before_file_generation(self):
+        replacement = self._create_second_mandate()
+        rule = self.env['afa.sepa.mandate.rule'].create(
+            {
+                'family_id': self.family.id,
+                'company_id': self.env.company.id,
+                'purpose': 'default',
+                'mandate_id': self.mandate.id,
+            }
+        )
+        self.wizard.action_preview()
+        action = self.wizard.action_prepare()
+        order = self.env['account.payment.order'].browse(action['res_id'])
+        order.draft2open()
+        rule.mandate_id = replacement
+
+        with self.assertRaises(ValidationError):
+            order.open2generated()
+
     def test_acollida_assignment_does_not_reuse_monthly_service_invoice(self):
         if 'afa.acollida.billing' not in self.env.registry.models:
             self.skipTest('afa_acollida is not installed')
