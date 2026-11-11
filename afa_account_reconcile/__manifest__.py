@@ -1,5 +1,6 @@
 {
     'name': 'AFA Accounting Reconciliation',
+    'author': 'Oriol Piera',
     'version': '19.0.1.0.0',
     'summary': 'Use family billing guardians in accounting and bank reconciliation',
     'category': 'Accounting',

@@ -1,5 +1,6 @@
 {
     'name': 'AFA Membership',
+    'author': 'Oriol Piera',
     'version': '19.0.2.0.0',
     'summary': 'Family membership intention and school-year dues',
     'category': 'Services',

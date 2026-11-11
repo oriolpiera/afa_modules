@@ -1,5 +1,6 @@
 {
     'name': 'AFA SEPA Collections',
+    'author': 'Oriol Piera',
     'version': '19.0.1.0.0',
     'summary': 'Family-linked SEPA Core direct debit orders',
     'category': 'Accounting',

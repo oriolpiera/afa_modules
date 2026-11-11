@@ -1,5 +1,6 @@
 {
     'name': 'AFA Invoice Receipts',
+    'author': 'Oriol Piera',
     'version': '19.0.1.0.0',
     'summary': 'Receipt-style customer invoice reports and emails',
     'category': 'Accounting',

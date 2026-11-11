@@ -1,5 +1,6 @@
 {
     'name': 'AFA Family Import',
+    'author': 'Oriol Piera',
     'version': '19.0.2.0.0',
     'summary': 'Initial CSV/Excel load of families, membership intent, people and IBANs',
     'category': 'Services',

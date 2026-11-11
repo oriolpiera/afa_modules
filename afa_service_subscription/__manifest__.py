@@ -1,5 +1,6 @@
 {
     'name': 'AFA Monthly Service Subscriptions',
+    'author': 'Oriol Piera',
     'version': '19.0.4.0.0',
     'summary': 'Staff-managed student subscriptions and monthly family invoices',
     'category': 'Services',

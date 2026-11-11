@@ -1,5 +1,6 @@
 {
     'name': 'AFA Extracurriculars',
+    'author': 'Oriol Piera',
     'version': '19.0.3.0.0',
     'summary': 'Extracurricular groups, schedules and student enrollments',
     'category': 'Services',

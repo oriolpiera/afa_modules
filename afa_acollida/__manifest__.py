@@ -1,5 +1,6 @@
 {
     'name': 'AFA Acollida Fixed Fees',
+    'author': 'Oriol Piera',
     'version': '19.0.1.0.0',
     'summary': 'Import and invoice fixed Acollida fees from a monthly spreadsheet',
     'category': 'Services',
