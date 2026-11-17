@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_res_config_settings_afa_sepa" model="ir.ui.view">
+        <field name="name">res.config.settings.afa.sepa</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="AFA SEPA" name="afa_sepa">
+                    <block title="Returned Direct Debits">
+                        <setting
+                            string="Return fee"
+                            company_dependent="1"
+                            help="Fee captured for each returned AFA SEPA debit. Set to zero to disable."
+                        >
+                            <field name="afa_sepa_return_fee_amount" widget="monetary"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -11,9 +11,12 @@
         'account_payment_return_import_iso20022',
     ],
     'data': [
+        'data/return_fee_product.xml',
         'security/ir.model.access.csv',
         'views/collection_views.xml',
+        'views/return_fee_views.xml',
         'wizard/collection_wizard_views.xml',
+        'views/res_config_settings_views.xml',
     ],
     'installable': True,
 }

@@ -4,6 +4,7 @@
 
 The development-only stack in `compose.test.yaml` runs PostgreSQL 18 and Odoo 19
 with `afa_family`, `afa_account_reconcile`, `afa_membership`, `afa_member_pricing`, `afa_sepa`,
+`afa_sepa_return_fee`,
 `afa_apparel_shop`, `afa_service_subscription`, `afa_school_course`, `afa_extracurricular`,
 `afa_family_import`, `afa_acollida`, `afa_attendance_kiosk_pwa`, and
 `afa_website`, and `afa_voting` mounted from
@@ -49,7 +50,7 @@ with `docker compose -f compose.test.yaml down -v` and reinstall.
 are not loaded in normal installations. Install them into a fresh database:
 
 ```sh
-docker compose -f compose.test.yaml run --rm odoo -d afa_addons_demo_example -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida,afa_attendance_kiosk_pwa --with-demo --stop-after-init --log-level=warn --db_host=db --db_user=odoo --db_password=odoo
+docker compose -f compose.test.yaml run --rm odoo -d afa_addons_demo_example -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_sepa_return_fee,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida,afa_attendance_kiosk_pwa --with-demo --stop-after-init --log-level=warn --db_host=db --db_user=odoo --db_password=odoo
 ```
 
 Use a new database for each fresh install. The `.github/workflows/odoo-tests.yml`
@@ -71,6 +72,8 @@ See [AFA Member Pricing](afa_member_pricing/README.md) for sales and web pricing
 See [AFA Apparel Shop](afa_apparel_shop/README.md) for apparel variants, inventory,
 school pickup, bank transfers, and seven-day stock reservations.
 See [AFA SEPA Collections](afa_sepa/README.md) for setup, bank validation, and returns.
+See [AFA SEPA Return Fee Billing](afa_sepa_return_fee/README.md) for recovery
+of returned-debit fees through Acollida and extracurricular invoices.
 See [AFA Membership Web Form](afa_membership_webform/README.md) for public member
 registration requests, review, and SEPA authorization.
 See [AFA Invoice Receipts](afa_invoice_receipt/README.md) for customer receipt PDFs,

@@ -45,6 +45,8 @@ imported for the same student/month must be resolved before confirming.
 - Draft invoices are grouped by family, month, journal, and payment mode, matching
   the existing monthly service invoice grouping. Acollida and other monthly-service
   charges can share the same draft family invoice.
+- When `afa_sepa_return_fee` is installed, pending AFA direct-debit return fees are
+  added as separate untaxed lines to the next eligible family invoice.
 - Invoices are generated as drafts for normal accounting review and posting.
 - The invoice date is the day the draft is generated; the accounting date is the
   last day of the billed month.

@@ -103,7 +103,7 @@ class PaymentReturn(models.Model):
                 )
 
         for _return_line, payment_lines in matches:
-            payment_lines.action_record_return()
+            payment_lines.with_context(afa_return_date=self.date).action_record_return()
         self.write({'afa_processed': True, 'state': 'done'})
         self.message_post(
             body=_(

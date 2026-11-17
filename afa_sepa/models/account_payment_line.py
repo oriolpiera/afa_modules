@@ -144,6 +144,9 @@ class AccountPaymentLine(models.Model):
     def action_record_return(self):
         if not self.env.user.has_group('account.group_account_manager'):
             raise UserError(_('Only accounting managers can record returned debits.'))
+        for family in self.mapped('afa_family_id').sorted('id'):
+            self.env.cr.execute('SELECT id FROM afa_family WHERE id = %s FOR UPDATE', [family.id])
+        self.env.invalidate_all()
         for line in self:
             if not line.afa_family_id or line.order_id.state != 'uploaded' or line.afa_returned:
                 raise UserError(_('Only an uploaded AFA debit can be recorded as returned.'))
@@ -158,6 +161,8 @@ class AccountPaymentLine(models.Model):
                     _('The invoice must be reopened before releasing a returned debit.')
                 )
             line.sudo().write({'afa_returned': True})
+            return_date = self.env.context.get('afa_return_date')
+            self.env['afa.sepa.return.fee'].sudo().register_return(line, returned_date=return_date)
             invoice = line.move_line_id.move_id.sudo()
             membership = invoice.afa_membership_id
             if membership and membership.family_id == line.afa_family_id:

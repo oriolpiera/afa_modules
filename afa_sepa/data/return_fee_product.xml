@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_sepa_return_fee" model="product.template">
+        <field name="name">SEPA Direct Debit Return Fee</field>
+        <field name="type">service</field>
+        <field name="sale_ok" eval="False"/>
+        <field name="purchase_ok" eval="False"/>
+        <field name="taxes_id" eval="[(6, 0, [])]"/>
+    </record>
+</odoo>
