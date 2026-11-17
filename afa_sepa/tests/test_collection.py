@@ -1,4 +1,5 @@
 import base64
+from datetime import date
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -560,14 +561,15 @@ class TestAfaSepa(TransactionCase):
                 'afa_family_role': 'student',
             }
         )
-        self.env['afa.service.subscription'].create(
-            {
-                'service_id': service.id,
-                'student_id': student.id,
-                'join_window_id': window.id,
-                'group_id': group.id,
-            }
-        )
+        with patch('odoo.fields.Date.context_today', return_value=date(2026, 11, 17)):
+            self.env['afa.service.subscription'].create(
+                {
+                    'service_id': service.id,
+                    'student_id': student.id,
+                    'join_window_id': window.id,
+                    'group_id': group.id,
+                }
+            )
         self.env['afa.sepa.mandate.rule'].create(
             {
                 'family_id': self.family.id,
@@ -616,13 +618,14 @@ class TestAfaSepa(TransactionCase):
                 'effective_month': '2026-11-01',
             }
         )
-        self.env['afa.service.subscription'].create(
-            {
-                'service_id': regular_service.id,
-                'student_id': student.id,
-                'join_window_id': regular_window.id,
-            }
-        )
+        with patch('odoo.fields.Date.context_today', return_value=date(2026, 11, 17)):
+            self.env['afa.service.subscription'].create(
+                {
+                    'service_id': regular_service.id,
+                    'student_id': student.id,
+                    'join_window_id': regular_window.id,
+                }
+            )
         billing = self.env['afa.service.billing'].create({'month': '2026-11-01'})
         billing.action_preview()
         self.assertEqual(fee.state, 'pending')
