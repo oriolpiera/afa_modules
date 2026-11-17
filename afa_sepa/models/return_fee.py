@@ -118,6 +118,21 @@ class AfaSepaReturnFee(models.Model):
         raise ValidationError(_('SEPA return fee history cannot be edited.'))
 
     @api.model
+    def _is_return_fee_invoice(self, invoice):
+        if 'afa_acollida_charge_ids' in invoice._fields and invoice.afa_acollida_charge_ids:
+            return True
+        service_charges = (
+            invoice.afa_service_charge_ids
+            if 'afa_service_charge_ids' in invoice._fields
+            else self.env['afa.service.charge']
+        )
+        return any(
+            'is_extracurricular' in charge.subscription_id.service_id._fields
+            and charge.subscription_id.service_id.is_extracurricular
+            for charge in service_charges
+        )
+
+    @api.model
     def invoice_pending_fees(self, invoices):
         invoices = invoices.filtered(
             lambda invoice: (
@@ -125,6 +140,7 @@ class AfaSepaReturnFee(models.Model):
                 and invoice.move_type == 'out_invoice'
                 and invoice.afa_service_family_id
                 and invoice.invoice_date
+                and self._is_return_fee_invoice(invoice)
             )
         )
         if not invoices:

@@ -568,12 +568,71 @@ class TestAfaSepa(TransactionCase):
                 'group_id': group.id,
             }
         )
+        self.env['afa.sepa.mandate.rule'].create(
+            {
+                'family_id': self.family.id,
+                'company_id': self.env.company.id,
+                'purpose': 'extracurricular',
+                'mandate_id': self.mandate.id,
+            }
+        )
+        regular_invoice = (
+            self.env['account.move']
+            .with_context(_afa_generate_service_invoices=True)
+            .create(
+                {
+                    'move_type': 'out_invoice',
+                    'partner_id': self.family.billing_partner_id.id,
+                    'company_id': self.env.company.id,
+                    'journal_id': sale_journal.id,
+                    'payment_mode_id': self.mode.id,
+                    'date': '2026-11-30',
+                    'invoice_date': fields.Date.context_today(self),
+                    'afa_service_month': '2026-11-01',
+                    'afa_service_family_id': self.family.id,
+                    'afa_service_billing_type': 'service',
+                }
+            )
+        )
+        regular_service = self.env['afa.service'].create(
+            {
+                'name': 'Return Fee Test Regular Service',
+                'period_id': period.id,
+                'date_start': '2026-11-01',
+                'date_end': '2027-06-30',
+                'product_id': product.id,
+                'invoice_journal_id': sale_journal.id,
+                'payment_mode_id': self.mode.id,
+                'member_price': 12,
+                'nonmember_price': 12,
+            }
+        )
+        regular_window = self.env['afa.service.window'].create(
+            {
+                'service_id': regular_service.id,
+                'kind': 'join',
+                'date_start': '2026-11-01',
+                'date_end': '2026-11-30',
+                'effective_month': '2026-11-01',
+            }
+        )
+        self.env['afa.service.subscription'].create(
+            {
+                'service_id': regular_service.id,
+                'student_id': student.id,
+                'join_window_id': regular_window.id,
+            }
+        )
         billing = self.env['afa.service.billing'].create({'month': '2026-11-01'})
         billing.action_preview()
         self.assertEqual(fee.state, 'pending')
 
         result = billing.action_generate()
-        invoice = self.env['account.move'].browse(result['domain'][0][2][0])
+        invoices = self.env['account.move'].browse(result['domain'][0][2])
+        invoice = invoices.filtered(lambda move: move.afa_service_billing_type == 'extracurricular')
+        self.assertEqual(len(invoice), 1)
+        regular_invoice.invalidate_recordset(['invoice_line_ids'])
+        self.assertEqual(regular_invoice.invoice_line_ids.mapped('price_unit'), [12])
 
         fee.invalidate_recordset(['invoice_line_id', 'state'])
         self.assertEqual(fee.invoice_line_id.move_id, invoice)
