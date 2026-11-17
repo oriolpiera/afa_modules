@@ -10,6 +10,7 @@ x-odoo-common: &odoo-common
   volumes:
     - ./afa_modules:/mnt/afa:ro
     - ./.oca-account-reconcile:/mnt/oca-reconcile:ro
+    - ./.oca-account-payment:/mnt/oca-account-payment:ro
     - ./.oca-bank-payment:/mnt/oca-payment:ro
     - ./.oca-bank-statement-import:/mnt/oca-import:ro
     - ./.oca-l10n-spain:/mnt/oca-spain:ro

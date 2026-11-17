@@ -11,6 +11,8 @@ The Compose file is installed as `/opt/afa/compose.yaml`; paths in it expect:
 - `/opt/afa/afa_modules`: a clean checkout of the intended `afa_modules` branch.
 - `/opt/afa/.oca-bank-payment`: OCA bank-payment 19.0 at
   `fdd5d4040b235a4c688b2aec30611d57dd246b64`.
+- `/opt/afa/.oca-account-payment`: OCA account-payment 19.0 at
+  `376d01852a9c4b689683e697abc1488432459590`.
 - `/opt/afa/.oca-account-reconcile`, `/opt/afa/.oca-bank-statement-import`,
   `/opt/afa/.oca-l10n-spain`, and `/opt/afa/.oca-web`: matching OCA 19.0
   repositories. The web checkout is pinned to
@@ -22,10 +24,10 @@ The `.env` file contains `DOMAIN` and random `POSTGRES_PASSWORD`,
 `ODOO_MASTER_PASSWORD`, and `ODOO_LOGIN_PASSWORD` values and must be mode
 `0600`. Set `DOMAIN` to the hostname pointed at this server. The Odoo config
 holds the database and master passwords; keep it root-owned and readable only
-by the Odoo container's group. Its `addons_path` must include `/mnt/oca-payment`,
-`/mnt/oca-reconcile`, `/mnt/oca-import`, `/mnt/oca-spain`, and `/mnt/oca-web`,
-matching the Compose mounts. Neither file belongs in Git or a backup shared
-publicly.
+by the Odoo container's group. Its `addons_path` must include
+`/mnt/oca-payment`, `/mnt/oca-account-payment`, `/mnt/oca-reconcile`,
+`/mnt/oca-import`, `/mnt/oca-spain`, and `/mnt/oca-web`, matching the Compose
+mounts. Neither file belongs in Git or a backup shared publicly.
 
 ## Initial startup
 

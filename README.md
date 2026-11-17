@@ -17,6 +17,8 @@ git clone --branch 19.0 https://github.com/OCA/account-reconcile.git .oca-accoun
 git -C .oca-account-reconcile checkout 8fc48a4beff3203241c0f61c4d3bc15631f75a4d
 git clone --branch 19.0 https://github.com/OCA/bank-payment.git .oca-bank-payment
 git -C .oca-bank-payment checkout fdd5d4040b235a4c688b2aec30611d57dd246b64
+git clone --branch 19.0 https://github.com/OCA/account-payment.git .oca-account-payment
+git -C .oca-account-payment checkout 376d01852a9c4b689683e697abc1488432459590
 ```
 
 The checkouts are ignored by Git; CI fetches the same revisions.

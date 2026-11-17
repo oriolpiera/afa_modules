@@ -9,8 +9,10 @@ not determine the direct-debit version.
 ## Setup
 
 1. Install `afa_sepa` and its OCA dependencies from the pinned bank-payment
-   19.0 revision documented in the repository README. Assign the operator
-   **AFA Family Manager**, **Accounting User**, and OCA **Payment Orders** access.
+   and account-payment 19.0 revisions documented in the repository README. This
+   includes the ISO 20022 payment-return importer for PAIN.002.001.03. Assign
+   the operator **AFA Family Manager**, **Accounting User**, and OCA **Payment
+   Orders** access.
    Recording a return requires **Accounting Manager**.
 2. Configure a bank journal with the creditor IBAN and SEPA direct debit
    inbound method, and enter the SEPA creditor identifier on the company or
@@ -70,6 +72,12 @@ fees, account for them separately.
 Recording a returned annual dues debit suspends the family's membership while
 that dues invoice remains unpaid. A later successful payment of the same invoice
 restores membership. Returned course or service debits do not change membership.
+
+The OCA **Import Payment Return** wizard can read PAIN.002.001.03 files. Its
+generic return flow does not invoke AFA's **Record Return** action, so it does
+not mark an AFA debit returned, release its reservation, or run the membership
+return handling. For AFA collections, continue using **Record Return** until
+the importer is explicitly integrated with that action.
 
 Each line keeps its original invoice, family, payer, mandate, and order.
 Uploaded lines remain reserved even if the invoice is manually unreconciled;

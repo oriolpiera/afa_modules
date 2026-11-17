@@ -46,6 +46,9 @@ services:
       - ./.oca-bank-payment/account_banking_pain_base:/mnt/extra-addons/account_banking_pain_base:ro
       - ./.oca-bank-payment/account_banking_mandate:/mnt/extra-addons/account_banking_mandate:ro
       - ./.oca-bank-payment/account_banking_sepa_direct_debit:/mnt/extra-addons/account_banking_sepa_direct_debit:ro
+      - ./.oca-account-payment/account_payment_return:/mnt/extra-addons/account_payment_return:ro
+      - ./.oca-account-payment/account_payment_return_import:/mnt/extra-addons/account_payment_return_import:ro
+      - ./.oca-account-payment/account_payment_return_import_iso20022:/mnt/extra-addons/account_payment_return_import_iso20022:ro
       - ./.oca-account-reconcile/account_reconcile_oca:/mnt/extra-addons/account_reconcile_oca:ro
       - ./.oca-account-reconcile/account_statement_base:/mnt/extra-addons/account_statement_base:ro
       - ./.oca-l10n-spain/l10n_es_account_statement_import_n43:/mnt/extra-addons/l10n_es_account_statement_import_n43:ro

@@ -5,7 +5,11 @@
     'summary': 'Family-linked SEPA Core direct debit orders',
     'category': 'Accounting',
     'license': 'AGPL-3',
-    'depends': ['afa_service_subscription', 'account_banking_sepa_direct_debit'],
+    'depends': [
+        'afa_service_subscription',
+        'account_banking_sepa_direct_debit',
+        'account_payment_return_import_iso20022',
+    ],
     'data': [
         'security/ir.model.access.csv',
         'views/collection_views.xml',
