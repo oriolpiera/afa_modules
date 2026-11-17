@@ -102,8 +102,13 @@ class PaymentReturn(models.Model):
                     )
                 )
 
-        for _return_line, payment_lines in matches:
-            payment_lines.with_context(afa_return_date=self.date).action_record_return()
+        notification_lines = []
+        for return_line, payment_lines in matches:
+            payment_lines.with_context(
+                afa_return_date=self.date,
+                _afa_sepa_suppress_return_notification=True,
+            ).action_record_return()
+            notification_lines.extend((payment_line, return_line) for payment_line in payment_lines)
         self.write({'afa_processed': True, 'state': 'done'})
         self.message_post(
             body=_(
@@ -111,6 +116,11 @@ class PaymentReturn(models.Model):
                 'No generic payment-return journal entry was created; '
                 'account for the bank debit through the bank statement.'
             )
+        )
+        self.env['afa.sepa.return.notification'].sudo().queue_for_return(
+            notification_lines,
+            payment_return=self,
+            returned_date=self.date,
         )
         return True
 

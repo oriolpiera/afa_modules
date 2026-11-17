@@ -167,4 +167,9 @@ class AccountPaymentLine(models.Model):
             membership = invoice.afa_membership_id
             if membership and membership.family_id == line.afa_family_id:
                 membership._record_returned_dues(invoice)
+        if not self.env.context.get('_afa_sepa_suppress_return_notification'):
+            self.env['afa.sepa.return.notification'].sudo().queue_for_return(
+                [(line, self.env['payment.return.line']) for line in self],
+                returned_date=self.env.context.get('afa_return_date'),
+            )
         return True

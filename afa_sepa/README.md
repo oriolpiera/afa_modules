@@ -83,6 +83,12 @@ bank charges are rejected for AFA processing; split or handle those separately.
 The importer does not create a generic return journal entry for an AFA return.
 Account for the bank debit through the bank statement.
 
+After a return is successfully recorded, Odoo queues one email per invoice
+payer, grouping that payer's returned invoices from the same operation. It
+states that the original invoices are open again and, when applicable, that the
+return fee will appear on a future eligible invoice. The payer must have an
+email address on their contact record.
+
 The return fee is configured per company under **Accounting → Settings → AFA
 SEPA**. It defaults to 4.00 in the company's currency; setting it to zero
 disables new fees. The amount is saved on each return and added as a separate,

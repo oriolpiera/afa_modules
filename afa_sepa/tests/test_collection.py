@@ -275,6 +275,7 @@ class TestAfaSepa(TransactionCase):
         order.generated2uploaded()
         payment = order.payment_ids.ensure_one()
         line = order.payment_line_ids.ensure_one()
+        self.invoice.partner_id.email = 'payer@example.test'
 
         payment_return = self._import_payment_return(payment)
 
@@ -301,6 +302,21 @@ class TestAfaSepa(TransactionCase):
         self.assertTrue(line.afa_returned)
         fee = self.env['afa.sepa.return.fee'].search([('payment_line_id', '=', line.id)], limit=1)
         self.assertEqual(fee.amount, 4)
+        notification = self.env['afa.sepa.return.notification'].search(
+            [('payment_return_id', '=', payment_return.id)]
+        )
+        self.assertEqual(len(notification), 1)
+        self.assertEqual(notification.state, 'queued')
+        mail = self.env['mail.mail'].search(
+            [
+                ('model', '=', 'afa.sepa.return.notification'),
+                ('res_id', '=', notification.id),
+            ],
+            limit=1,
+        )
+        self.assertEqual(mail.email_to, 'payer@example.test')
+        self.assertIn(self.invoice.name, mail.body_html)
+        self.assertIn('4.0', mail.body_html)
         self.assertEqual(self.invoice.afa_membership_id.returned_dues_invoice_id, self.invoice)
         self.assertFalse(self.family.is_member)
         with self.assertRaises(UserError):
@@ -327,6 +343,79 @@ class TestAfaSepa(TransactionCase):
         self.assertTrue(line.move_line_id.reconciled)
         self.assertEqual(self.invoice.amount_residual, 0)
         self.assertFalse(line.afa_returned)
+
+    def test_return_email_groups_multiple_returns_for_the_same_payer(self):
+        self.invoice.partner_id.email = 'payer@example.test'
+        product = self.env['product.product'].create(
+            {'name': 'Second SEPA test dues', 'list_price': 45}
+        )
+        second_invoice = self.env['account.move'].create(
+            {
+                'move_type': 'out_invoice',
+                'partner_id': self.invoice.partner_id.id,
+                'company_id': self.env.company.id,
+                'currency_id': self.env.ref('base.EUR').id,
+                'invoice_line_ids': [
+                    (0, 0, {'product_id': product.id, 'quantity': 1, 'price_unit': 45})
+                ],
+            }
+        )
+        second_invoice.action_post()
+        self.wizard.invoice_ids = [(6, 0, (self.invoice | second_invoice).ids)]
+        self.wizard.action_preview()
+        order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
+        order.draft2open()
+        order.open2generated()
+        order.generated2uploaded()
+
+        return_lines = []
+        for payment in order.payment_ids:
+            payment_line = payment.payment_line_ids.ensure_one()
+            receivable = payment.move_id.line_ids.filtered(
+                lambda line, payment=payment: (
+                    line.account_id == payment.destination_account_id
+                    and line.partner_id == payment.partner_id
+                )
+            )
+            return_lines.append(
+                (
+                    0,
+                    0,
+                    {
+                        'reference': str(payment.id),
+                        'partner_id': payment.partner_id.id,
+                        'amount': payment.amount,
+                        'move_line_ids': [(6, 0, receivable.ids)],
+                    },
+                )
+            )
+            self.assertEqual(payment_line.partner_id, self.invoice.partner_id)
+        payment_return = self.env['payment.return'].create(
+            {
+                'company_id': self.env.company.id,
+                'journal_id': self.journal.id,
+                'line_ids': return_lines,
+            }
+        )
+
+        payment_return.action_confirm()
+
+        notification = self.env['afa.sepa.return.notification'].search(
+            [('payment_return_id', '=', payment_return.id)]
+        )
+        self.assertEqual(len(notification), 1)
+        self.assertEqual(len(notification.line_ids), 2)
+        self.assertEqual(notification.total_fee_amount, 8)
+        mail = self.env['mail.mail'].search(
+            [
+                ('model', '=', 'afa.sepa.return.notification'),
+                ('res_id', '=', notification.id),
+            ],
+            limit=1,
+        )
+        self.assertEqual(mail.email_to, 'payer@example.test')
+        self.assertIn(self.invoice.name, mail.body_html)
+        self.assertIn(second_invoice.name, mail.body_html)
 
     def test_return_fee_uses_company_setting_and_snapshots_amount(self):
         settings = self.env['res.config.settings'].create(
@@ -893,6 +982,7 @@ class TestAfaSepa(TransactionCase):
         self.assertNotEqual(self.invoice.payment_state, 'paid')
 
     def test_return_reopens_reconciled_invoice_without_manual_unreconciliation(self):
+        self.invoice.partner_id.email = 'payer@example.test'
         self.wizard.action_preview()
         order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
         order.draft2open()
@@ -909,6 +999,11 @@ class TestAfaSepa(TransactionCase):
         self.assertFalse(receivable.reconciled)
         self.assertEqual(self.invoice.amount_residual, self.invoice.amount_total)
         self.assertTrue(line.afa_returned)
+        notification = self.env['afa.sepa.return.notification'].search(
+            [('line_ids.payment_line_id', '=', line.id)], limit=1
+        )
+        self.assertEqual(notification.state, 'queued')
+        self.assertEqual(notification.mail_id.email_to, 'payer@example.test')
 
     def test_returned_service_invoice_does_not_revoke_membership(self):
         self.family.manual_member = True
