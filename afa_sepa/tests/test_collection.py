@@ -1,4 +1,5 @@
 import base64
+from datetime import date
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -6,9 +7,11 @@ from lxml import etree
 
 from odoo import fields
 from odoo.exceptions import UserError, ValidationError
+from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
+@tagged('post_install', '-at_install')
 class TestAfaSepa(TransactionCase):
     def setUp(self):
         super().setUp()
@@ -144,6 +147,58 @@ class TestAfaSepa(TransactionCase):
         )
         self.assertEqual(self.mandate.partner_bank_id.acc_type, 'iban')
 
+    def _import_payment_return(self, payment, amount=None):
+        amount = payment.amount if amount is None else amount
+        creditor_iban = self.journal.bank_account_id.acc_number.replace(' ', '')
+        debtor_iban = self.mandate.partner_bank_id.acc_number.replace(' ', '')
+        today = fields.Date.to_string(fields.Date.today())
+        xml = f"""<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.002.001.03">
+  <CstmrPmtStsRpt>
+    <GrpHdr>
+      <MsgId>AFA-RETURN-{payment.id}</MsgId>
+      <CreDtTm>{today}T12:00:00</CreDtTm>
+    </GrpHdr>
+    <OrgnlPmtInfAndSts>
+      <TxInfAndSts>
+        <OrgnlEndToEndId>{payment.id}</OrgnlEndToEndId>
+        <TxSts>RJCT</TxSts>
+        <StsRsnInf><Rsn><Cd>AM04</Cd></Rsn></StsRsnInf>
+        <OrgnlTxRef>
+          <Amt><InstdAmt Ccy="EUR">{amount:.2f}</InstdAmt></Amt>
+          <ReqdColltnDt>{today}</ReqdColltnDt>
+          <RmtInf><Ustrd>{self.invoice.name}</Ustrd></RmtInf>
+          <Dbtr><Nm>{self.invoice.partner_id.name}</Nm></Dbtr>
+          <DbtrAcct><Id><IBAN>{debtor_iban}</IBAN></Id></DbtrAcct>
+          <CdtrAcct><Id><IBAN>{creditor_iban}</IBAN></Id></CdtrAcct>
+        </OrgnlTxRef>
+      </TxInfAndSts>
+    </OrgnlPmtInfAndSts>
+  </CstmrPmtStsRpt>
+</Document>"""
+        importer = self.env['payment.return.import'].create(
+            {'data_file': base64.b64encode(xml.encode())}
+        )
+        action = importer.import_file()
+        return self.env['payment.return'].browse(action['res_id'])
+
+    def _record_returned_debit(self):
+        self.wizard.action_preview()
+        order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
+        order.draft2open()
+        order.open2generated()
+        order.generated2uploaded()
+        line = order.payment_line_ids.ensure_one()
+        line.action_record_return()
+        return line, self.env['afa.sepa.return.fee'].search([('payment_line_id', '=', line.id)])
+
+    def _skip_if_return_fee_billing_is_not_installed(self):
+        module = self.env['ir.module.module'].search(
+            [('name', '=', 'afa_sepa_return_fee'), ('state', '=', 'installed')], limit=1
+        )
+        if not module:
+            self.skipTest('afa_sepa_return_fee is not installed')
+
     def test_wizard_preserves_orm_access_check_signature(self):
         operator = self.env['res.users'].create(
             {
@@ -212,6 +267,384 @@ class TestAfaSepa(TransactionCase):
         )
         self.assertEqual(replacement.payment_line_ids.move_line_id, line.move_line_id)
         self.assertNotEqual(replacement, order)
+
+    def test_imported_pain_return_runs_afa_return_action(self):
+        self.wizard.action_preview()
+        order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
+        order.draft2open()
+        order.open2generated()
+        order.generated2uploaded()
+        payment = order.payment_ids.ensure_one()
+        line = order.payment_line_ids.ensure_one()
+        self.invoice.partner_id.email = 'payer@example.test'
+
+        payment_return = self._import_payment_return(payment)
+
+        self.assertEqual(payment_return.state, 'draft')
+        self.assertSetEqual(
+            set(payment_return.line_ids.move_line_ids.ids),
+            set(
+                payment.move_id.line_ids.filtered(
+                    lambda aml: (
+                        aml.account_id == payment.destination_account_id
+                        and aml.partner_id == payment.partner_id
+                    )
+                ).ids
+            ),
+        )
+        payment_return.action_confirm()
+
+        self.assertEqual(payment_return.state, 'done')
+        self.assertTrue(payment_return.afa_processed)
+        self.assertFalse(payment_return.move_id)
+        self.assertEqual(payment.state, 'canceled')
+        self.assertFalse(line.move_line_id.reconciled)
+        self.assertEqual(self.invoice.amount_residual, self.invoice.amount_total)
+        self.assertTrue(line.afa_returned)
+        fee = self.env['afa.sepa.return.fee'].search([('payment_line_id', '=', line.id)], limit=1)
+        self.assertEqual(fee.amount, 4)
+        notification = self.env['afa.sepa.return.notification'].search(
+            [('payment_return_id', '=', payment_return.id)]
+        )
+        self.assertEqual(len(notification), 1)
+        self.assertEqual(notification.state, 'queued')
+        mail = self.env['mail.mail'].search(
+            [
+                ('model', '=', 'afa.sepa.return.notification'),
+                ('res_id', '=', notification.id),
+            ],
+            limit=1,
+        )
+        self.assertEqual(mail.email_to, 'payer@example.test')
+        self.assertIn(self.invoice.name, mail.body_html)
+        self.assertIn('4.0', mail.body_html)
+        self.assertEqual(self.invoice.afa_membership_id.returned_dues_invoice_id, self.invoice)
+        self.assertFalse(self.family.is_member)
+        with self.assertRaises(UserError):
+            payment_return.action_cancel()
+        with self.assertRaises(UserError):
+            payment_return.action_draft()
+
+    def test_imported_partial_afa_return_is_rejected_before_processing(self):
+        self.wizard.action_preview()
+        order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
+        order.draft2open()
+        order.open2generated()
+        order.generated2uploaded()
+        payment = order.payment_ids.ensure_one()
+        line = order.payment_line_ids.ensure_one()
+        payment_return = self._import_payment_return(payment, payment.amount - 1)
+
+        with self.assertRaises(UserError):
+            payment_return.action_confirm()
+
+        self.assertEqual(payment_return.state, 'draft')
+        self.assertFalse(payment_return.afa_processed)
+        self.assertNotEqual(payment.state, 'canceled')
+        self.assertTrue(line.move_line_id.reconciled)
+        self.assertEqual(self.invoice.amount_residual, 0)
+        self.assertFalse(line.afa_returned)
+
+    def test_return_email_groups_multiple_returns_for_the_same_payer(self):
+        self.invoice.partner_id.email = 'payer@example.test'
+        product = self.env['product.product'].create(
+            {'name': 'Second SEPA test dues', 'list_price': 45}
+        )
+        second_invoice = self.env['account.move'].create(
+            {
+                'move_type': 'out_invoice',
+                'partner_id': self.invoice.partner_id.id,
+                'company_id': self.env.company.id,
+                'currency_id': self.env.ref('base.EUR').id,
+                'invoice_line_ids': [
+                    (0, 0, {'product_id': product.id, 'quantity': 1, 'price_unit': 45})
+                ],
+            }
+        )
+        second_invoice.action_post()
+        self.wizard.invoice_ids = [(6, 0, (self.invoice | second_invoice).ids)]
+        self.wizard.action_preview()
+        order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
+        order.draft2open()
+        order.open2generated()
+        order.generated2uploaded()
+
+        return_lines = []
+        for payment in order.payment_ids:
+            payment_line = payment.payment_line_ids.ensure_one()
+            receivable = payment.move_id.line_ids.filtered(
+                lambda line, payment=payment: (
+                    line.account_id == payment.destination_account_id
+                    and line.partner_id == payment.partner_id
+                )
+            )
+            return_lines.append(
+                (
+                    0,
+                    0,
+                    {
+                        'reference': str(payment.id),
+                        'partner_id': payment.partner_id.id,
+                        'amount': payment.amount,
+                        'move_line_ids': [(6, 0, receivable.ids)],
+                    },
+                )
+            )
+            self.assertEqual(payment_line.partner_id, self.invoice.partner_id)
+        payment_return = self.env['payment.return'].create(
+            {
+                'company_id': self.env.company.id,
+                'journal_id': self.journal.id,
+                'line_ids': return_lines,
+            }
+        )
+
+        payment_return.action_confirm()
+
+        notification = self.env['afa.sepa.return.notification'].search(
+            [('payment_return_id', '=', payment_return.id)]
+        )
+        self.assertEqual(len(notification), 1)
+        self.assertEqual(len(notification.line_ids), 2)
+        self.assertEqual(notification.total_fee_amount, 8)
+        mail = self.env['mail.mail'].search(
+            [
+                ('model', '=', 'afa.sepa.return.notification'),
+                ('res_id', '=', notification.id),
+            ],
+            limit=1,
+        )
+        self.assertEqual(mail.email_to, 'payer@example.test')
+        self.assertIn(self.invoice.name, mail.body_html)
+        self.assertIn(second_invoice.name, mail.body_html)
+
+    def test_return_fee_uses_company_setting_and_snapshots_amount(self):
+        settings = self.env['res.config.settings'].create(
+            {
+                'company_id': self.env.company.id,
+                'afa_sepa_return_fee_amount': 6.5,
+            }
+        )
+        settings.set_values()
+
+        line, fee = self._record_returned_debit()
+
+        self.assertEqual(self.env.company.afa_sepa_return_fee_amount, 6.5)
+        self.assertEqual(len(fee), 1)
+        self.assertEqual(fee.amount, 6.5)
+        self.assertEqual(fee.currency_id, line.company_id.currency_id)
+        self.assertEqual(fee.state, 'pending')
+
+    def test_zero_return_fee_setting_disables_new_fees(self):
+        self.env.company.afa_sepa_return_fee_amount = 0
+
+        line, fee = self._record_returned_debit()
+
+        self.assertTrue(line.afa_returned)
+        self.assertFalse(fee)
+
+    def test_return_fee_menu_has_pending_and_invoiced_filters(self):
+        action = self.env.ref('afa_sepa.action_afa_sepa_return_fee')
+        menu = self.env.ref('afa_sepa.menu_afa_sepa_return_fee')
+        search_view = self.env.ref('afa_sepa.view_afa_sepa_return_fee_search')
+
+        self.assertEqual(menu.action, action)
+        self.assertIn('search_default_filter_pending', action.context)
+        self.assertIn('filter_pending', search_view.arch_db)
+        self.assertIn('filter_invoiced', search_view.arch_db)
+
+    def test_return_fee_is_added_untaxed_to_next_acollida_invoice(self):
+        self._skip_if_return_fee_billing_is_not_installed()
+        _payment_line, fee = self._record_returned_debit()
+        sale_journal = self.env['account.journal'].search(
+            [('company_id', '=', self.env.company.id), ('type', '=', 'sale')], limit=1
+        )
+        product = self.env['product.product'].create(
+            {'name': 'Acollida return-fee test charge', 'type': 'service'}
+        )
+        product.with_company(
+            self.env.company
+        ).property_account_income_id = sale_journal.default_account_id
+        period = self.invoice.afa_membership_id.period_id
+        config = self.env['afa.acollida.config'].create(
+            {
+                'period_id': period.id,
+                'product_id': product.id,
+                'invoice_journal_id': sale_journal.id,
+                'payment_mode_id': self.mode.id,
+                'company_id': self.env.company.id,
+            }
+        )
+        self.env['afa.acollida.charge'].with_context(_afa_import_acollida_charges=True).create(
+            {
+                'config_id': config.id,
+                'family_id': self.family.id,
+                'month': '2026-12-01',
+                'amount': 18,
+            }
+        )
+        billing = self.env['afa.acollida.billing'].create({'month': '2026-12-01'})
+        billing.action_preview()
+        self.assertEqual(fee.state, 'pending')
+
+        result = billing.action_generate()
+        invoice = self.env['account.move'].browse(result['domain'][0][2][0])
+
+        fee.invalidate_recordset(['invoice_line_id', 'state'])
+        self.assertEqual(len(fee), 1)
+        self.assertEqual(fee.state, 'invoiced')
+        self.assertEqual(fee.family_id, invoice.afa_service_family_id)
+        self.assertEqual(fee.partner_id, invoice.partner_id)
+        self.assertEqual(fee.company_id, invoice.company_id)
+        self.assertEqual(fee.currency_id, invoice.currency_id)
+        self.assertEqual(fee.invoice_line_id.move_id, invoice)
+        self.assertGreaterEqual(invoice.invoice_date, fee.returned_date)
+        self.env['afa.sepa.return.fee'].sudo().invoice_pending_fees(invoice)
+        invoice.invalidate_recordset(['invoice_line_ids'])
+        self.assertEqual(sorted(invoice.invoice_line_ids.mapped('price_unit')), [4, 18])
+        self.assertFalse(fee.invoice_line_id.tax_ids)
+        self.assertIn(self.invoice.name, fee.invoice_line_id.name)
+
+    def test_return_fee_is_added_untaxed_to_next_extracurricular_invoice(self):
+        self._skip_if_return_fee_billing_is_not_installed()
+        _payment_line, fee = self._record_returned_debit()
+        sale_journal = self.env['account.journal'].search(
+            [('company_id', '=', self.env.company.id), ('type', '=', 'sale')], limit=1
+        )
+        product = self.env['product.product'].create(
+            {'name': 'Extracurricular return-fee test charge', 'type': 'service'}
+        )
+        product.with_company(
+            self.env.company
+        ).property_account_income_id = sale_journal.default_account_id
+        period = self.invoice.afa_membership_id.period_id
+        service = self.env['afa.service'].create(
+            {
+                'name': 'Return Fee Test Activity',
+                'period_id': period.id,
+                'date_start': '2026-11-01',
+                'date_end': '2027-06-30',
+                'product_id': product.id,
+                'invoice_journal_id': sale_journal.id,
+                'payment_mode_id': self.mode.id,
+                'member_price': 20,
+                'nonmember_price': 20,
+                'is_extracurricular': True,
+                'enrollment_date_start': '2026-11-01',
+                'enrollment_date_end': '2026-11-30',
+            }
+        )
+        group = self.env['afa.service.group'].create(
+            {'service_id': service.id, 'name': 'Return Fee Test Group', 'capacity': 5}
+        )
+        self.env['afa.service.group.schedule'].create(
+            {
+                'group_id': group.id,
+                'weekday': '3',
+                'hour_from': 12.5,
+                'hour_to': 13.5,
+            }
+        )
+        window = self.env['afa.service.window'].create(
+            {
+                'service_id': service.id,
+                'kind': 'join',
+                'date_start': '2026-11-01',
+                'date_end': '2026-11-30',
+                'effective_month': '2026-11-01',
+            }
+        )
+        student = self.env['res.partner'].create(
+            {
+                'name': 'Return Fee Test Student',
+                'afa_family_id': self.family.id,
+                'afa_family_role': 'student',
+            }
+        )
+        with patch('odoo.fields.Date.context_today', return_value=date(2026, 11, 17)):
+            self.env['afa.service.subscription'].create(
+                {
+                    'service_id': service.id,
+                    'student_id': student.id,
+                    'join_window_id': window.id,
+                    'group_id': group.id,
+                }
+            )
+        self.env['afa.sepa.mandate.rule'].create(
+            {
+                'family_id': self.family.id,
+                'company_id': self.env.company.id,
+                'purpose': 'extracurricular',
+                'mandate_id': self.mandate.id,
+            }
+        )
+        regular_invoice = (
+            self.env['account.move']
+            .with_context(_afa_generate_service_invoices=True)
+            .create(
+                {
+                    'move_type': 'out_invoice',
+                    'partner_id': self.family.billing_partner_id.id,
+                    'company_id': self.env.company.id,
+                    'journal_id': sale_journal.id,
+                    'payment_mode_id': self.mode.id,
+                    'date': '2026-11-30',
+                    'invoice_date': fields.Date.context_today(self),
+                    'afa_service_month': '2026-11-01',
+                    'afa_service_family_id': self.family.id,
+                    'afa_service_billing_type': 'service',
+                }
+            )
+        )
+        regular_service = self.env['afa.service'].create(
+            {
+                'name': 'Return Fee Test Regular Service',
+                'period_id': period.id,
+                'date_start': '2026-11-01',
+                'date_end': '2027-06-30',
+                'product_id': product.id,
+                'invoice_journal_id': sale_journal.id,
+                'payment_mode_id': self.mode.id,
+                'member_price': 12,
+                'nonmember_price': 12,
+            }
+        )
+        regular_window = self.env['afa.service.window'].create(
+            {
+                'service_id': regular_service.id,
+                'kind': 'join',
+                'date_start': '2026-11-01',
+                'date_end': '2026-11-30',
+                'effective_month': '2026-11-01',
+            }
+        )
+        with patch('odoo.fields.Date.context_today', return_value=date(2026, 11, 17)):
+            self.env['afa.service.subscription'].create(
+                {
+                    'service_id': regular_service.id,
+                    'student_id': student.id,
+                    'join_window_id': regular_window.id,
+                }
+            )
+        billing = self.env['afa.service.billing'].create({'month': '2026-11-01'})
+        billing.action_preview()
+        self.assertEqual(fee.state, 'pending')
+
+        result = billing.action_generate()
+        invoices = self.env['account.move'].browse(result['domain'][0][2])
+        invoice = invoices.filtered(lambda move: move.afa_service_billing_type == 'extracurricular')
+        self.assertEqual(len(invoice), 1)
+        regular_invoice.invalidate_recordset(['invoice_line_ids'])
+        self.assertEqual(regular_invoice.invoice_line_ids.mapped('price_unit'), [12])
+
+        fee.invalidate_recordset(['invoice_line_id', 'state'])
+        self.assertEqual(fee.invoice_line_id.move_id, invoice)
+        self.assertEqual(fee.state, 'invoiced')
+        self.assertGreaterEqual(invoice.invoice_date, fee.returned_date)
+        invoice.invalidate_recordset(['invoice_line_ids'])
+        self.assertEqual(sorted(invoice.invoice_line_ids.mapped('price_unit')), [4, 20])
+        self.assertFalse(fee.invoice_line_id.tax_ids)
+        self.assertIn(self.invoice.name, fee.invoice_line_id.name)
 
     def test_wrong_payer_and_invalid_mandate_are_excluded(self):
         other = self.env['res.partner'].create({'name': 'Different debtor'})
@@ -611,6 +1044,7 @@ class TestAfaSepa(TransactionCase):
         self.assertNotEqual(self.invoice.payment_state, 'paid')
 
     def test_return_reopens_reconciled_invoice_without_manual_unreconciliation(self):
+        self.invoice.partner_id.email = 'payer@example.test'
         self.wizard.action_preview()
         order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
         order.draft2open()
@@ -627,6 +1061,11 @@ class TestAfaSepa(TransactionCase):
         self.assertFalse(receivable.reconciled)
         self.assertEqual(self.invoice.amount_residual, self.invoice.amount_total)
         self.assertTrue(line.afa_returned)
+        notification = self.env['afa.sepa.return.notification'].search(
+            [('line_ids.payment_line_id', '=', line.id)], limit=1
+        )
+        self.assertEqual(notification.state, 'queued')
+        self.assertEqual(notification.mail_id.email_to, 'payer@example.test')
 
     def test_returned_service_invoice_does_not_revoke_membership(self):
         self.family.manual_member = True

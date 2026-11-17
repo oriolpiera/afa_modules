@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_template_return_notification" model="mail.template">
+        <field name="name">AFA: Returned SEPA Direct Debit</field>
+        <field name="model_id" ref="model_afa_sepa_return_notification"/>
+        <field name="subject">AFA: rebut domiciliat retornat</field>
+        <field
+            name="email_from"
+        >{{ user.email_formatted or object.company_id.partner_id.email_formatted or '' }}</field>
+        <field name="email_to">{{ object.email_to or '' }}</field>
+        <field name="auto_delete" eval="False"/>
+        <field name="body_html" type="html">
+            <div>
+                <p>Hola <t t-out="object.partner_id.name or ''"/>,</p>
+                <p>El banc ens ha informat que ha retornat els rebuts domiciliats següents:</p>
+                <table style="border-collapse: collapse; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 4px;">Rebut</th>
+                            <th style="text-align: right; padding: 4px;">Import</th>
+                            <th style="text-align: left; padding: 4px;">Motiu</th>
+                            <th style="text-align: right; padding: 4px;">Comissió</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="object.line_ids" t-as="line">
+                            <td style="padding: 4px;">
+                                <t t-out="line.invoice_id.name or ''"/>
+                            </td>
+                            <td style="text-align: right; padding: 4px;">
+                                <t t-out="line.amount"/> <t t-out="line.currency_id.name"/>
+                            </td>
+                            <td style="padding: 4px;">
+                                <t t-out="line.reason or '—'"/>
+                            </td>
+                            <td style="text-align: right; padding: 4px;">
+                                <t t-if="line.fee_amount">
+                                    <t t-out="line.fee_amount"/> <t t-out="line.currency_id.name"/>
+                                </t>
+                                <t t-else="">—</t>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>Les factures indicades tornen a quedar pendents de pagament.</p>
+                <p t-if="object.total_fee_amount">
+                    La comissió bancària total de
+                    <strong>
+                        <t t-out="object.total_fee_amount"/> <t t-out="object.currency_id.name"/>
+                    </strong>
+                    s'inclourà com a línia separada en un proper rebut d'Acollida o d'extraescolars.
+	    	</p>
+		<p>Siusplau, feu un ingrés per valor de <strong><t t-out="object.total_returned_amount"/></strong> al compte de l'AFA (ES81 2100 4816 7122 0001 8353).</p>
+                <p>Si necessiteu aclariments, poseu-vos en contacte amb l'AFA.</p>
+                <p>AFA Escola La Bòbila</p>
+            </div>
+        </field>
+    </record>
+</odoo>

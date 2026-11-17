@@ -2,3 +2,6 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_afa_sepa_wizard,afa.sepa.wizard,model_afa_sepa_wizard,account_payment_order.group_account_payment,1,1,1,1
 access_afa_sepa_wizard_line,afa.sepa.wizard.line,model_afa_sepa_wizard_line,account_payment_order.group_account_payment,1,1,1,1
 access_afa_sepa_mandate_rule,afa.sepa.mandate.rule,model_afa_sepa_mandate_rule,afa_family.group_family_manager,1,1,1,1
+access_afa_sepa_return_fee_account_manager,afa.sepa.return.fee.account.manager,model_afa_sepa_return_fee,account.group_account_manager,1,0,0,0
+access_afa_sepa_return_notification_account_manager,afa.sepa.return.notification.account.manager,model_afa_sepa_return_notification,account.group_account_manager,1,0,0,0
+access_afa_sepa_return_notification_line_account_manager,afa.sepa.return.notification.line.account.manager,model_afa_sepa_return_notification_line,account.group_account_manager,1,0,0,0

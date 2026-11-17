@@ -1,5 +1,5 @@
 from odoo import _, fields, models
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, ValidationError
 
 
 class AccountMove(models.Model):
@@ -128,3 +128,28 @@ class AccountMove(models.Model):
             'domain': [('move_line_id.move_id', '=', self.id), ('afa_family_id', '!=', False)],
             'context': {'list_view_ref': 'afa_sepa.view_afa_sepa_line_list'},
         }
+
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+
+    afa_sepa_return_fee_ids = fields.One2many(
+        'afa.sepa.return.fee', 'invoice_line_id', readonly=True
+    )
+
+    def write(self, vals):
+        protected = {
+            'account_id',
+            'discount',
+            'move_id',
+            'name',
+            'price_unit',
+            'product_id',
+            'quantity',
+            'tax_ids',
+        }
+        if protected & vals.keys() and self.sudo().filtered('afa_sepa_return_fee_ids'):
+            raise ValidationError(
+                _('A SEPA return fee invoice line cannot be changed. Cancel its invoice instead.')
+            )
+        return super().write(vals)

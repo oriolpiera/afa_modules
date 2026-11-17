@@ -9,8 +9,11 @@ not determine the direct-debit version.
 ## Setup
 
 1. Install `afa_sepa` and its OCA dependencies from the pinned bank-payment
-   19.0 revision documented in the repository README. Assign the operator
-   **AFA Family Manager**, **Accounting User**, and OCA **Payment Orders** access.
+   and account-payment 19.0 revisions documented in the repository README. This
+   includes the ISO 20022 payment-return importer for PAIN.002.001.03. Assign
+   the operator **AFA Family Manager**, **Accounting User**, and OCA **Payment
+   Orders** access. When Acollida and extracurricular billing are installed,
+   `afa_sepa_return_fee` is auto-installed as their return-fee integration.
    Recording a return requires **Accounting Manager**.
 2. Configure a bank journal with the creditor IBAN and SEPA direct debit
    inbound method, and enter the SEPA creditor identifier on the company or
@@ -71,6 +74,29 @@ Recording a returned annual dues debit suspends the family's membership while
 that dues invoice remains unpaid. A later successful payment of the same invoice
 restores membership. Returned course or service debits do not change membership.
 
+The OCA **Import Payment Return** wizard can read PAIN.002.001.03 files. Import
+creates a draft return for review; when confirming a return whose every line
+matches one full AFA debit, AFA runs the same **Record Return** action. This
+cancels the payment, reopens the invoice, releases its reservation, and applies
+the membership return rules. Mixed or unmatched returns, partial amounts, and
+bank charges are rejected for AFA processing; split or handle those separately.
+The importer does not create a generic return journal entry for an AFA return.
+Account for the bank debit through the bank statement.
+
+After a return is successfully recorded, Odoo queues one email per invoice
+payer, grouping that payer's returned invoices from the same operation. It
+states that the original invoices are open again and, when applicable, that the
+return fee will appear on a future eligible invoice. The payer must have an
+email address on their contact record.
+
+The return fee is configured per company under **Accounting → Settings → AFA
+SEPA**. It defaults to 4.00 in the company's currency; setting it to zero
+disables new fees. The amount is saved on each return and added as a separate,
+untaxed line to the next Acollida or extracurricular invoice generated for the
+same family, payer, and company. If an invoice is cancelled, the fee remains
+pending for a later invoice. Accountants can review fees under **Invoicing →
+Customers → SEPA Return Fees**, with pending fees shown by default.
+
 Each line keeps its original invoice, family, payer, mandate, and order.
 Uploaded lines remain reserved even if the invoice is manually unreconciled;
 only **Record Return** releases them. The AFA views hide the debtor bank account
@@ -83,7 +109,7 @@ Clone OCA bank-payment 19.0 into `.oca-bank-payment` at the revision in the
 repository README, then use an unused test database:
 
 ```sh
-docker compose -f compose.test.yaml run --rm odoo -d afa_sepa_fresh_example -i afa_family,afa_membership,afa_sepa --test-enable --test-tags /afa_sepa --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo
+docker compose -f compose.test.yaml run --rm odoo -d afa_sepa_fresh_example -i afa_family,afa_membership,afa_sepa_return_fee --test-enable --test-tags /afa_sepa --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo
 ```
 
 Check the final `odoo.tests.result` line; Odoo may return success even when a

@@ -73,6 +73,9 @@ preview and confirmation never duplicates charges. The addon does not track
 routine attendance; it records only sessions canceled because the instructor is
 unavailable.
 
+When `afa_sepa_return_fee` is installed, pending AFA direct-debit return fees are
+added as separate untaxed lines to the next eligible family invoice.
+
 ## Canceled sessions
 
 Before generating invoices for a month, a family manager can record a canceled
