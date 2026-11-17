@@ -73,11 +73,14 @@ Recording a returned annual dues debit suspends the family's membership while
 that dues invoice remains unpaid. A later successful payment of the same invoice
 restores membership. Returned course or service debits do not change membership.
 
-The OCA **Import Payment Return** wizard can read PAIN.002.001.03 files. Its
-generic return flow does not invoke AFA's **Record Return** action, so it does
-not mark an AFA debit returned, release its reservation, or run the membership
-return handling. For AFA collections, continue using **Record Return** until
-the importer is explicitly integrated with that action.
+The OCA **Import Payment Return** wizard can read PAIN.002.001.03 files. Import
+creates a draft return for review; when confirming a return whose every line
+matches one full AFA debit, AFA runs the same **Record Return** action. This
+cancels the payment, reopens the invoice, releases its reservation, and applies
+the membership return rules. Mixed or unmatched returns, partial amounts, and
+bank charges are rejected for AFA processing; split or handle those separately.
+The importer does not create a generic return journal entry for an AFA return.
+Account for the bank debit through the bank statement.
 
 Each line keeps its original invoice, family, payer, mandate, and order.
 Uploaded lines remain reserved even if the invoice is manually unreconciled;

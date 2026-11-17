@@ -144,6 +144,41 @@ class TestAfaSepa(TransactionCase):
         )
         self.assertEqual(self.mandate.partner_bank_id.acc_type, 'iban')
 
+    def _import_payment_return(self, payment, amount=None):
+        amount = payment.amount if amount is None else amount
+        creditor_iban = self.journal.bank_account_id.acc_number.replace(' ', '')
+        debtor_iban = self.mandate.partner_bank_id.acc_number.replace(' ', '')
+        today = fields.Date.to_string(fields.Date.today())
+        xml = f"""<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.002.001.03">
+  <CstmrPmtStsRpt>
+    <GrpHdr>
+      <MsgId>AFA-RETURN-{payment.id}</MsgId>
+      <CreDtTm>{today}T12:00:00</CreDtTm>
+    </GrpHdr>
+    <OrgnlPmtInfAndSts>
+      <TxInfAndSts>
+        <OrgnlEndToEndId>{payment.id}</OrgnlEndToEndId>
+        <TxSts>RJCT</TxSts>
+        <StsRsnInf><Rsn><Cd>AM04</Cd></Rsn></StsRsnInf>
+        <OrgnlTxRef>
+          <Amt><InstdAmt Ccy="EUR">{amount:.2f}</InstdAmt></Amt>
+          <ReqdColltnDt>{today}</ReqdColltnDt>
+          <RmtInf><Ustrd>{self.invoice.name}</Ustrd></RmtInf>
+          <Dbtr><Nm>{self.invoice.partner_id.name}</Nm></Dbtr>
+          <DbtrAcct><Id><IBAN>{debtor_iban}</IBAN></Id></DbtrAcct>
+          <CdtrAcct><Id><IBAN>{creditor_iban}</IBAN></Id></CdtrAcct>
+        </OrgnlTxRef>
+      </TxInfAndSts>
+    </OrgnlPmtInfAndSts>
+  </CstmrPmtStsRpt>
+</Document>"""
+        importer = self.env['payment.return.import'].create(
+            {'data_file': base64.b64encode(xml.encode())}
+        )
+        action = importer.import_file()
+        return self.env['payment.return'].browse(action['res_id'])
+
     def test_wizard_preserves_orm_access_check_signature(self):
         operator = self.env['res.users'].create(
             {
@@ -212,6 +247,65 @@ class TestAfaSepa(TransactionCase):
         )
         self.assertEqual(replacement.payment_line_ids.move_line_id, line.move_line_id)
         self.assertNotEqual(replacement, order)
+
+    def test_imported_pain_return_runs_afa_return_action(self):
+        self.wizard.action_preview()
+        order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
+        order.draft2open()
+        order.open2generated()
+        order.generated2uploaded()
+        payment = order.payment_ids.ensure_one()
+        line = order.payment_line_ids.ensure_one()
+
+        payment_return = self._import_payment_return(payment)
+
+        self.assertEqual(payment_return.state, 'draft')
+        self.assertSetEqual(
+            set(payment_return.line_ids.move_line_ids.ids),
+            set(
+                payment.move_id.line_ids.filtered(
+                    lambda aml: (
+                        aml.account_id == payment.destination_account_id
+                        and aml.partner_id == payment.partner_id
+                    )
+                ).ids
+            ),
+        )
+        payment_return.action_confirm()
+
+        self.assertEqual(payment_return.state, 'done')
+        self.assertTrue(payment_return.afa_processed)
+        self.assertFalse(payment_return.move_id)
+        self.assertEqual(payment.state, 'canceled')
+        self.assertFalse(line.move_line_id.reconciled)
+        self.assertEqual(self.invoice.amount_residual, self.invoice.amount_total)
+        self.assertTrue(line.afa_returned)
+        self.assertEqual(self.invoice.afa_membership_id.returned_dues_invoice_id, self.invoice)
+        self.assertFalse(self.family.is_member)
+        with self.assertRaises(UserError):
+            payment_return.action_cancel()
+        with self.assertRaises(UserError):
+            payment_return.action_draft()
+
+    def test_imported_partial_afa_return_is_rejected_before_processing(self):
+        self.wizard.action_preview()
+        order = self.env['account.payment.order'].browse(self.wizard.action_prepare()['res_id'])
+        order.draft2open()
+        order.open2generated()
+        order.generated2uploaded()
+        payment = order.payment_ids.ensure_one()
+        line = order.payment_line_ids.ensure_one()
+        payment_return = self._import_payment_return(payment, payment.amount - 1)
+
+        with self.assertRaises(UserError):
+            payment_return.action_confirm()
+
+        self.assertEqual(payment_return.state, 'draft')
+        self.assertFalse(payment_return.afa_processed)
+        self.assertNotEqual(payment.state, 'canceled')
+        self.assertTrue(line.move_line_id.reconciled)
+        self.assertEqual(self.invoice.amount_residual, 0)
+        self.assertFalse(line.afa_returned)
 
     def test_wrong_payer_and_invalid_mandate_are_excluded(self):
         other = self.env['res.partner'].create({'name': 'Different debtor'})
