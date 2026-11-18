@@ -126,7 +126,8 @@ class ConfigurationTests(unittest.TestCase):
 
         self.assertIn('href="https://source.example.invalid/web#id=1"', cleaned)
         self.assertIn('href="https://destination.example.invalid/web"', cleaned)
-        self.assertNotIn('href=', cleaned.split('>outside<')[1])
+        self.assertNotIn('https://outside.example.invalid/', cleaned)
+        self.assertIn('<a>outside</a>', cleaned)
 
     def test_canonical_html_preserves_configured_internal_links(self):
         source = '<a href="/web#id=1">line</a>'
