@@ -11,6 +11,10 @@ BEGIN = '# BEGIN managed AFA bank synchronization'
 END = '# END managed AFA bank synchronization'
 
 
+def confirmation_message(schedule, service):
+    return f'Installed one cron entry: {schedule} UTC, scoped to {service}.'
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--user', required=True, help='Linux account whose crontab will be updated')
@@ -88,7 +92,7 @@ def main():
         raise SystemExit(
             'Cron verification failed; original content retained in the private backup'
         )
-    print('Installed one Ubuntu cron entry: daily 15:00 UTC, scoped bank service only.')
+    print(confirmation_message(arguments.schedule, arguments.service))
 
 
 if __name__ == '__main__':
