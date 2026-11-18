@@ -9,8 +9,22 @@ the repository; the checked-in environment file is only a placeholder template.
 1. Copy `bank-sync.env.example` to a private directory outside this checkout.
 2. Set the two Odoo URLs, their exact allowed hostnames, database names, API
    users and keys, and bank journal IDs.
-3. Store the checkpoint JSON beside the protected state directory. Protect the
-   directory with mode `0700` and both files with mode `0600` or stricter.
+3. Create the state directory with mode `0700`, then create `sync_state.json`
+   inside it with mode `0600` or stricter.
+
+The initial state file must exist before the first run:
+
+```json
+{
+  "last_write_date": "2026-01-01 00:00:00"
+}
+```
+
+Replace the example with the intended UTC cutover time in `YYYY-MM-DD HH:MM:SS`
+format. The watermark selects lines created since that time or with a bank date
+after its date. An earlier watermark requests more history and may encounter
+legacy-match safeguards; a later watermark can skip lines. Do not move it
+forward just to bypass a failed import.
 
 The configured URL must use HTTPS on port 443, contain no credentials, query,
 or fragment, and its hostname must exactly match the corresponding
