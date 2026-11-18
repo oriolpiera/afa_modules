@@ -95,6 +95,12 @@ Odoo 19 attendance kiosk as a standalone Android web app.
 See [AFA Voting](afa_voting/README.md) for family ballots, private email invitations,
 and aggregate results.
 
+## Operational tools
+
+See [Bank Statement Synchronization](ops/bank_sync/README.md) for external
+configuration, read-only checks, dry-runs, and guarded applies. Never commit the
+private environment file or runtime state.
+
 ## Pull request previews
 
 The `.github/workflows/preview.yml` workflow starts a disposable Odoo 19 preview
