@@ -43,6 +43,20 @@ an existing private backup directory, a service unit, a user, and a five-field
 UTC cron schedule. Review the proposed schedule and service before running it;
 the installer refuses duplicate entries and preserves a private snapshot.
 
+The cron entry uses `sudo -n /usr/bin/systemctl start <service>`. If the selected
+cron user is not root, grant only that command for the configured service using
+`visudo`, for example:
+
+```sudoers
+<cron-user> ALL=(root) NOPASSWD: /usr/bin/systemctl start <service>.service
+```
+
+Replace both placeholders. Verify permission without starting the service:
+
+```sh
+sudo -u <cron-user> sudo -n -l /usr/bin/systemctl start <service>.service
+```
+
 ## Tests
 
 Run the standard-library regression tests with:
