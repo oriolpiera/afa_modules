@@ -17,6 +17,8 @@ The Compose file is installed as `/opt/afa/compose.yaml`; paths in it expect:
   `/opt/afa/.oca-l10n-spain`, and `/opt/afa/.oca-web`: matching OCA 19.0
   repositories. The web checkout is pinned to
   `521be3733122c64cc19ec4f5aac5c49e1198f92b`.
+- `/opt/afa/.oca-mis-builder`: OCA/mis-builder 19.0 at
+  `e8e7e927c2c5553cf10a60129293cc6b9a7c5fc8`.
 - `/opt/afa/Caddyfile`, `/opt/afa/odoo.conf`, and `/opt/afa/.env`.
 - `/opt/afa/backups`: private local backup directory.
 
@@ -26,8 +28,9 @@ The `.env` file contains `DOMAIN` and random `POSTGRES_PASSWORD`,
 holds the database and master passwords; keep it root-owned and readable only
 by the Odoo container's group. Its `addons_path` must include
 `/mnt/oca-payment`, `/mnt/oca-account-payment`, `/mnt/oca-reconcile`,
-`/mnt/oca-import`, `/mnt/oca-spain`, and `/mnt/oca-web`, matching the Compose
-mounts. Neither file belongs in Git or a backup shared publicly.
+`/mnt/oca-import`, `/mnt/oca-spain`, `/mnt/oca-mis-builder`, and `/mnt/oca-web`,
+matching the Compose mounts. Neither file belongs in Git or a backup shared
+publicly.
 
 ## Initial startup
 
@@ -46,7 +49,8 @@ mounts. Neither file belongs in Git or a backup shared publicly.
    docker compose --profile initialize run --rm initialize
    ```
 
-   The initializer installs all thirteen AFA addons without demo data into the new
+   The initializer installs all thirteen AFA addons and the `mis_builder` and
+   `l10n_es_mis_report` reporting modules without demo data into the new
    `afa_prod` database. Set the initial Odoo `admin` password from the protected
    `.env` before making the web service public:
 
@@ -77,6 +81,25 @@ Inspect status and logs with `docker compose ps` and `docker compose logs`. Befo
 updating Odoo or addons, take and verify a backup, deploy a reviewed `main`
 revision and its matching pinned OCA dependencies, then run the required module
 upgrades before restarting the web service.
+
+## Install Spanish financial report templates on an existing database
+
+After deploying the pinned `.oca-mis-builder` checkout and Compose changes,
+ensure `/mnt/oca-mis-builder` is present in the production `addons_path`.
+Follow the backup and clean-checkout gates in the production runbook, then stop
+Odoo and install the reporting modules on `afa_prod`:
+
+```sh
+docker compose stop odoo
+docker compose run --rm --no-deps odoo --config=/etc/odoo/odoo.conf \
+  -d afa_prod -i mis_builder,l10n_es_mis_report \
+  --stop-after-init --workers=0 --max-cron-threads=1
+docker compose up -d odoo
+```
+
+Do not run the initializer against an existing production database. The
+Spanish templates are available under Accounting > Reporting > MIS after
+installation; create a report and select the appropriate Spanish P&L template.
 
 The Apps filter in Odoo only shows addons marked as applications. To install
 OCA technical modules that do not set `application = True`, clear that filter
