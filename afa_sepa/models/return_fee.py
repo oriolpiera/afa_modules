@@ -88,6 +88,8 @@ class AfaSepaReturnFee(models.Model):
 
     def write(self, vals):
         if self.env.context.get('_afa_cancel_sepa_return_fee') and set(vals) == {'cancel_date'}:
+            if not self.env.su:
+                self._require_fee_manager()
             cancel_date = vals['cancel_date']
             for fee in self:
                 if cancel_date:
@@ -148,18 +150,20 @@ class AfaSepaReturnFee(models.Model):
         )
 
     def action_cancel(self):
-        self._require_account_manager()
+        self._require_fee_manager()
         self.sudo().with_context(_afa_cancel_sepa_return_fee=True).write(
             {'cancel_date': fields.Date.context_today(self)}
         )
 
     def action_set_pending(self):
-        self._require_account_manager()
+        self._require_fee_manager()
         self.sudo().with_context(_afa_cancel_sepa_return_fee=True).write({'cancel_date': False})
 
-    def _require_account_manager(self):
+    def _require_fee_manager(self):
         if not self.env.user.has_group('account.group_account_manager'):
             raise AccessError(_('Only accounting managers can change SEPA return fees.'))
+        if self.filtered(lambda fee: fee.company_id not in self.env.companies):
+            raise AccessError(_('SEPA return fees can only be changed for your allowed companies.'))
 
     @api.model
     def _is_return_fee_invoice(self, invoice):

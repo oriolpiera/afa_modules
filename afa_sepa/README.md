@@ -99,7 +99,8 @@ Customers → SEPA Return Fees**, with pending fees shown by default. Fees that
 should not be charged — for example a return caused by the association's own
 bank data — can be cancelled from the fee form with **Cancel Fee**. Cancelled
 fees stay out of future invoices, remain in history, and can be restored with
-**Set Pending Again**. Fees are auditable history and cannot be deleted;
+**Set Pending Again**; managers can only change fees belonging to companies
+they are allowed to access. Fees are auditable history and cannot be deleted;
 cancellation is the supported way to disable one.
 
 Each line keeps its original invoice, family, payer, mandate, and order.
