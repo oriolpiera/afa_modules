@@ -32,9 +32,17 @@ at the school using a zero-cost pickup delivery method.
 4. Configure the Wire Transfer payment provider with the AFA bank details. Set
    its communication to the sales-order reference and tell families to include
    that reference in the transfer subject. Configure a zero-cost **Recollida a
-   l'escola** delivery method for the website.
+   l'escola** delivery method for the website and tick **School Pickup (No
+   Address)** on it, so checkout offers the delivery choice first and never
+   asks for a delivery address when families collect at school.
 
 ## Order and stock flow
+
+- At checkout families first choose how to receive their order. A delivery
+  method marked **School Pickup (No Address)** never asks for a delivery
+  address: families see the pickup choice, confirm, and pay without providing
+  street, city, or postal code. Orders selected for home delivery keep Odoo's
+  normal address requirement.
 
 - At Wire Transfer checkout, Odoo places the order in **Quotation Sent**. This
   addon reserves the selected variants for seven days and shows the deadline on
