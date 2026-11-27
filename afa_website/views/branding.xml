@@ -9,8 +9,20 @@
         </xpath>
         <xpath expr="//div[@id='o_main_nav']/ul[hasclass('flex-shrink-0')]" position="replace">
             <ul class="navbar-nav align-items-center flex-shrink-0 justify-content-end ps-3">
-                <li class="nav-item">
+                <li t-if="request.env.user._is_public()" class="nav-item">
                     <a class="btn afa-login-button" href="/web/login">Inicia sessió</a>
+                </li>
+                <li t-else="" class="nav-item dropdown">
+                    <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="nav-link dropdown-toggle afa-account-toggle">
+                        <i class="fa fa-user me-1" aria-hidden="true"/>
+                        <span class="afa-account-toggle__name" t-esc="request.env.user.name"/>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end" role="menu">
+                        <a class="dropdown-item" role="menuitem" href="/my/home">El meu compte</a>
+                        <a groups="base.group_user" class="dropdown-item" role="menuitem" href="/odoo">Aplicacions</a>
+                        <div class="dropdown-divider"/>
+                        <a class="dropdown-item" role="menuitem" href="/web/session/logout?redirect=/">Tanca la sessió</a>
+                    </div>
                 </li>
             </ul>
         </xpath>
@@ -25,8 +37,20 @@
         </xpath>
         <xpath expr="//div[hasclass('offcanvas-body')]//ul[hasclass('gap-2', 'mt-3')]" position="replace">
             <ul class="navbar-nav gap-2 mt-3 w-100">
-                <li class="nav-item">
+                <li t-if="request.env.user._is_public()" class="nav-item">
                     <a class="nav-link afa-login-button w-100" href="/web/login">Inicia sessió</a>
+                </li>
+                <li t-else="" class="nav-item dropdown dropup">
+                    <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" class="nav-link dropdown-toggle afa-account-toggle w-100">
+                        <i class="fa fa-user me-1" aria-hidden="true"/>
+                        <span class="afa-account-toggle__name" t-esc="request.env.user.name"/>
+                    </a>
+                    <div class="dropdown-menu w-100" role="menu">
+                        <a class="dropdown-item" role="menuitem" href="/my/home">El meu compte</a>
+                        <a groups="base.group_user" class="dropdown-item" role="menuitem" href="/odoo">Aplicacions</a>
+                        <div class="dropdown-divider"/>
+                        <a class="dropdown-item" role="menuitem" href="/web/session/logout?redirect=/">Tanca la sessió</a>
+                    </div>
                 </li>
             </ul>
         </xpath>
