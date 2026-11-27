@@ -95,7 +95,13 @@ disables new fees. The amount is saved on each return and added as a separate,
 untaxed line to the next Acollida or extracurricular invoice generated for the
 same family, payer, and company. If an invoice is cancelled, the fee remains
 pending for a later invoice. Accountants can review fees under **Invoicing →
-Customers → SEPA Return Fees**, with pending fees shown by default.
+Customers → SEPA Return Fees**, with pending fees shown by default. Fees that
+should not be charged — for example a return caused by the association's own
+bank data — can be cancelled from the fee form with **Cancel Fee**. Cancelled
+fees stay out of future invoices, remain in history, and can be restored with
+**Set Pending Again**; managers can only change fees belonging to companies
+they are allowed to access. Fees are auditable history and cannot be deleted;
+cancellation is the supported way to disable one.
 
 Each line keeps its original invoice, family, payer, mandate, and order.
 Uploaded lines remain reserved even if the invoice is manually unreconciled;

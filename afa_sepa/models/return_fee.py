@@ -1,5 +1,5 @@
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 
 class AfaSepaReturnFee(models.Model):
@@ -26,11 +26,12 @@ class AfaSepaReturnFee(models.Model):
         'account.move.line', ondelete='set null', readonly=True, copy=False
     )
     state = fields.Selection(
-        [('pending', 'Pending'), ('invoiced', 'Invoiced')],
+        [('pending', 'Pending'), ('invoiced', 'Invoiced'), ('cancelled', 'Cancelled')],
         compute='_compute_state',
         store=True,
         index=True,
     )
+    cancel_date = fields.Date(readonly=True, copy=False)
 
     def init(self):
         self.env.cr.execute(
@@ -38,14 +39,15 @@ class AfaSepaReturnFee(models.Model):
             'ON afa_sepa_return_fee (payment_line_id)'
         )
 
-    @api.depends('invoice_line_id', 'invoice_line_id.move_id.state')
+    @api.depends('invoice_line_id', 'invoice_line_id.move_id.state', 'cancel_date')
     def _compute_state(self):
         for fee in self:
-            fee.state = (
-                'invoiced'
-                if fee.invoice_line_id and fee.invoice_line_id.move_id.state != 'cancel'
-                else 'pending'
-            )
+            if fee.cancel_date:
+                fee.state = 'cancelled'
+            elif fee.invoice_line_id and fee.invoice_line_id.move_id.state != 'cancel':
+                fee.state = 'invoiced'
+            else:
+                fee.state = 'pending'
 
     @api.model
     def register_return(self, payment_line, returned_date=None):
@@ -85,8 +87,30 @@ class AfaSepaReturnFee(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
+        if self.env.context.get('_afa_cancel_sepa_return_fee') and set(vals) == {'cancel_date'}:
+            if not self.env.su:
+                self._require_fee_manager()
+            cancel_date = vals['cancel_date']
+            for fee in self:
+                if cancel_date:
+                    if fee.cancel_date:
+                        raise ValidationError(_('This SEPA return fee is already cancelled.'))
+                    if fee.invoice_line_id and fee.invoice_line_id.move_id.state != 'cancel':
+                        raise ValidationError(
+                            _(
+                                'Only pending SEPA return fees can be cancelled. '
+                                'Cancel the invoiced fee line through its invoice.'
+                            )
+                        )
+                elif not fee.cancel_date:
+                    raise ValidationError(
+                        _('Only cancelled SEPA return fees can be set back to pending.')
+                    )
+            return super().write(vals)
         if self.env.context.get('_afa_link_sepa_return_fee') and set(vals) == {'invoice_line_id'}:
             for fee in self:
+                if fee.cancel_date:
+                    raise ValidationError(_('A cancelled SEPA return fee cannot be invoiced.'))
                 line = self.env['account.move.line'].browse(vals['invoice_line_id'])
                 invoice = line.move_id
                 if (
@@ -116,6 +140,30 @@ class AfaSepaReturnFee(models.Model):
                     )
             return super().write(vals)
         raise ValidationError(_('SEPA return fee history cannot be edited.'))
+
+    def unlink(self):
+        raise ValidationError(
+            _(
+                'SEPA return fee history cannot be deleted. '
+                'Cancel a fee that should not be invoiced instead.'
+            )
+        )
+
+    def action_cancel(self):
+        self._require_fee_manager()
+        self.sudo().with_context(_afa_cancel_sepa_return_fee=True).write(
+            {'cancel_date': fields.Date.context_today(self)}
+        )
+
+    def action_set_pending(self):
+        self._require_fee_manager()
+        self.sudo().with_context(_afa_cancel_sepa_return_fee=True).write({'cancel_date': False})
+
+    def _require_fee_manager(self):
+        if not self.env.user.has_group('account.group_account_manager'):
+            raise AccessError(_('Only accounting managers can change SEPA return fees.'))
+        if self.filtered(lambda fee: fee.company_id not in self.env.companies):
+            raise AccessError(_('SEPA return fees can only be changed for your allowed companies.'))
 
     @api.model
     def _is_return_fee_invoice(self, invoice):

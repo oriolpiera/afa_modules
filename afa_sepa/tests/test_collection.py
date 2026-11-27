@@ -6,7 +6,7 @@ from unittest.mock import patch
 from lxml import etree
 
 from odoo import fields
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
@@ -452,6 +452,170 @@ class TestAfaSepa(TransactionCase):
         self.assertIn('search_default_filter_pending', action.context)
         self.assertIn('filter_pending', search_view.arch_db)
         self.assertIn('filter_invoiced', search_view.arch_db)
+        self.assertIn('filter_cancelled', search_view.arch_db)
+
+    def test_return_fee_cancellation_skips_billing_and_keeps_history(self):
+        line, fee = self._record_returned_debit()
+        self.assertEqual(fee.state, 'pending')
+
+        fee.action_cancel()
+
+        self.assertEqual(fee.state, 'cancelled')
+        self.assertEqual(fee.cancel_date, fields.Date.context_today(fee))
+        self.assertNotIn(fee, self.env['afa.sepa.return.fee'].search([('state', '=', 'pending')]))
+        self.assertEqual(self.env['afa.sepa.return.fee'].sudo().register_return(line), fee)
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            fee.action_cancel()
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            fee.write({'cancel_date': False})
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            fee.unlink()
+        self.assertTrue(fee.exists())
+
+        fee.action_set_pending()
+
+        self.assertEqual(fee.state, 'pending')
+        self.assertFalse(fee.cancel_date)
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            fee.action_set_pending()
+
+    def test_invoiced_return_fee_cannot_be_cancelled(self):
+        _line, fee = self._record_returned_debit()
+        income = self.invoice.invoice_line_ids.account_id.ensure_one()
+        invoice = (
+            self.env['account.move']
+            .with_context(_afa_generate_service_invoices=True)
+            .create(
+                {
+                    'move_type': 'out_invoice',
+                    'partner_id': fee.partner_id.id,
+                    'company_id': fee.company_id.id,
+                    'invoice_date': fee.returned_date,
+                    'afa_service_family_id': fee.family_id.id,
+                    'invoice_line_ids': [
+                        (
+                            0,
+                            0,
+                            {
+                                'product_id': self.env.ref(
+                                    'afa_sepa.product_sepa_return_fee'
+                                ).product_variant_id.id,
+                                'account_id': income.id,
+                                'quantity': 1,
+                                'price_unit': fee.amount,
+                                'tax_ids': [(6, 0, [])],
+                            },
+                        )
+                    ],
+                }
+            )
+        )
+        fee_line = invoice.invoice_line_ids.ensure_one()
+        fee.with_context(_afa_link_sepa_return_fee=True).write({'invoice_line_id': fee_line.id})
+        self.assertEqual(fee.state, 'invoiced')
+
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            fee.action_cancel()
+        self.assertEqual(fee.state, 'invoiced')
+
+        invoice.button_cancel()
+        self.assertEqual(fee.state, 'pending')
+        fee.action_cancel()
+        self.assertEqual(fee.state, 'cancelled')
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            fee.with_context(_afa_link_sepa_return_fee=True).write({'invoice_line_id': fee_line.id})
+
+    def test_non_manager_cannot_change_return_fee_state(self):
+        _line, fee = self._record_returned_debit()
+        accountant = self.env['res.users'].create(
+            {
+                'name': 'SEPA Accountant',
+                'login': 'afa_sepa_accountant',
+                'group_ids': [
+                    (
+                        6,
+                        0,
+                        [
+                            self.env.ref('account.group_account_user').id,
+                            self.env.ref('account_payment_order.group_account_payment').id,
+                        ],
+                    )
+                ],
+            }
+        )
+
+        with self.assertRaises(AccessError), self.cr.savepoint():
+            fee.with_user(accountant).action_cancel()
+        self.assertEqual(fee.state, 'pending')
+
+    def test_return_fee_actions_need_company_access(self):
+        _line, fee = self._record_returned_debit()
+        outsider = (
+            self.env['res.users']
+            .with_context(allowed_company_ids=[self.env.ref('base.main_company').id])
+            .create(
+                {
+                    'name': 'Foreign SEPA Manager',
+                    'login': 'afa_sepa_foreign_manager',
+                    'company_ids': [(6, 0, [self.env.ref('base.main_company').id])],
+                    'group_ids': [
+                        (
+                            6,
+                            0,
+                            [
+                                self.env.ref('base.group_user').id,
+                                self.env.ref('account.group_account_manager').id,
+                            ],
+                        )
+                    ],
+                }
+            )
+        )
+
+        with self.assertRaises(AccessError), self.cr.savepoint():
+            fee.with_user(outsider).action_cancel()
+        with self.assertRaises(AccessError), self.cr.savepoint():
+            fee.with_user(outsider).with_context(_afa_cancel_sepa_return_fee=True).write(
+                {'cancel_date': fields.Date.today()}
+            )
+        self.assertEqual(fee.state, 'pending')
+
+    def test_cancelled_return_fee_skips_the_billing_pipeline_until_reopened(self):
+        _line, fee = self._record_returned_debit()
+        income = self.invoice.invoice_line_ids.account_id.ensure_one()
+        self.env.ref('afa_sepa.product_sepa_return_fee').property_account_income_id = income
+        fee.action_cancel()
+        invoice = (
+            self.env['account.move']
+            .with_context(_afa_generate_service_invoices=True)
+            .create(
+                {
+                    'move_type': 'out_invoice',
+                    'partner_id': fee.partner_id.id,
+                    'company_id': fee.company_id.id,
+                    'invoice_date': fee.returned_date,
+                    'afa_service_family_id': fee.family_id.id,
+                }
+            )
+        )
+
+        fee_model = type(fee)
+        with patch.object(fee_model, '_is_return_fee_invoice', return_value=True):
+            self.env['afa.sepa.return.fee'].sudo().invoice_pending_fees(invoice)
+
+        self.assertEqual(fee.state, 'cancelled')
+        self.assertFalse(fee.invoice_line_id)
+        invoice.invalidate_recordset(['invoice_line_ids'])
+        self.assertFalse(invoice.invoice_line_ids.filtered('product_id'))
+
+        fee.action_set_pending()
+        with patch.object(fee_model, '_is_return_fee_invoice', return_value=True):
+            self.env['afa.sepa.return.fee'].sudo().invoice_pending_fees(invoice)
+
+        self.assertEqual(fee.state, 'invoiced')
+        self.assertEqual(fee.invoice_line_id.move_id, invoice)
+        self.assertEqual(fee.invoice_line_id.price_unit, fee.amount)
+        self.assertFalse(fee.invoice_line_id.tax_ids)
 
     def test_return_fee_is_added_untaxed_to_next_acollida_invoice(self):
         self._skip_if_return_fee_billing_is_not_installed()
