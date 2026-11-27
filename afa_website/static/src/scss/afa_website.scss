@@ -34,6 +34,18 @@
     white-space: nowrap;
 }
 .afa-login-button:hover { background: #263b32; color: #fffdf5 !important; }
+.afa-account-toggle {
+    display: inline-flex;
+    align-items: center;
+    color: #315d49 !important;
+    font-weight: 700;
+}
+.afa-account-toggle__name {
+    max-width: 12rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .afa-homepage {
     --afa-ink: #263b32;

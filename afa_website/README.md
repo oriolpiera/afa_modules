@@ -24,9 +24,10 @@ manually or through a deliberate migration.
 4. Verify the homepage, commission pages, mobile navigation, and contact form.
    The form sends to `hola@afabobila.cat`; confirm the production mail server can
    deliver to that address before announcing the site.
-5. The **Inicia sessió** link opens `/web/login`. Family accounts and their
-   access rights must be provisioned separately; this addon does not create
-   users.
+5. The **Inicia sessió** link opens `/web/login`. Once a portal user signs in,
+   the header shows their name and an account menu with **El meu compte** and
+   **Tanca la sessió**. Family accounts and their access rights must be
+   provisioned separately; this addon does not create users.
 
 The pages are assigned to `website.default_website`. For multi-website databases,
 review the page and menu assignments before installing.

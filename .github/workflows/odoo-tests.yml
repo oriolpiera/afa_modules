@@ -144,6 +144,33 @@ jobs:
           sys.exit(0 if passed and test_markers_ran else 1)
           '
 
+      - name: Run website header tests
+        run: |
+          set -o pipefail
+          docker compose -f compose.test.yaml run --rm odoo -d afa_website_ci -i afa_website --test-enable --test-tags /afa_website --stop-after-init --log-level=test --db_host=db --db_user=odoo --db_password=odoo 2>&1 | python3 -c '
+          import re
+          import sys
+
+          output = sys.stdin.read()
+          print(output, end="")
+          summaries = re.findall(
+              r"odoo\.tests\.result: (\d+) failed, (\d+) error\(s\) of (\d+) tests when loading database",
+              output,
+          )
+          passed = bool(summaries) and all(
+              failures == "0" and errors == "0" and int(count) > 0
+              for failures, errors, count in summaries
+          )
+          test_markers_ran = all(
+              marker in output
+              for marker in (
+                  "Starting TestWebsiteHeaderAccount.test_anonymous_header_shows_sign_in",
+                  "Starting TestWebsiteHeaderAccount.test_authenticated_header_shows_account_menu",
+              )
+          )
+          sys.exit(0 if passed and test_markers_ran else 1)
+          '
+
       - name: Run voting tests
         run: |
           set -o pipefail
