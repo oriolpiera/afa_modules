@@ -42,3 +42,58 @@ msgstr ""
 #: model:ir.model.fields,field_description:afa_apparel_shop.field_sale_order__afa_stock_reserved_until
 msgid "Web Stock Reserved Until"
 msgstr "Estoc web reservat fins al"
+
+#. module: afa_apparel_shop
+#: model:ir.actions.server,name:afa_apparel_shop.ir_cron_send_paid_order_notifications_ir_actions_server
+msgid "Notify AFA paid webshop orders"
+msgstr "Notifica les comandes de la botiga web pagades de l'AFA"
+
+#. module: afa_apparel_shop
+#: model:ir.model.fields,field_description:afa_apparel_shop.field_res_company__afa_paid_order_email
+#: model:ir.model.fields,field_description:afa_apparel_shop.field_res_config_settings__afa_paid_order_email
+msgid "Paid Order Notification Email"
+msgstr "Correu de notificació de comandes pagades"
+
+#. module: afa_apparel_shop
+#: model:ir.model.fields,help:afa_apparel_shop.field_res_company__afa_paid_order_email
+#: model:ir.model.fields,help:afa_apparel_shop.field_res_config_settings__afa_paid_order_email
+msgid ""
+"Internal address that receives a copy of each paid webshop order so the team"
+" can prepare the delivery or the school pickup. Several addresses can be "
+"separated with a comma. Leave it empty to disable the notice."
+msgstr ""
+"Adreça interna que rep una còpia de cada comanda de la botiga web ja pagada"
+" perquè l'equip pugui preparar l'entrega o la recollida a l'escola. Es poden"
+" posar vàries adreces separades per comes. Deixa-ho buit per desactivar "
+"l'avís."
+
+#. module: afa_apparel_shop
+#: model:ir.model.fields,field_description:afa_apparel_shop.field_sale_order__afa_paid_order_email_sent
+msgid "Paid Order Email Sent"
+msgstr "Correu de comanda pagada enviat"
+
+#. module: afa_apparel_shop
+#: model:ir.model.fields,help:afa_apparel_shop.field_sale_order__afa_paid_order_email_sent
+msgid ""
+"The internal notice used to prepare the delivery has been sent for this "
+"order."
+msgstr "L'avís intern per preparar l'entrega ja s'ha enviat per a aquesta comanda."
+
+#. module: afa_apparel_shop
+#: model_terms:ir.ui.view,arch_db:afa_apparel_shop.view_res_config_settings_afa_apparel
+msgid "Order Notifications"
+msgstr "Notificacions de comandes"
+
+#. module: afa_apparel_shop
+#: model_terms:ir.ui.view,arch_db:afa_apparel_shop.view_res_config_settings_afa_apparel
+msgid "Paid order email"
+msgstr "Correu de comanda pagada"
+
+#. module: afa_apparel_shop
+#: model_terms:ir.ui.view,arch_db:afa_apparel_shop.view_res_config_settings_afa_apparel
+msgid ""
+"Internal address that receives each paid webshop order so the team can "
+"prepare the delivery. Leave empty to disable."
+msgstr ""
+"Adreça interna que rep cada comanda de la botiga web pagada perquè l'equip "
+"pugui preparar-ne l'entrega. Deixa-ho buit per desactivar l'avís."
