@@ -35,6 +35,9 @@ at the school using a zero-cost pickup delivery method.
    l'escola** delivery method for the website and tick **School Pickup (No
    Address)** on it, so checkout offers the delivery choice first and never
    asks for a delivery address when families collect at school.
+5. Under **Sales → Settings → AFA Apparel Shop**, set **Paid order email** to
+   the internal address (or a comma-separated list) that must receive paid
+   orders to prepare the delivery. Leave it empty to send nothing.
 
 ## Order and stock flow
 
@@ -54,6 +57,14 @@ at the school using a zero-cost pickup delivery method.
 - After matching the bank transfer, staff confirm the sales order. Odoo then
   takes over with its normal stock delivery flow; the family collects the order
   at school.
+- Once an order is paid, a scheduled action every 15 minutes emails the
+  configured internal address with the order lines and a link to the order, so
+  whoever prepares the pickup or the delivery gets the list without opening
+  Odoo. Odoo 19 has no payment status on sales orders, so this addon treats an
+  order as paid when every posted invoice of the order is settled; an order
+  that is not invoiced yet is paid once its online transactions cover the
+  total. Each order is notified once, tracked by **Paid Order Email Sent** on
+  the order form.
 - An hourly scheduled action cancels unpaid orders after their reservation
   deadline and releases their sizes. Expired orders cannot be confirmed.
 - This reservation applies only to the built-in Wire Transfer provider. A later

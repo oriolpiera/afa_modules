@@ -7,6 +7,8 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='date_order']" position="after">
                 <field name="afa_stock_reserved_until" readonly="1"/>
+                <field name="afa_is_paid" readonly="1"/>
+                <field name="afa_paid_order_email_sent" readonly="1"/>
             </xpath>
         </field>
     </record>

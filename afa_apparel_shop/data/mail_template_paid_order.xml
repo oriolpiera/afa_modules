@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mail_template_paid_order" model="mail.template">
+        <field name="name">AFA: Paid Webshop Order (internal)</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field
+            name="email_from"
+        >{{ object.company_id.partner_id.email_formatted or user.email_formatted or '' }}</field>
+        <field name="email_to">{{ object.company_id.afa_paid_order_email or '' }}</field>
+        <field name="subject">Comanda pagada {{ object.name }} - {{ object.partner_id.name }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="body_html" type="html">
+            <div>
+                <p>
+                    La comanda
+                    <strong>
+                        <t t-out="object.name"/>
+                    </strong>
+                    de
+                    <strong>
+                        <t t-out="object.partner_id.name"/>
+                    </strong>
+                    ja està pagada. Cal preparar-ne l'entrega.
+                </p>
+                <p>
+                    Mètode d'entrega:
+                    <strong>
+                        <t t-out="object.carrier_id.name or 'Per determinar'"/>
+                    </strong>
+                </p>
+                <p t-if="object.carrier_id.afa_school_pickup">
+                    La família recollirà el material a l'escola.
+                </p>
+                <p
+                    t-if="not object.carrier_id.afa_school_pickup and object.partner_shipping_id.display_name"
+                >
+                    Adreça d'entrega:
+                    <t t-out="object.partner_shipping_id.display_name"/>
+                </p>
+                <p t-if="object.partner_id.phone">
+                    Contacte:
+                    <t t-out="object.partner_id.phone"/>
+                </p>
+                <table style="border-collapse: collapse; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 4px;">Producte</th>
+                            <th style="text-align: right; padding: 4px;">Quantitat</th>
+                            <th style="text-align: right; padding: 4px;">Import</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            t-foreach="object.order_line.filtered(lambda line: not line.display_type)"
+                            t-as="line"
+                        >
+                            <td style="padding: 4px;">
+                                <t t-out="line.product_id.display_name or ''"/>
+                            </td>
+                            <td style="text-align: right; padding: 4px;">
+                                <t t-out="line.product_uom_qty"/>
+                                <t t-out="line.product_uom_id.name"/>
+                            </td>
+                            <td style="text-align: right; padding: 4px;">
+                                <t t-out="line.price_subtotal"/>
+                                <t t-out="object.currency_id.name"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td style="padding: 4px;"><strong>Total</strong></td>
+                            <td style="padding: 4px;"></td>
+                            <td style="text-align: right; padding: 4px;">
+                                <strong>
+                                    <t t-out="object.amount_total"/>
+                                    <t t-out="object.currency_id.name"/>
+                                </strong>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <p>
+                    <a
+                        t-attf-href="{{ object.get_base_url() }}/web#id={{ object.id }}&amp;model=sale.order&amp;view_type=form"
+                    >Obrir la comanda</a>
+                </p>
+                <p>AFA Escola La Bòbila</p>
+            </div>
+        </field>
+    </record>
+</odoo>
