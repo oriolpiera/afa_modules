@@ -10,6 +10,7 @@
                 delete="0"
                 decoration-warning="state == 'pending'"
                 decoration-success="state == 'invoiced'"
+                decoration-danger="state == 'cancelled'"
             >
                 <field name="returned_date"/>
                 <field name="family_id"/>
@@ -29,10 +30,29 @@
         <field name="model">afa.sepa.return.fee</field>
         <field name="arch" type="xml">
             <form create="0" edit="0" delete="0">
+                <header>
+                    <button
+                        name="action_cancel"
+                        string="Cancel Fee"
+                        type="object"
+                        class="btn-secondary"
+                        confirm="This fee will no longer be added to a future invoice. Continue?"
+                        invisible="state != 'pending'"
+                        groups="account.group_account_manager"
+                    />
+                    <button
+                        name="action_set_pending"
+                        string="Set Pending Again"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state != 'cancelled'"
+                        groups="account.group_account_manager"
+                    />
+                    <field name="state" widget="statusbar" readonly="1" />
+                </header>
                 <sheet>
                     <group>
                         <group>
-                            <field name="state"/>
                             <field name="returned_date"/>
                             <field name="amount"/>
                             <field name="currency_id" invisible="1"/>
@@ -44,6 +64,7 @@
                             <field name="payment_line_id"/>
                             <field name="invoice_id" string="Returned Invoice"/>
                             <field name="invoice_line_id" string="Fee Invoice Line"/>
+                            <field name="cancel_date" invisible="not cancel_date"/>
                         </group>
                     </group>
                 </sheet>
@@ -68,6 +89,11 @@
                     name="filter_invoiced"
                     string="Invoiced"
                     domain="[('state', '=', 'invoiced')]"
+                />
+                <filter
+                    name="filter_cancelled"
+                    string="Cancelled"
+                    domain="[('state', '=', 'cancelled')]"
                 />
                 <separator/>
                 <filter name="returned_date" string="Returned Date" date="returned_date"/>
