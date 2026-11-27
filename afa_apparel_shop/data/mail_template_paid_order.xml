@@ -12,13 +12,21 @@
         <field name="body_html" type="html">
             <div>
                 <p>
-                    La comanda <strong>{{ object.name }}</strong> de
-                    <strong>{{ object.partner_id.name }}</strong> ja està pagada.
-                    Cal preparar-ne l'entrega.
+                    La comanda
+                    <strong>
+                        <t t-out="object.name"/>
+                    </strong>
+                    de
+                    <strong>
+                        <t t-out="object.partner_id.name"/>
+                    </strong>
+                    ja està pagada. Cal preparar-ne l'entrega.
                 </p>
                 <p>
                     Mètode d'entrega:
-                    <strong>{{ object.carrier_id.name or 'Per determinar' }}</strong>
+                    <strong>
+                        <t t-out="object.carrier_id.name or 'Per determinar'"/>
+                    </strong>
                 </p>
                 <p t-if="object.carrier_id.afa_school_pickup">
                     La família recollirà el material a l'escola.
@@ -26,10 +34,12 @@
                 <p
                     t-if="not object.carrier_id.afa_school_pickup and object.partner_shipping_id.display_name"
                 >
-                    Adreça d'entrega: {{ object.partner_shipping_id.display_name }}
+                    Adreça d'entrega:
+                    <t t-out="object.partner_shipping_id.display_name"/>
                 </p>
                 <p t-if="object.partner_id.phone">
-                    Contacte: {{ object.partner_id.phone }}
+                    Contacte:
+                    <t t-out="object.partner_id.phone"/>
                 </p>
                 <table style="border-collapse: collapse; width: 100%;">
                     <thead>
