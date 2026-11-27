@@ -25,22 +25,42 @@ class SaleOrder(models.Model):
         readonly=True,
         help='The internal notice used to prepare the delivery has been sent for this order.',
     )
+    afa_is_paid = fields.Boolean(
+        string='Fully Paid',
+        compute='_compute_afa_is_paid',
+        store=True,
+        help=(
+            'Every posted invoice of the order is settled, or, while the order is not '
+            'invoiced, its online transactions cover the total.'
+        ),
+    )
 
-    def _afa_is_paid(self):
-        """Return whether the order has been paid.
+    @api.depends(
+        'amount_total',
+        'amount_paid',
+        'transaction_ids.state',
+        'order_line.invoice_lines.move_id.move_type',
+        'order_line.invoice_lines.move_id.state',
+        'order_line.invoice_lines.move_id.payment_state',
+    )
+    def _compute_afa_is_paid(self):
+        """Set the paid flag the internal notice relies on.
 
         Odoo 19 has no payment status on sales orders, so an order counts as
         paid when every posted invoice of the order is settled. Orders paid
         online that are not invoiced yet are paid once their transactions
         cover the total.
         """
-        self.ensure_one()
-        invoices = self.invoice_ids.filtered(
-            lambda invoice: invoice.move_type == 'out_invoice' and invoice.state == 'posted'
-        )
-        if invoices:
-            return all(invoice.payment_state in ('in_payment', 'paid') for invoice in invoices)
-        return bool(self.transaction_ids) and self._is_paid()
+        for order in self:
+            invoices = order.invoice_ids.filtered(
+                lambda invoice: invoice.move_type == 'out_invoice' and invoice.state == 'posted'
+            )
+            if invoices:
+                order.afa_is_paid = all(
+                    invoice.payment_state in ('in_payment', 'paid') for invoice in invoices
+                )
+            else:
+                order.afa_is_paid = bool(order.transaction_ids) and order._is_paid()
 
     def _afa_paid_order_email_to(self):
         self.ensure_one()
@@ -78,8 +98,10 @@ class SaleOrder(models.Model):
         """Notify the internal address about webshop orders that got paid.
 
         Payment can land through the payment register, through bank-statement
-        reconciliation, or through an online provider, so the paid status is
-        checked here instead of hooking a single code path.
+        reconciliation, or through an online provider, so the stored paid flag
+        is searched here instead of hooking a single code path. Keeping the
+        flag in the domain also means unpaid orders can never crowd paid ones
+        out of the batch.
         """
         companies = self.env['res.company'].sudo().search([('afa_paid_order_email', '!=', False)])
         if not companies:
@@ -89,12 +111,13 @@ class SaleOrder(models.Model):
                 ('company_id', 'in', companies.ids),
                 ('website_id', '!=', False),
                 ('state', '=', 'sale'),
+                ('afa_is_paid', '=', True),
                 ('afa_paid_order_email_sent', '=', False),
             ],
             order='date_order, id',
             limit=limit,
         )
-        return orders.filtered(lambda order: order._afa_is_paid())._afa_send_paid_order_email()
+        return orders._afa_send_paid_order_email()
 
     @api.model
     def _afa_web_reserved_quantity(self, product, warehouse_id=False, exclude_order_ids=()):

@@ -97,3 +97,17 @@ msgid ""
 msgstr ""
 "Adreça interna que rep cada comanda de la botiga web pagada perquè l'equip "
 "pugui preparar-ne l'entrega. Deixa-ho buit per desactivar l'avís."
+
+#. module: afa_apparel_shop
+#: model:ir.model.fields,field_description:afa_apparel_shop.field_sale_order__afa_is_paid
+msgid "Fully Paid"
+msgstr "Pagada"
+
+#. module: afa_apparel_shop
+#: model:ir.model.fields,help:afa_apparel_shop.field_sale_order__afa_is_paid
+msgid ""
+"Every posted invoice of the order is settled, or, while the order is not "
+"invoiced, its online transactions cover the total."
+msgstr ""
+"Totes les factures emeses de la comanda estan cobrades o, mentre la comanda "
+"no està facturada, les transaccions en línia cobreixen el total."

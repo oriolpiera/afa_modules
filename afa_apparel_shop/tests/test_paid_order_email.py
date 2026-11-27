@@ -103,9 +103,28 @@ class TestAfaPaidOrderEmail(TransactionCase):
         self.assertEqual(notice.email_to, 'botiga@example.invalid')
         self.assertIn(order.name, notice.subject)
         self.assertIn(self.product.display_name, notice.body_html)
+        # Inline {{ }} expressions must render, not reach the inbox as literal text.
+        self.assertNotIn('{{', notice.body_html)
+        self.assertIn(order.name, notice.body_html)
+        self.assertIn(self.partner.name, notice.body_html)
+        self.assertIn(f'id={order.id}', notice.body_html)
 
         # A second sweep must not notify the same order again.
         self.env['sale.order']._cron_send_paid_order_notifications()
+        self.assertEqual(len(self._notices()), 1)
+
+    def test_unpaid_orders_do_not_crowd_paid_ones_out_of_the_batch(self):
+        # The oldest orders stay unpaid on purpose: a newer paid order must still
+        # be notified even when the batch limit is smaller than that backlog.
+        for _ in range(3):
+            blocking = self._order()
+            blocking.action_confirm()
+        order, invoice = self._confirm_and_invoice()
+        self._pay(invoice, invoice.amount_residual)
+        self.assertTrue(order.afa_is_paid)
+
+        self.env['sale.order']._cron_send_paid_order_notifications(limit=1)
+        self.assertTrue(order.afa_paid_order_email_sent)
         self.assertEqual(len(self._notices()), 1)
 
     def test_partial_payment_does_not_notify(self):
