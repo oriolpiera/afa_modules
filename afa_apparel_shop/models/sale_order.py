@@ -66,6 +66,27 @@ class SaleOrder(models.Model):
             self._afa_check_active_web_stock_reservations()
         return result
 
+    def _afa_uses_school_pickup(self):
+        """Return whether the order will be collected at the school.
+
+        Before a delivery method is chosen on the checkout page, orders whose
+        available delivery methods include a school pickup are treated as
+        pickup orders so that the delivery choice is shown first and no
+        address is required to reach it.
+        """
+        self.ensure_one()
+        if not self._has_deliverable_products():
+            return False
+        if self.carrier_id:
+            return self.carrier_id.afa_school_pickup
+        return bool(self._get_delivery_methods().filtered('afa_school_pickup'))
+
+    def _needs_customer_address(self):
+        # Pickup orders are collected at the school; no delivery address needed.
+        if self._afa_uses_school_pickup():
+            return False
+        return super()._needs_customer_address()
+
     def _get_free_qty(self, product):
         free_qty = super()._get_free_qty(product)
         if not product.is_storable or product.allow_out_of_stock_order:

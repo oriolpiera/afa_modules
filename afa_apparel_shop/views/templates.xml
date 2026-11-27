@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="delivery_method" inherit_id="website_sale.delivery_method"
+              name="AFA School Pickup Delivery Method">
+        <xpath expr="//input[@name='o_delivery_radio']" position="attributes">
+            <attribute name="t-att-data-afa-school-pickup">dm.afa_school_pickup and 'true' or 'false'</attribute>
+        </xpath>
+    </template>
+
+    <template id="delivery_address_list" inherit_id="website_sale.delivery_address_list"
+              name="AFA School Pickup Hides Delivery Address">
+        <xpath expr="//div[@id='delivery_address_list']" position="attributes">
+            <attribute name="t-attf-class">{{ 'd-none' if order.carrier_id.afa_school_pickup else '' }}</attribute>
+        </xpath>
+    </template>
+
+</odoo>

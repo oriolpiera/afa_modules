@@ -25,6 +25,20 @@ msgid "Display Name"
 msgstr "Nom mostrat"
 
 #. module: afa_apparel_shop
+#: model:ir.model.fields,field_description:afa_apparel_shop.field_delivery_carrier__afa_school_pickup
+msgid "School Pickup (No Address)"
+msgstr "Recollida a l'escola (sense adreça)"
+
+#. module: afa_apparel_shop
+#: model:ir.model.fields,help:afa_apparel_shop.field_delivery_carrier__afa_school_pickup
+msgid ""
+"Orders with this delivery method are collected at the school. The checkout "
+"does not require a delivery address for them."
+msgstr ""
+"Les comandes amb aquest mètode d'enviament es recullen a l'escola. El procés"
+" de pagament no demana cap adreça d'entrega per a aquestes comandes."
+
+#. module: afa_apparel_shop
 #: model:ir.model.fields,field_description:afa_apparel_shop.field_sale_order__afa_stock_reserved_until
 msgid "Web Stock Reserved Until"
 msgstr "Estoc web reservat fins al"

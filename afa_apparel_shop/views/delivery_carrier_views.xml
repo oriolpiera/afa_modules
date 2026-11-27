@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="delivery_carrier_view_form" inherit_id="delivery.view_delivery_carrier_form">
+        <xpath expr="//field[@name='allow_cash_on_delivery']" position="after">
+            <field name="afa_school_pickup"/>
+        </xpath>
+    </template>
+
+</odoo>
