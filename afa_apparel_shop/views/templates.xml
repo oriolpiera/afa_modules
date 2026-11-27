@@ -15,4 +15,15 @@
         </xpath>
     </template>
 
+    <!-- Core renders the cart coupon field whenever the caller leaves
+         `hide_promotions` falsy, even when the "Discounts, Loyalty & Gift
+         Card" setting is off. Force the flag when promotions are disabled so
+         families are not invited to enter discount codes that cannot work. -->
+    <template id="cart_total_hide_promotions" inherit_id="website_sale.total"
+              name="AFA Hide Cart Coupon Field When Discounts Are Disabled">
+        <xpath expr="//div[contains(@t-attf-class, 'o_cart_total')]" position="before">
+            <t t-set="hide_promotions" t-value="hide_promotions or not website.is_promotions_enabled()"/>
+        </xpath>
+    </template>
+
 </odoo>

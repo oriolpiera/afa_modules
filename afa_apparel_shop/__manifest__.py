@@ -1,7 +1,7 @@
 {
     'name': 'AFA Apparel Shop',
     'author': 'Oriol Piera',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'summary': 'Reserve website stock for AFA bank-transfer orders',
     'category': 'Sales',
     'license': 'LGPL-3',
