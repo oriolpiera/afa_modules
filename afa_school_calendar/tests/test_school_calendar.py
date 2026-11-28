@@ -9,6 +9,8 @@ TERMS = [
     ('3t trimestre', date(2027, 4, 18), date(2027, 6, 20)),
 ]
 
+MANDATORY_DAY_COLOR = 11  # Keep in sync with the model constant.
+
 GAPS = [
     (date(2026, 7, 1), date(2026, 9, 7)),
     (date(2026, 12, 22), date(2027, 1, 7)),
@@ -76,6 +78,45 @@ class TestSchoolCalendar(TransactionCase):
                 overlaps = overlaps and term.date_start <= leaf.date_to.date()
                 self.assertFalse(overlaps)
 
+    def test_generation_mirrors_mandatory_days_for_time_off(self):
+        self._add_terms()
+        self.period.action_generate_non_teaching_days()
+        days = self.period.mandatory_day_ids
+        self.assertEqual(sorted((day.start_date, day.end_date) for day in days), GAPS)
+        for day in days:
+            self.assertEqual(day.company_id, self.env.company)
+            self.assertFalse(day.resource_calendar_id)
+            self.assertEqual(day.school_year_id, self.period)
+            self.assertEqual(day.color, MANDATORY_DAY_COLOR)
+        leaves = self.period.non_teaching_leave_ids
+        self.assertEqual(len(leaves), len(days))
+        for day in days:
+            self.assertIn(
+                day.name,
+                leaves.mapped('name'),
+            )
+
+    def test_clear_removes_generated_leaves_and_mandatory_days(self):
+        self._add_terms()
+        self.period.action_generate_non_teaching_days()
+        leaves = self.period.non_teaching_leave_ids
+        days = self.period.mandatory_day_ids
+        self.assertEqual((len(leaves), len(days)), (4, 4))
+        self.period.action_clear_non_teaching_days()
+        self.assertFalse(leaves.exists())
+        self.assertFalse(days.exists())
+
+    def test_school_calendar_days_action_opens_a_calendar_view(self):
+        action = self.env.ref('afa_school_calendar.action_school_calendar_leaves')
+        self.assertEqual(action.view_mode, 'calendar,list,form')
+        view = self.env['ir.ui.view'].browse(
+            [binding.view_id.id for binding in action.view_ids if binding.view_id]
+        )
+        calendar_view = view.filtered(lambda v: v.type == 'calendar')
+        self.assertTrue(calendar_view)
+        fields_view = self.env['resource.calendar.leaves'].get_view(calendar_view.id)
+        self.assertIn('date_from', fields_view['arch'])
+
     def test_year_without_terms_generates_one_full_year_leave(self):
         self.period.action_generate_non_teaching_days()
         leaves = self.period.non_teaching_leave_ids
@@ -88,11 +129,15 @@ class TestSchoolCalendar(TransactionCase):
         self._add_terms()
         self.period.action_generate_non_teaching_days()
         first_ids = self.period.non_teaching_leave_ids.ids
+        first_mandatory_ids = self.period.mandatory_day_ids.ids
         self.assertEqual(len(first_ids), 4)
         self.period.action_generate_non_teaching_days()
         leaves = self.period.non_teaching_leave_ids
+        days = self.period.mandatory_day_ids
         self.assertEqual(len(leaves), 4)
+        self.assertEqual(len(days), 4)
         self.assertTrue(set(leaves.ids).isdisjoint(first_ids))
+        self.assertTrue(set(days.ids).isdisjoint(first_mandatory_ids))
         self.assertTrue(manual.exists())
         self.assertFalse(manual.school_year_id)
 
@@ -130,9 +175,12 @@ class TestSchoolCalendar(TransactionCase):
         self._add_terms()
         manual = self._manual_holiday()
         self.period.action_generate_non_teaching_days()
-        generated = self.period.non_teaching_leave_ids
+        generated_leaves = self.period.non_teaching_leave_ids
+        generated_days = self.period.mandatory_day_ids
+        self.assertEqual((len(generated_leaves), len(generated_days)), (4, 4))
         self.period.unlink()
-        self.assertFalse(generated.exists())
+        self.assertFalse(generated_leaves.exists())
+        self.assertFalse(generated_days.exists())
         self.assertTrue(manual.exists())
 
     def test_family_manager_generates_and_basic_user_cannot_configure(self):

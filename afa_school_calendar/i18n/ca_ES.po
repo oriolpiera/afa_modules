@@ -57,6 +57,20 @@ msgid "Adjust the terms that no longer fit in the school year: %s"
 msgstr "Cal ajustar els trimestres que ja no cauen dins del curs escolar: %s"
 
 #. module: afa_school_calendar
+#: model:ir.model.fields,field_description:afa_school_calendar.field_afa_membership_period__mandatory_day_ids
+msgid "Mandatory Days"
+msgstr "Dies obligatoris"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,help:afa_school_calendar.field_hr_leave_mandatory_day__school_year_id
+msgid ""
+"School year that generated this mandatory day. Keep it empty for manually "
+"created mandatory days."
+msgstr ""
+"Curs escolar que ha generat aquest dia obligatori. Deixeu-lo buit per als "
+"dies obligatoris creats manualment."
+
+#. module: afa_school_calendar
 #: model:ir.model.fields,field_description:afa_school_calendar.field_afa_school_term__period_id
 #: model:ir.model.fields,field_description:afa_school_calendar.field_resource_calendar_leaves__school_year_id
 #: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_search
