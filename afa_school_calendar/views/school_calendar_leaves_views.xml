@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_school_calendar_leaves_list" model="ir.ui.view">
+        <field name="name">resource.calendar.leaves.school.calendar.list</field>
+        <field name="model">resource.calendar.leaves</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="school_year_id" optional="show"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_school_calendar_leaves_form" model="ir.ui.view">
+        <field name="name">resource.calendar.leaves.school.calendar.form</field>
+        <field name="model">resource.calendar.leaves</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name" placeholder="School elective holiday"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="school_year_id" readonly="1"/>
+                    </group>
+                    <div class="text-muted">
+                        A day without a school year is a manual day, such as a school
+                        elective holiday. It is never removed by regeneration.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_school_calendar_leaves_search" model="ir.ui.view">
+        <field name="name">resource.calendar.leaves.school.calendar.search</field>
+        <field name="model">resource.calendar.leaves</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="school_year_id"/>
+                <filter name="generated_days" string="Generated"
+                        domain="[('school_year_id', '!=', False)]"/>
+                <filter name="manual_days" string="Manual"
+                        domain="[('school_year_id', '=', False)]"/>
+                <group>
+                    <filter name="group_by_school_year" string="School Year"
+                            context="{'group_by': 'school_year_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_school_calendar_leaves" model="ir.actions.act_window">
+        <field name="name">School Calendar Days</field>
+        <field name="res_model">resource.calendar.leaves</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_school_calendar_leaves_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_school_calendar_leaves_form')})]"/>
+        <field name="search_view_id" ref="view_school_calendar_leaves_search"/>
+    </record>
+    <menuitem id="menu_school_calendar_leaves" name="School Calendar Days"
+              parent="afa_family.menu_afa_family_configuration"
+              action="action_school_calendar_leaves"
+              groups="afa_family.group_family_manager" sequence="31"/>
+</odoo>

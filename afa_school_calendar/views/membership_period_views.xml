@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_afa_membership_period_form_school_calendar" model="ir.ui.view">
+        <field name="name">afa.membership.period.form.school.calendar</field>
+        <field name="model">afa.membership.period</field>
+        <field name="inherit_id" ref="afa_membership.view_afa_membership_period_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="/form/sheet" position="before">
+                <header>
+                    <button name="action_generate_non_teaching_days" type="object"
+                            string="Generate Non-Teaching Days" class="btn-primary"/>
+                    <button name="action_clear_non_teaching_days" type="object"
+                            string="Remove Generated Days"
+                            confirm="Remove the time off days generated from this school year? Manually created days are not affected."/>
+                </header>
+            </xpath>
+            <xpath expr="//sheet/group" position="after">
+                <notebook>
+                    <page string="Terms" name="terms">
+                        <field name="term_ids" context="{'default_period_id': id}">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="name" placeholder="1r trimestre"/>
+                                <field name="date_start"/>
+                                <field name="date_end"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Non-Teaching Days" name="non_teaching_days">
+                        <field name="non_teaching_leave_ids" readonly="1">
+                            <list>
+                                <field name="name"/>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+</odoo>
