@@ -15,6 +15,11 @@ class AfaMembershipPeriod(models.Model):
         'school_year_id',
         string='Non-Teaching Days',
     )
+    mandatory_day_ids = fields.One2many(
+        'hr.leave.mandatory.day',
+        'school_year_id',
+        string='Mandatory Days',
+    )
     non_teaching_leave_count = fields.Integer(
         string='Generated Days',
         compute='_compute_non_teaching_leave_count',
@@ -72,11 +77,14 @@ class AfaMembershipPeriod(models.Model):
             period.non_teaching_leave_ids.unlink()
             for start, end in period._non_teaching_gaps():
                 date_from, date_to = period._local_day_bounds(start, end)
+                # The leaves create hook mirrors the mandatory day that the
+                # Time Off calendar paints.
                 leave_model.create(
                     {
                         'name': _('Non-Teaching Days (%(start)s to %(end)s)')
                         % {'start': start.strftime('%d/%m/%Y'), 'end': end.strftime('%d/%m/%Y')},
                         'school_year_id': period.id,
+                        'afa_category': 'generated',
                         'date_from': date_from,
                         'date_to': date_to,
                         'time_type': 'leave',
@@ -87,6 +95,7 @@ class AfaMembershipPeriod(models.Model):
     def action_clear_non_teaching_days(self):
         for period in self:
             period.non_teaching_leave_ids.unlink()
+            period.mandatory_day_ids.unlink()
         return True
 
     def action_view_non_teaching_days(self):
@@ -95,6 +104,6 @@ class AfaMembershipPeriod(models.Model):
             'type': 'ir.actions.act_window',
             'name': _('Non-Teaching Days'),
             'res_model': 'resource.calendar.leaves',
-            'view_mode': 'list,form',
+            'view_mode': 'calendar,list,form',
             'domain': [('id', 'in', self.non_teaching_leave_ids.ids)],
         }

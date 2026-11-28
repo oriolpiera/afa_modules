@@ -113,6 +113,7 @@ jobs:
                   "Starting TestAcollida.test_imported_charges_generate_one_family_invoice_with_month_amounts",
                   "Starting TestSchoolCalendar.test_generation_covers_every_gap_and_only_gaps",
                   "Starting TestSchoolCalendar.test_family_manager_generates_and_basic_user_cannot_configure",
+                  "Starting TestSchoolCalendar.test_generation_mirrors_mandatory_days_for_time_off",
               )
           )
           sys.exit(0 if passed and test_markers_ran else 1)

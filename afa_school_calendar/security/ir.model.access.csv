@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_afa_school_term_manager,afa.school.term.manager,model_afa_school_term,afa_family.group_family_manager,1,1,1,1
+access_hr_leave_mandatory_day_family_manager,hr.leave.mandatory.day.family.manager,hr_holidays.model_hr_leave_mandatory_day,afa_family.group_family_manager,1,1,1,1

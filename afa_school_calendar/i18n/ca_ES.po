@@ -57,6 +57,103 @@ msgid "Adjust the terms that no longer fit in the school year: %s"
 msgstr "Cal ajustar els trimestres que ja no cauen dins del curs escolar: %s"
 
 #. module: afa_school_calendar
+#: model:ir.model.fields,field_description:afa_school_calendar.field_resource_calendar_leaves__afa_category
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_search
+msgid "Category"
+msgstr "Categoria"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,selection:afa_school_calendar.field_resource_calendar_leaves__afa_category
+msgid "Non-Teaching Period"
+msgstr "Període no lectiu"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,selection:afa_school_calendar.field_resource_calendar_leaves__afa_category
+msgid "School Elective Holiday"
+msgstr "Festiu de lliure elecció"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,selection:afa_school_calendar.field_resource_calendar_leaves__afa_category
+msgid "State Public Holiday"
+msgstr "Festiu estatal"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,selection:afa_school_calendar.field_resource_calendar_leaves__afa_category
+msgid "Autonomous Community Holiday"
+msgstr "Festiu de la comunitat autònoma"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,selection:afa_school_calendar.field_resource_calendar_leaves__afa_category
+msgid "Municipal Holiday"
+msgstr "Festiu municipal"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,selection:afa_school_calendar.field_resource_calendar_leaves__afa_category
+msgid "Other"
+msgstr "Altre"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,help:afa_school_calendar.field_resource_calendar_leaves__afa_category
+msgid ""
+"Why the school is closed. Generated periods are replaced by regeneration; "
+"manual categories are never touched by it."
+msgstr ""
+"Per què l'escola està tancada. La regeneració substitueix els períodes "
+"generats; mai toca les categories manuals."
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,field_description:afa_school_calendar.field_hr_leave_mandatory_day__school_leave_id
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_search
+msgid "School Calendar Day"
+msgstr "Dia del calendari escolar"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,help:afa_school_calendar.field_hr_leave_mandatory_day__school_leave_id
+msgid ""
+"Company-wide closure this mandatory day was mirrored from. Deleting the "
+"closure deletes this day with it."
+msgstr ""
+"Tancament d'empresa del qual s'ha duplicat aquest dia obligatori. Si "
+"s'elimina el tancament, s'elimina també aquest dia."
+
+#. module: afa_school_calendar
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_search
+msgid "School Elective"
+msgstr "Lliure elecció"
+
+#. module: afa_school_calendar
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_search
+msgid "Public Holidays"
+msgstr "Festius"
+
+#. module: afa_school_calendar
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_form
+msgid ""
+"A day without a school year is a manual day, such as a school elective "
+"holiday or a public holiday. It is never removed by regeneration. Editing "
+"or deleting it here keeps the matching mandatory day of the Time Off "
+"calendar in sync."
+msgstr ""
+"Un dia sense curs escolar és un dia manual, com un festiu de lliure elecció "
+"o un festiu oficial. La regeneració mai l'elimina. Editar-lo o eliminar-lo "
+"aquí manté sincronitzat el dia obligatori corresponent del calendari de "
+"les absències."
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,field_description:afa_school_calendar.field_afa_membership_period__mandatory_day_ids
+msgid "Mandatory Days"
+msgstr "Dies obligatoris"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,help:afa_school_calendar.field_hr_leave_mandatory_day__school_year_id
+msgid ""
+"School year that generated this mandatory day. Keep it empty for manually "
+"created mandatory days."
+msgstr ""
+"Curs escolar que ha generat aquest dia obligatori. Deixeu-lo buit per als "
+"dies obligatoris creats manualment."
+
+#. module: afa_school_calendar
 #: model:ir.model.fields,field_description:afa_school_calendar.field_afa_school_term__period_id
 #: model:ir.model.fields,field_description:afa_school_calendar.field_resource_calendar_leaves__school_year_id
 #: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_search
