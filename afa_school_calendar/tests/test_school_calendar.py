@@ -207,3 +207,26 @@ class TestSchoolCalendar(TransactionCase):
                     'date_to': datetime.combine(date(2027, 2, 15), time.max),
                 }
             )
+
+    def test_moving_school_year_dates_revalidates_the_terms(self):
+        self._add_terms()
+        with self.assertRaises(ValidationError):
+            self.period.write(
+                {
+                    'date_start': date(2025, 7, 1),
+                    'date_end': date(2026, 6, 30),
+                }
+            )
+        # Terms themselves also refuse to leave the configured year.
+        with self.assertRaises(ValidationError):
+            self.env['afa.school.term'].search([('period_id', '=', self.period.id)])[-1].write(
+                {'date_end': date(2027, 9, 8)}
+            )
+        self.period.action_generate_non_teaching_days()
+        self.assertTrue(
+            all(
+                date(2026, 7, 1) <= leave.date_from.date()
+                and leave.date_to.date() <= date(2027, 6, 30)
+                for leave in self.period.non_teaching_leave_ids
+            )
+        )

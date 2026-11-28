@@ -3,6 +3,7 @@ from datetime import datetime, time, timedelta
 from pytz import timezone, utc
 
 from odoo import _, fields, models
+from odoo.exceptions import ValidationError
 
 
 class AfaMembershipPeriod(models.Model):
@@ -43,7 +44,29 @@ class AfaMembershipPeriod(models.Model):
         date_to = tz.localize(datetime.combine(end, time.max)).astimezone(utc)
         return date_from.replace(tzinfo=None), date_to.replace(tzinfo=None)
 
+    def _terms_outside_year(self):
+        self.ensure_one()
+        return self.term_ids.filtered(
+            lambda term: term.date_start < self.date_start or term.date_end > self.date_end
+        )
+
+    def _check_terms_within_year(self):
+        for period in self:
+            outside = period._terms_outside_year()
+            if outside:
+                raise ValidationError(
+                    _('Adjust the terms that no longer fit in the school year: %s')
+                    % ', '.join(outside.mapped('name'))
+                )
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'date_start' in vals or 'date_end' in vals:
+            self._check_terms_within_year()
+        return result
+
     def action_generate_non_teaching_days(self):
+        self._check_terms_within_year()
         leave_model = self.env['resource.calendar.leaves']
         for period in self:
             period.non_teaching_leave_ids.unlink()

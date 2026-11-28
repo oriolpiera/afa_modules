@@ -51,6 +51,12 @@ msgid "Terms inside one school year cannot overlap."
 msgstr "Els trimestres d'un mateix curs escolar no es poden solapar."
 
 #. module: afa_school_calendar
+#. odoo-python
+#: code:addons/afa_school_calendar/models/membership_period.py:0
+msgid "Adjust the terms that no longer fit in the school year: %s"
+msgstr "Cal ajustar els trimestres que ja no cauen dins del curs escolar: %s"
+
+#. module: afa_school_calendar
 #: model:ir.model.fields,field_description:afa_school_calendar.field_afa_school_term__period_id
 #: model:ir.model.fields,field_description:afa_school_calendar.field_resource_calendar_leaves__school_year_id
 #: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_search
