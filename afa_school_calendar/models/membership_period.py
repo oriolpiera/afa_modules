@@ -5,8 +5,6 @@ from pytz import timezone, utc
 from odoo import _, fields, models
 from odoo.exceptions import ValidationError
 
-MANDATORY_DAY_COLOR = 11  # Calendar palette index for school closures.
-
 
 class AfaMembershipPeriod(models.Model):
     _inherit = 'afa.membership.period'
@@ -75,35 +73,21 @@ class AfaMembershipPeriod(models.Model):
     def action_generate_non_teaching_days(self):
         self._check_terms_within_year()
         leave_model = self.env['resource.calendar.leaves']
-        mandatory_model = self.env['hr.leave.mandatory.day']
         for period in self:
             period.non_teaching_leave_ids.unlink()
-            period.mandatory_day_ids.unlink()
             for start, end in period._non_teaching_gaps():
                 date_from, date_to = period._local_day_bounds(start, end)
-                title = _('Non-Teaching Days (%(start)s to %(end)s)') % {
-                    'start': start.strftime('%d/%m/%Y'),
-                    'end': end.strftime('%d/%m/%Y'),
-                }
+                # The leaves create hook mirrors the mandatory day that the
+                # Time Off calendar paints.
                 leave_model.create(
                     {
-                        'name': title,
+                        'name': _('Non-Teaching Days (%(start)s to %(end)s)')
+                        % {'start': start.strftime('%d/%m/%Y'), 'end': end.strftime('%d/%m/%Y')},
                         'school_year_id': period.id,
+                        'afa_category': 'generated',
                         'date_from': date_from,
                         'date_to': date_to,
                         'time_type': 'leave',
-                    }
-                )
-                # Mandatory days are what the Time Off calendar paints; they
-                # need a company and an empty schedule to reach every employee.
-                mandatory_model.create(
-                    {
-                        'name': title,
-                        'school_year_id': period.id,
-                        'company_id': self.env.company.id,
-                        'start_date': start,
-                        'end_date': end,
-                        'color': MANDATORY_DAY_COLOR,
                     }
                 )
         return self.action_view_non_teaching_days()

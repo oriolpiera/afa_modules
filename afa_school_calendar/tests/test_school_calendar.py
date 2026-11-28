@@ -88,13 +88,78 @@ class TestSchoolCalendar(TransactionCase):
             self.assertFalse(day.resource_calendar_id)
             self.assertEqual(day.school_year_id, self.period)
             self.assertEqual(day.color, MANDATORY_DAY_COLOR)
+            self.assertTrue(day.school_leave_id)
+            self.assertEqual(day.school_leave_id.afa_category, 'generated')
         leaves = self.period.non_teaching_leave_ids
         self.assertEqual(len(leaves), len(days))
-        for day in days:
-            self.assertIn(
-                day.name,
-                leaves.mapped('name'),
-            )
+        self.assertEqual(sorted(days.mapped('name')), sorted(leaves.mapped('name')))
+
+    def test_one_manual_record_pairs_time_off_and_the_engine(self):
+        elective = self.env['resource.calendar.leaves'].create(
+            {
+                'name': 'School elective: Carnival',
+                'afa_category': 'school_elective',
+                'date_from': datetime.combine(date(2027, 2, 15), time.min),
+                'date_to': datetime.combine(date(2027, 2, 15), time.max),
+            }
+        )
+        day = self.env['hr.leave.mandatory.day'].search([('school_leave_id', '=', elective.id)])
+        self.assertEqual(len(day), 1)
+        self.assertEqual((day.start_date, day.end_date), (date(2027, 2, 15), date(2027, 2, 15)))
+        self.assertFalse(day.school_year_id)
+        elective.write({'name': 'School elective: Patronage day'})
+        self.assertEqual(day.name, 'School elective: Patronage day')
+        elective.unlink()
+        self.assertFalse(day.exists())
+
+    def test_public_holidays_register_with_category_and_survive_regeneration(self):
+        state = self.env['resource.calendar.leaves'].create(
+            {
+                'name': 'State holiday: National Day',
+                'afa_category': 'state_holiday',
+                'date_from': datetime.combine(date(2026, 9, 11), time.min),
+                'date_to': datetime.combine(date(2026, 9, 11), time.max),
+            }
+        )
+        local = self.env['resource.calendar.leaves'].create(
+            {
+                'name': 'Local holiday: Festa Major',
+                'afa_category': 'local_holiday',
+                'date_from': datetime.combine(date(2027, 5, 15), time.min),
+                'date_to': datetime.combine(date(2027, 5, 15), time.max),
+            }
+        )
+        self._add_terms()
+        self.period.action_generate_non_teaching_days()
+        self.assertTrue(state.exists() and local.exists())
+        for leave in state | local:
+            days = self.env['hr.leave.mandatory.day'].search([('school_leave_id', '=', leave.id)])
+            self.assertEqual(len(days), 1)
+            self.assertFalse(days.school_year_id)
+
+    def test_holidays_owned_by_time_off_status_are_not_paired(self):
+        employee = self.env['hr.employee'].create({'name': 'Test Teacher'})
+        leave = self.env['hr.leave'].create(
+            {
+                'name': 'Summer trip',
+                'employee_id': employee.id,
+                'holiday_status_id': self.env['hr.leave.type']
+                .create({'name': 'Vacation', 'requires_allocation': False})
+                .id,
+                'date_from': datetime.combine(date(2027, 8, 16), time.min),
+                'date_to': datetime.combine(date(2027, 8, 20), time.max),
+            }
+        )
+        self.env['resource.calendar.leaves'].create(
+            {
+                'name': 'Aug 15',
+                'holiday_id': leave.id,
+                'date_from': datetime.combine(date(2027, 8, 15), time.min),
+                'date_to': datetime.combine(date(2027, 8, 15), time.max),
+            }
+        )
+        paired = self.env['hr.leave.mandatory.day'].search_count([('name', '=', 'Aug 15')])
+        self.assertEqual(paired, 0)
 
     def test_clear_removes_generated_leaves_and_mandatory_days(self):
         self._add_terms()

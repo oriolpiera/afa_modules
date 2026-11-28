@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <calendar date_start="date_from" date_stop="date_to" mode="month"
                      string="School Calendar Days"
-                     color="school_year_id" quick_create="false"
+                     color="afa_category" quick_create="false"
                      show_unusual_days="true">
                 <field name="name"/>
             </calendar>
@@ -18,6 +18,7 @@
         <field name="arch" type="xml">
             <list>
                 <field name="name"/>
+                <field name="afa_category" widget="badge"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
                 <field name="school_year_id" optional="show"/>
@@ -32,13 +33,16 @@
                 <sheet>
                     <group>
                         <field name="name" placeholder="School elective holiday"/>
+                        <field name="afa_category"/>
                         <field name="date_from"/>
                         <field name="date_to"/>
                         <field name="school_year_id" readonly="1"/>
                     </group>
                     <div class="text-muted">
                         A day without a school year is a manual day, such as a school
-                        elective holiday. It is never removed by regeneration.
+                        elective holiday or a public holiday. It is never removed by
+                        regeneration. Editing or deleting it here keeps the matching
+                        mandatory day of the Time Off calendar in sync.
                     </div>
                 </sheet>
             </form>
@@ -51,13 +55,21 @@
             <search>
                 <field name="name"/>
                 <field name="school_year_id"/>
+                <field name="afa_category"/>
                 <filter name="generated_days" string="Generated"
                         domain="[('school_year_id', '!=', False)]"/>
                 <filter name="manual_days" string="Manual"
                         domain="[('school_year_id', '=', False)]"/>
+                <filter name="elective_holidays" string="School Elective"
+                        domain="[('afa_category', '=', 'school_elective')]"/>
+                <filter name="public_holidays" string="Public Holidays"
+                        domain="[('afa_category', 'in',
+                                  ['state_holiday', 'regional_holiday', 'local_holiday'])]"/>
                 <group>
                     <filter name="group_by_school_year" string="School Year"
                             context="{'group_by': 'school_year_id'}"/>
+                    <filter name="group_by_category" string="Category"
+                            context="{'group_by': 'afa_category'}"/>
                 </group>
             </search>
         </field>

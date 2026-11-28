@@ -39,24 +39,27 @@ kinds:
   They follow the calendar year, while a school year runs July to June, so
   each school year normally carries holidays from two calendar years.
 
-A manual day must be entered **twice** to behave correctly:
+Create each one **once**, in **AFA Families → Configuration → School
+Calendar Days** → New:
 
-1. **A day in School Calendar Days** (a company-wide time off). This is the
-   record that makes the day non-working for schedules and hour calculations
-   and paints it in the School Calendar Days month view. Leave the
-   **School Year** field empty: empty means "manual", and regeneration then
-   never touches the day. Name it so it reads well in the school's language,
-   e.g. "Lliure elecció – Carnaval" or "Festiu municipal – Festa Major".
-2. **A mandatory day** in **Time Off → Configuration → Mandatory Days** with
-   the same company and the same date range (it is date-based, so a
-   single-day holiday just repeats the date). This is what the Time Off
-   calendar paints; time-off itself does not read the record from step 1.
+1. Fill in a name (e.g. "Festiu municipal – Festa Major") and pick the
+   **Category**: School Elective, State, Autonomous Community, Municipal or
+   Other.
+2. Set `date_from`/`date_to` for the closed range (one day: same date).
+3. Leave **School Year** empty — empty marks the day as manual.
 
-Both records survive **Generate Non-Teaching Days** and **Remove Generated
-Days**, because removal only deletes records tagged with a school year.
-Remember to delete the pair by hand if a holiday changes, and note that
-moving a term across an existing manual day does not warn you — the manual
-pair is independent of the terms.
+The module automatically mirrors the day into a **Time Off mandatory day**,
+so the Time Off calendar paints it without a second entry. Editing the dates
+or name syncs the mirror; deleting the day removes it with it (cascading).
+Regeneration and **Remove Generated Days** never touch manual records or
+their mirrors, because removals only act on records carrying a school year.
+Manage school closures through this menu rather than through
+Time Off's own Mandatory Days screen: days created there directly are
+overlay-only and do not make the day non-working.
+
+The list and calendar views carry **Category** filters (School Elective,
+Public Holidays) and a Group By Category, so the five or six elective days
+and the state/regional/local holidays stay organized each year.
 
 The button uses the company working schedule timezone to build full-day
 time ranges. The generated days apply to every resource of the company, which
