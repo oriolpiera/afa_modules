@@ -21,12 +21,42 @@ button after editing terms or year dates.
 **Remove Generated Days** deletes just the generated days.
 
 Open **AFA Families → Configuration → School Calendar Days** to see the same
-days on a month calendar, and create the school's five or six elective
-holidays inside a term there; leave the school year field empty so they
-survive regeneration. Generated days carry the school year for traceability
-and filter under the **Generated** search filter. For elective holidays that
-must also show in the Time Off calendar, add them as
-**Time Off → Configuration → Mandatory Days**.
+days on a month calendar instead of a list. Generated days carry the school
+year for traceability and filter under the **Generated** search filter;
+manual days filter under **Manual**. See the next section for the days that
+fall inside a term.
+
+## Manual days: elective holidays and public holidays
+
+Days that fall **inside** a term are never generated — the generator only
+knows the gaps between terms. These are entered by hand, and there are two
+kinds:
+
+- **School elective holidays** (dies de lliure elecció): the five or six days
+  the school chooses each year, for example a carnival day or a local
+  pedagogical-patronage day.
+- **Public holidays** (festius): state, autonomous-community and municipal.
+  They follow the calendar year, while a school year runs July to June, so
+  each school year normally carries holidays from two calendar years.
+
+A manual day must be entered **twice** to behave correctly:
+
+1. **A day in School Calendar Days** (a company-wide time off). This is the
+   record that makes the day non-working for schedules and hour calculations
+   and paints it in the School Calendar Days month view. Leave the
+   **School Year** field empty: empty means "manual", and regeneration then
+   never touches the day. Name it so it reads well in the school's language,
+   e.g. "Lliure elecció – Carnaval" or "Festiu municipal – Festa Major".
+2. **A mandatory day** in **Time Off → Configuration → Mandatory Days** with
+   the same company and the same date range (it is date-based, so a
+   single-day holiday just repeats the date). This is what the Time Off
+   calendar paints; time-off itself does not read the record from step 1.
+
+Both records survive **Generate Non-Teaching Days** and **Remove Generated
+Days**, because removal only deletes records tagged with a school year.
+Remember to delete the pair by hand if a holiday changes, and note that
+moving a term across an existing manual day does not warn you — the manual
+pair is independent of the terms.
 
 The button uses the company working schedule timezone to build full-day
 time ranges. The generated days apply to every resource of the company, which
