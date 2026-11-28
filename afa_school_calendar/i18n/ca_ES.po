@@ -1,0 +1,144 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AFA Odoo 19 addons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-28 10:00+0000\n"
+"PO-Revision-Date: 2026-11-28 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Catalan\n"
+"Language: ca_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: afa_school_calendar
+#: model:ir.model,name:afa_school_calendar.model_afa_school_term
+msgid "Afa School Term"
+msgstr "Trimestre escolar"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,field_description:afa_school_calendar.field_afa_school_term__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,field_description:afa_school_calendar.field_afa_school_term__date_start
+msgid "Date Start"
+msgstr "Data d'inici"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,field_description:afa_school_calendar.field_afa_school_term__date_end
+msgid "Date End"
+msgstr "Data final"
+
+#. module: afa_school_calendar
+#. odoo-python
+#: code:addons/afa_school_calendar/models/school_term.py:0
+msgid "A term must start on or before its end date."
+msgstr "Un trimestre ha de començar abans o el mateix dia que acaba."
+
+#. module: afa_school_calendar
+#. odoo-python
+#: code:addons/afa_school_calendar/models/school_term.py:0
+msgid "Term dates must be inside the school year."
+msgstr "Les dates del trimestre han d'estar dins del curs escolar."
+
+#. module: afa_school_calendar
+#. odoo-python
+#: code:addons/afa_school_calendar/models/school_term.py:0
+msgid "Terms inside one school year cannot overlap."
+msgstr "Els trimestres d'un mateix curs escolar no es poden solapar."
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,field_description:afa_school_calendar.field_afa_school_term__period_id
+#: model:ir.model.fields,field_description:afa_school_calendar.field_resource_calendar_leaves__school_year_id
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_search
+msgid "School Year"
+msgstr "Curs escolar"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,help:afa_school_calendar.field_resource_calendar_leaves__school_year_id
+msgid ""
+"School year that generated this time off. Keep it empty for manually "
+"created days, such as school elective holidays."
+msgstr ""
+"Curs escolar que ha generat aquest absentisme. Deixeu-lo buit per als dies "
+"creats manualment, com els festius de lliure elecció de l'escola."
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,field_description:afa_school_calendar.field_afa_membership_period__term_ids
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_afa_membership_period_form_school_calendar
+msgid "Terms"
+msgstr "Trimestres"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,field_description:afa_school_calendar.field_afa_membership_period__non_teaching_leave_ids
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_afa_membership_period_form_school_calendar
+msgid "Non-Teaching Days"
+msgstr "Dies no lectius"
+
+#. module: afa_school_calendar
+#: model:ir.model.fields,field_description:afa_school_calendar.field_afa_membership_period__non_teaching_leave_count
+msgid "Generated Days"
+msgstr "Dies generats"
+
+#. module: afa_school_calendar
+#. odoo-python
+#: code:addons/afa_school_calendar/models/membership_period.py:0
+msgid "Non-Teaching Days (%(start)s to %(end)s)"
+msgstr "Dies no lectius (%(start)s fins al %(end)s)"
+
+#. module: afa_school_calendar
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_afa_membership_period_form_school_calendar
+msgid "Generate Non-Teaching Days"
+msgstr "Genera els dies no lectius"
+
+#. module: afa_school_calendar
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_afa_membership_period_form_school_calendar
+msgid "Remove Generated Days"
+msgstr "Elimina els dies generats"
+
+#. module: afa_school_calendar
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_afa_membership_period_form_school_calendar
+msgid ""
+"Remove the time off days generated from this school year? Manually created "
+"days are not affected."
+msgstr ""
+"Voleu eliminar els dies no lectius generats a partir d'aquest curs escolar? "
+"Els dies creats manualment no es veuen afectats."
+
+#. module: afa_school_calendar
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_afa_membership_period_form_school_calendar
+msgid "1r trimestre"
+msgstr "1r trimestre"
+
+#. module: afa_school_calendar
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_form
+msgid "School elective holiday"
+msgstr "Festiu de lliure elecció de l'escola"
+
+#. module: afa_school_calendar
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_form
+msgid ""
+"A day without a school year is a manual day, such as a school elective "
+"holiday. It is never removed by regeneration."
+msgstr ""
+"Un dia sense curs escolar és un dia manual, com un festiu de lliure elecció "
+"de l'escola. La regeneració mai l'elimina."
+
+#. module: afa_school_calendar
+#: model:ir.actions.act_window,name:afa_school_calendar.action_school_calendar_leaves
+#: model:ir.ui.menu,name:afa_school_calendar.menu_school_calendar_leaves
+msgid "School Calendar Days"
+msgstr "Dies del calendari escolar"
+
+#. module: afa_school_calendar
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_search
+msgid "Generated"
+msgstr "Generats"
+
+#. module: afa_school_calendar
+#: model_terms:ir.ui.view,arch_db:afa_school_calendar.view_school_calendar_leaves_search
+msgid "Manual"
+msgstr "Manuals"

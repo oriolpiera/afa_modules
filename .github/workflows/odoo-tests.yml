@@ -85,7 +85,7 @@ jobs:
       - name: Run period and billing tests without demo fixtures
         run: |
           set -o pipefail
-          docker compose -f compose.test.yaml run --rm odoo -d afa_addons_isolated_tests_ci -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_sepa_return_fee,afa_invoice_receipt,afa_service_subscription,afa_school_course,afa_extracurricular,afa_family_import,afa_acollida,afa_attendance_kiosk_pwa --test-enable --test-tags /afa_membership,/afa_sepa,/afa_invoice_receipt,/afa_extracurricular,/afa_acollida --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
+          docker compose -f compose.test.yaml run --rm odoo -d afa_addons_isolated_tests_ci -i afa_family,afa_account_reconcile,afa_membership,afa_member_pricing,afa_apparel_shop,afa_sepa,afa_sepa_return_fee,afa_invoice_receipt,afa_service_subscription,afa_school_course,afa_school_calendar,afa_extracurricular,afa_family_import,afa_acollida,afa_attendance_kiosk_pwa --test-enable --test-tags /afa_membership,/afa_sepa,/afa_invoice_receipt,/afa_extracurricular,/afa_acollida,/afa_school_calendar --stop-after-init --log-level=test --db_host=db --db_user=odoo 2>&1 | python3 -c '
           import re
           import sys
 
@@ -111,6 +111,8 @@ jobs:
                   "Starting TestInvoiceReceipt.test_valid_mandate_exposes_masked_payer_account_and_bank",
                   "Starting TestExtracurricular.test_billing_covers_only_activity_months_with_tariffs_and_no_duplicates",
                   "Starting TestAcollida.test_imported_charges_generate_one_family_invoice_with_month_amounts",
+                  "Starting TestSchoolCalendar.test_generation_covers_every_gap_and_only_gaps",
+                  "Starting TestSchoolCalendar.test_family_manager_generates_and_basic_user_cannot_configure",
               )
           )
           sys.exit(0 if passed and test_markers_ran else 1)
