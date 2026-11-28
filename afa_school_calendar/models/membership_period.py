@@ -44,11 +44,9 @@ class AfaMembershipPeriod(models.Model):
         return date_from.replace(tzinfo=None), date_to.replace(tzinfo=None)
 
     def action_generate_non_teaching_days(self):
-        # Company-wide time off (empty resource) is admin-only in the core
-        # record rules; this manager-only action writes them elevated.
-        leave_model = self.env['resource.calendar.leaves'].sudo()
+        leave_model = self.env['resource.calendar.leaves']
         for period in self:
-            period.non_teaching_leave_ids.sudo().unlink()
+            period.non_teaching_leave_ids.unlink()
             for start, end in period._non_teaching_gaps():
                 date_from, date_to = period._local_day_bounds(start, end)
                 leave_model.create(
@@ -65,7 +63,7 @@ class AfaMembershipPeriod(models.Model):
 
     def action_clear_non_teaching_days(self):
         for period in self:
-            period.non_teaching_leave_ids.sudo().unlink()
+            period.non_teaching_leave_ids.unlink()
         return True
 
     def action_view_non_teaching_days(self):

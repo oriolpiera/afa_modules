@@ -8,6 +8,7 @@
     'depends': ['afa_membership', 'resource'],
     'data': [
         'security/ir.model.access.csv',
+        'security/school_calendar_rules.xml',
         'views/membership_period_views.xml',
         'views/school_calendar_leaves_views.xml',
     ],

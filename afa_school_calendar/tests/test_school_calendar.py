@@ -136,22 +136,7 @@ class TestSchoolCalendar(TransactionCase):
         self.assertTrue(manual.exists())
 
     def test_family_manager_generates_and_basic_user_cannot_configure(self):
-        manager = self.env['res.users'].create(
-            {
-                'name': 'Calendar Manager',
-                'login': 'school_calendar_manager',
-                'group_ids': [
-                    (
-                        6,
-                        0,
-                        [
-                            self.env.ref('base.group_user').id,
-                            self.env.ref('afa_family.group_family_manager').id,
-                        ],
-                    )
-                ],
-            }
-        )
+        manager = self._manager_user()
         self._add_terms(env=self.env(user=manager))
         self.period.with_user(manager).action_generate_non_teaching_days()
         self.assertEqual(len(self.period.non_teaching_leave_ids), 4)
@@ -169,5 +154,56 @@ class TestSchoolCalendar(TransactionCase):
                     'period_id': self.period.id,
                     'date_start': date(2026, 9, 8),
                     'date_end': date(2026, 9, 9),
+                }
+            )
+
+    def _manager_user(self):
+        return self.env['res.users'].create(
+            {
+                'name': 'Calendar Manager',
+                'login': 'school_calendar_manager',
+                'group_ids': [
+                    (
+                        6,
+                        0,
+                        [
+                            self.env.ref('base.group_user').id,
+                            self.env.ref('afa_family.group_family_manager').id,
+                        ],
+                    )
+                ],
+            }
+        )
+
+    def test_manager_creates_edits_and_deletes_manual_company_days(self):
+        manager = self._manager_user()
+        leaves = self.env['resource.calendar.leaves'].with_user(manager)
+        holiday = leaves.create(
+            {
+                'name': 'School elective holiday',
+                'date_from': datetime.combine(date(2027, 2, 15), time.min),
+                'date_to': datetime.combine(date(2027, 2, 15), time.max),
+            }
+        )
+        self.assertFalse(holiday.sudo().resource_id)
+        self.assertFalse(holiday.sudo().calendar_id)
+        holiday.write({'name': 'Carnaval'})
+        holiday.unlink()
+        self.assertFalse(holiday.exists())
+
+    def test_basic_user_cannot_create_manual_company_days(self):
+        basic = self.env['res.users'].create(
+            {
+                'name': 'Calendar User',
+                'login': 'school_calendar_basic_user',
+                'group_ids': [(6, 0, [self.env.ref('base.group_user').id])],
+            }
+        )
+        with self.assertRaises(AccessError):
+            self.env['resource.calendar.leaves'].with_user(basic).create(
+                {
+                    'name': 'Unauthorized company day',
+                    'date_from': datetime.combine(date(2027, 2, 15), time.min),
+                    'date_to': datetime.combine(date(2027, 2, 15), time.max),
                 }
             )

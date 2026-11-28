@@ -26,6 +26,11 @@ traceability and filter under the **Generated** search filter.
 The button uses the company working schedule timezone to build full-day
 time ranges. The generated days apply to every resource of the company, which
 is how Odoo Community models public holidays; `hr.leave.mandatory.day` is not
-available on Community. Core record rules reserve company-wide time off for
-administrators, so the generation button writes those records elevated and is
-itself restricted to family managers.
+available on Community.
+
+Core record rules limit company-wide time off (`resource_id` empty) to users
+with `base.group_erp_manager`, so the module adds one record rule granting that
+scope to `afa_family.group_family_manager` and nothing else. Record rules of
+different groups are OR-combined, so plain internal users keep the core
+"modify own resource" behaviour untouched. Term dates are re-checked whenever
+the school year dates change, so generated gaps can never leave the year.

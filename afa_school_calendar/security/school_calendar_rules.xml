@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Core rules reserve company-wide time off (empty resource) for
+         administrators. Record rules combine with OR per operation, so this
+         rule only adds company-wide management for family managers; plain
+         internal users keep the core "own resource" domains untouched. -->
+    <record id="resource_calendar_leaves_rule_family_manager_global" model="ir.rule">
+        <field name="name">resource.calendar.leaves: family managers modify global</field>
+        <field name="model_id" ref="resource.model_resource_calendar_leaves"/>
+        <field name="domain_force">[('resource_id', '=', False)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="groups" eval="[(4, ref('afa_family.group_family_manager'))]"/>
+    </record>
+</odoo>
